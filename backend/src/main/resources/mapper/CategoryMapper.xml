@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.personalsite.blog.mapper.CategoryMapper">
+
+    <select id="selectWithPostCount" resultType="com.personalsite.blog.dto.response.CategoryVO">
+        SELECT c.id, c.name, c.slug, c.description,
+               COUNT(p.id) AS post_count
+        FROM category c
+        LEFT JOIN post p ON p.category_id = c.id AND p.status = 1 AND p.deleted = 0
+        GROUP BY c.id
+        ORDER BY c.name
+    </select>
+
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.personalsite.blog.mapper.PostMapper">
+
+    <select id="selectPublishedPage" resultType="com.personalsite.blog.dto.response.PostVO">
+        SELECT DISTINCT p.id, p.title, p.slug, p.summary, p.cover_image,
+                        p.type, p.event_date,
+                        p.status, p.view_count, p.created_at, p.published_at,
+                        p.category_id
+        FROM post p
+        LEFT JOIN post_tag pt ON pt.post_id = p.id
+        LEFT JOIN tag t ON t.id = pt.tag_id
+        WHERE p.deleted = 0
+          AND p.status = 1
+          AND p.type = 'blog'
+          <if test="tagSlug != null">
+              AND t.slug = #{tagSlug}
+          </if>
+          <if test="categorySlug != null">
+              AND EXISTS (
+                  SELECT 1 FROM category c WHERE c.id = p.category_id AND c.slug = #{categorySlug}
+              )
+          </if>
+          <if test="keyword != null">
+              AND MATCH(p.title, p.content) AGAINST(#{keyword} IN BOOLEAN MODE)
+          </if>
+        ORDER BY p.published_at DESC
+    </select>
+
+    <select id="selectAiTimeline" resultType="com.personalsite.blog.dto.response.PostVO">
+        SELECT p.id, p.title, p.slug, p.summary, p.cover_image,
+               p.type, p.event_date,
+               p.status, p.view_count, p.created_at, p.published_at,
+               p.category_id
+        FROM post p
+        WHERE p.deleted = 0
+          AND p.status = 1
+          AND p.type = 'ai_timeline'
+        ORDER BY p.event_date DESC
+    </select>
+
+</mapper>
