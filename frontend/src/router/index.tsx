@@ -11,6 +11,7 @@ const BlogListPage = lazy(() => import('../pages/BlogListPage'));
 const BlogDetailPage = lazy(() => import('../pages/BlogDetailPage'));
 const AboutPage = lazy(() => import('../pages/AboutPage'));
 const AiTimelinePage = lazy(() => import('../pages/AiTimelinePage'));
+const RoadmapPage = lazy(() => import('../pages/RoadmapPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 const LoginPage = lazy(() => import('../pages/admin/LoginPage'));
 const DashboardPage = lazy(() => import('../pages/admin/DashboardPage'));
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
   {
     path: '/ai',
     element: <PublicLayout><AiTimelinePage /></PublicLayout>,
+  },
+  {
+    path: '/roadmap',
+    element: <PublicLayout><RoadmapPage /></PublicLayout>,
   },
   {
     path: '/admin/login',

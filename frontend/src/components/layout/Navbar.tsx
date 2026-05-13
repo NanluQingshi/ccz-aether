@@ -5,6 +5,7 @@ const navLinks = [
   { to: '/', label: '首页' },
   { to: '/blog', label: '博客' },
   { to: '/ai', label: 'AI' },
+  { to: '/roadmap', label: 'Roadmap' },
   { to: '/about', label: '关于' },
 ];
 
