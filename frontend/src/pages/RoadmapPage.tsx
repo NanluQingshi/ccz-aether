@@ -28,6 +28,8 @@ const groups: FeatureGroup[] = [
       { name: '知识库', desc: '整理、沉淀个人技术笔记与学习资料，支持分类检索', status: 'planned', priority: 'low' },
       { name: 'Issue Bin', desc: '记录暂时无法解决的技术问题，方便后续追踪与复盘', status: 'done' },
       { name: '修炼手册', desc: '制定个人学习计划，追踪各方向的学习进度与阶段目标', status: 'planned', priority: 'low' },
+      { name: '书籍阅读清单', desc: '记录已读与在读书目，附上个人评分与读后感', status: 'planned', priority: 'low' },
+      { name: '个人 Todo', desc: '日常事项与目标追踪，和网站功能无关的个人待办', status: 'planned', priority: 'low' },
     ],
   },
   {
