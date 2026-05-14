@@ -134,6 +134,14 @@ public class PostService {
         return vo;
     }
 
+    public ChartVO getChartData() {
+        ChartVO chart = new ChartVO();
+        chart.setMonthlyTrend(postMapper.selectMonthlyTrend());
+        chart.setCategoryStats(postMapper.selectCategoryStats());
+        chart.setTagStats(postMapper.selectTagStats());
+        return chart;
+    }
+
     public StatsVO getStats() {
         StatsVO stats = new StatsVO();
         stats.setTotalPosts(postMapper.selectCount(new LambdaQueryWrapper<Post>()));

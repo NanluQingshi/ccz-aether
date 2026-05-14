@@ -1,21 +1,18 @@
 import React from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-
-const sideLinks = [
-  { to: '/admin/dashboard', label: '仪表盘', icon: '◈' },
-  { to: '/admin/posts', label: '文章管理', icon: '≡' },
-  { to: '/admin/posts/new', label: '写新文章', icon: '+' },
-];
 
 export const AdminLayout: React.FC = () => {
   const { username, logout } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate('/admin/login');
   };
+
+  const isPostsActive = location.pathname.startsWith('/admin/posts');
 
   return (
     <div className="admin-layout">
@@ -24,17 +21,25 @@ export const AdminLayout: React.FC = () => {
           <span className="logo-bracket">&lt;</span>Admin<span className="logo-bracket">/&gt;</span>
         </div>
         <nav className="admin-nav">
-          {sideLinks.map((l) => (
-            <NavLink
-              key={l.to}
-              to={l.to}
-              end={l.to === '/admin/dashboard'}
-              className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}
-            >
-              <span className="admin-nav-icon">{l.icon}</span>
-              {l.label}
-            </NavLink>
-          ))}
+          <NavLink
+            to="/admin/dashboard"
+            end
+            className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}
+          >
+            <span className="admin-nav-icon">◈</span>仪表盘
+          </NavLink>
+          <NavLink
+            to="/admin/posts"
+            className={`admin-nav-link ${isPostsActive ? 'active' : ''}`}
+          >
+            <span className="admin-nav-icon">≡</span>文章管理
+          </NavLink>
+          <NavLink
+            to="/admin/posts/new"
+            className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}
+          >
+            <span className="admin-nav-icon">+</span>写新文章
+          </NavLink>
         </nav>
         <div className="admin-sidebar-footer">
           <span className="admin-username">{username}</span>

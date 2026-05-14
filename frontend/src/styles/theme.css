@@ -65,3 +65,32 @@
   --shadow-neon-purple:   0 0 0 1px rgba(139, 92, 246, 0.15), 0 4px 16px rgba(139, 92, 246, 0.1);
   --shadow-card:          0 1px 4px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
 }
+
+.admin-layout {
+  background: #f0f2f5;
+}
+
+.admin-content {
+  background: #f0f2f5;
+}
+
+.admin-layout input,
+.admin-layout textarea,
+.admin-layout select,
+.login-page input,
+.login-page textarea,
+.login-page select {
+  background: #ffffff;
+  color: #1f2937;
+  border-color: #e5e7eb;
+}
+
+.admin-layout input:focus,
+.admin-layout textarea:focus,
+.admin-layout select:focus,
+.login-page input:focus,
+.login-page textarea:focus,
+.login-page select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
