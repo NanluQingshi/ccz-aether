@@ -443,6 +443,30 @@
 .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
 .form-label { font-size: 0.85rem; color: var(--color-text-secondary); }
 
+.input-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-password-wrap input {
+  flex: 1;
+  padding-right: 3.5rem;
+}
+.input-password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  padding: 0;
+  line-height: 1;
+}
+.input-password-toggle:hover {
+  color: var(--color-neon-cyan);
+}
+
 /* ─── Admin Layout ────────────────────────────── */
 .admin-layout { display: flex; min-height: 100vh; }
 

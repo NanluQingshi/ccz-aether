@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `post_tag` (
 -- Password BCrypt hash generated with strength 12
 INSERT IGNORE INTO `user` (`username`, `password`) VALUES (
   'admin',
-  '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAg/9qm'
+  '$2a$12$8lpqXbN1qxT1rHmLd1eJmuEE2JCmJcuLpnSoxBaJKD0ikOihJcMAi'
 );
 
 -- Default categories
