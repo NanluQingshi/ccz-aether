@@ -40,3 +40,28 @@
   --transition-base: 250ms ease;
   --transition-slow: 400ms ease;
 }
+
+/* ─── Admin light theme ───────────────────────── */
+.admin-layout,
+.login-page {
+  --color-bg-primary:     #f0f2f5;
+  --color-bg-secondary:   #ffffff;
+  --color-bg-tertiary:    #f8fafc;
+  --color-bg-hover:       #eff6ff;
+
+  --color-neon-cyan:      #3b82f6;
+  --color-neon-purple:    #8b5cf6;
+  --color-neon-green:     #22c55e;
+  --color-neon-pink:      #ef4444;
+
+  --color-text-primary:   #1f2937;
+  --color-text-secondary: #4b5563;
+  --color-text-muted:     #9ca3af;
+
+  --color-border:         #e5e7eb;
+  --color-border-glow:    rgba(59, 130, 246, 0.25);
+
+  --shadow-neon-cyan:     0 0 0 1px rgba(59, 130, 246, 0.15), 0 4px 16px rgba(59, 130, 246, 0.1);
+  --shadow-neon-purple:   0 0 0 1px rgba(139, 92, 246, 0.15), 0 4px 16px rgba(139, 92, 246, 0.1);
+  --shadow-card:          0 1px 4px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
+}
