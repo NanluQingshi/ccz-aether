@@ -12,7 +12,9 @@ export const AdminLayout: React.FC = () => {
     navigate('/admin/login');
   };
 
-  const isPostsActive = location.pathname.startsWith('/admin/posts');
+  const path = location.pathname;
+  const isEditorActive = path === '/admin/posts/new' || /^\/admin\/posts\/\d+\/edit$/.test(path);
+  const isPostsActive = path.startsWith('/admin/posts') && !isEditorActive;
 
   return (
     <div className="admin-layout">
@@ -30,13 +32,14 @@ export const AdminLayout: React.FC = () => {
           </NavLink>
           <NavLink
             to="/admin/posts"
+            end
             className={`admin-nav-link ${isPostsActive ? 'active' : ''}`}
           >
             <span className="admin-nav-icon">≡</span>文章管理
           </NavLink>
           <NavLink
             to="/admin/posts/new"
-            className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}
+            className={`admin-nav-link ${isEditorActive ? 'active' : ''}`}
           >
             <span className="admin-nav-icon">+</span>写新文章
           </NavLink>
