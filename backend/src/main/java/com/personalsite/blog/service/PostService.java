@@ -134,6 +134,14 @@ public class PostService {
         return vo;
     }
 
+    public ChartVO getChartData() {
+        ChartVO chart = new ChartVO();
+        chart.setMonthlyTrend(postMapper.selectMonthlyTrend());
+        chart.setCategoryStats(postMapper.selectCategoryStats());
+        chart.setTagStats(postMapper.selectTagStats());
+        return chart;
+    }
+
     public StatsVO getStats() {
         StatsVO stats = new StatsVO();
         stats.setTotalPosts(postMapper.selectCount(new LambdaQueryWrapper<Post>()));
@@ -141,7 +149,7 @@ public class PostService {
         stats.setDraftPosts(postMapper.selectCount(new LambdaQueryWrapper<Post>().eq(Post::getStatus, 0)));
         stats.setTotalViews(postMapper.selectList(new LambdaQueryWrapper<Post>())
                 .stream().mapToLong(p -> p.getViewCount() == null ? 0 : p.getViewCount()).sum());
-        stats.setTotalTags(postTagMapper.selectCount(null));
+        stats.setTotalTags(tagMapper.selectCount(null));
         stats.setTotalCategories(categoryMapper.selectCount(null));
         return stats;
     }

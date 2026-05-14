@@ -40,3 +40,10 @@ export const adminGetStats = () =>
     totalTags: number;
     totalCategories: number;
   }>>('/api/admin/stats');
+
+export const adminGetCharts = () =>
+  client.get<never, ApiResponse<{
+    monthlyTrend: { month: string; published: number; views: number }[];
+    categoryStats: { name: string; value: number }[];
+    tagStats: { name: string; value: number }[];
+  }>>('/api/admin/charts');

@@ -40,4 +40,35 @@
         ORDER BY p.event_date DESC
     </select>
 
+
+    <select id="selectMonthlyTrend" resultType="com.personalsite.blog.dto.response.ChartVO$MonthStat">
+        SELECT DATE_FORMAT(published_at, '%Y-%m') AS month,
+               COUNT(*) AS published,
+               SUM(view_count) AS views
+        FROM post
+        WHERE deleted = 0
+          AND status = 1
+          AND published_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+        GROUP BY DATE_FORMAT(published_at, '%Y-%m')
+        ORDER BY month ASC
+    </select>
+
+    <select id="selectCategoryStats" resultType="com.personalsite.blog.dto.response.ChartVO$NameValue">
+        SELECT c.name AS name, COUNT(p.id) AS value
+        FROM category c
+        LEFT JOIN post p ON p.category_id = c.id AND p.deleted = 0 AND p.status = 1
+        GROUP BY c.id, c.name
+        ORDER BY value DESC
+    </select>
+
+    <select id="selectTagStats" resultType="com.personalsite.blog.dto.response.ChartVO$NameValue">
+        SELECT t.name AS name, COUNT(pt.post_id) AS value
+        FROM tag t
+        LEFT JOIN post_tag pt ON pt.tag_id = t.id
+        LEFT JOIN post p ON p.id = pt.post_id AND p.deleted = 0 AND p.status = 1
+        GROUP BY t.id, t.name
+        ORDER BY value DESC
+        LIMIT 10
+    </select>
+
 </mapper>

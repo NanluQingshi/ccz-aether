@@ -88,4 +88,9 @@ public class AdminController {
     public ApiResponse<StatsVO> stats() {
         return ApiResponse.ok(postService.getStats());
     }
+
+    @GetMapping("/charts")
+    public ApiResponse<ChartVO> charts() {
+        return ApiResponse.ok(postService.getChartData());
+    }
 }

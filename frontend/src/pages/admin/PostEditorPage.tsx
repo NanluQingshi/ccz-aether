@@ -127,12 +127,13 @@ const PostEditorPage: React.FC = () => {
             value={title}
             onChange={(e) => handleTitleChange(e.target.value)}
           />
-          <div data-color-mode="dark" className="editor-md">
+          <div className="editor-md">
             <MDEditor
               value={content}
               onChange={(v) => setContent(v ?? '')}
               height={520}
               preview="live"
+              data-color-mode="light"
             />
           </div>
         </div>
