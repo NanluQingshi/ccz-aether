@@ -26,7 +26,7 @@ const groups: FeatureGroup[] = [
       { name: '评论系统', desc: '访客可在博客文章下留言互动', status: 'planned', priority: 'medium' },
       { name: 'RSS Feed', desc: '输出标准 RSS，方便订阅工具抓取', status: 'planned', priority: 'low' },
       { name: '知识库', desc: '整理、沉淀个人技术笔记与学习资料，支持分类检索', status: 'planned', priority: 'low' },
-      { name: 'Issue Bin', desc: '记录暂时无法解决的技术问题，方便后续追踪与复盘', status: 'planned', priority: 'low' },
+      { name: 'Issue Bin', desc: '记录暂时无法解决的技术问题，方便后续追踪与复盘', status: 'done' },
       { name: '修炼手册', desc: '制定个人学习计划，追踪各方向的学习进度与阶段目标', status: 'planned', priority: 'low' },
     ],
   },
