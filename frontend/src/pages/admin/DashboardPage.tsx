@@ -22,11 +22,15 @@ const StatCard: React.FC<{ label: string; value: number | string; accent?: strin
 
 const DashboardPage: React.FC = () => {
   const [stats, setStats] = useState<Stats | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    adminGetStats().then((r) => setStats(r.data));
+    adminGetStats()
+      .then((r) => setStats(r.data))
+      .catch(() => setError(true));
   }, []);
 
+  if (error) return <div className="admin-page" style={{ color: 'var(--color-neon-pink)' }}>加载失败，请刷新重试</div>;
   if (!stats) return <LoadingSpinner fullPage />;
 
   return (

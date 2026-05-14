@@ -85,8 +85,11 @@ INSERT IGNORE INTO `tag` (`name`, `slug`) VALUES
   ('MySQL', 'mysql'),
   ('Docker', 'docker');
 
--- Migration: add type and event_date to existing post table (safe to run on existing DB)
+-- Migration: add type and event_date to existing post table
+-- NOTE: run only once on an existing DB; skip if columns already exist
 ALTER TABLE `post`
-  ADD COLUMN IF NOT EXISTS `type`       VARCHAR(32) NOT NULL DEFAULT 'blog' COMMENT 'blog | ai_timeline' AFTER `cover_image`,
-  ADD COLUMN IF NOT EXISTS `event_date` DATE        COMMENT 'AI 大事纪事件日期' AFTER `type`,
-  ADD INDEX IF NOT EXISTS `idx_type_event_date` (`type`, `event_date` DESC);
+  ADD COLUMN `type`       VARCHAR(32) NOT NULL DEFAULT 'blog' COMMENT 'blog | ai_timeline' AFTER `cover_image`,
+  ADD COLUMN `event_date` DATE        COMMENT 'AI 大事纪事件日期' AFTER `type`;
+
+ALTER TABLE `post`
+  ADD INDEX `idx_type_event_date` (`type`, `event_date` DESC);
