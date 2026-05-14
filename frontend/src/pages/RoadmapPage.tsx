@@ -75,6 +75,15 @@ const priorityMap: Record<Priority, { label: string; className: string }> = {
   low:    { label: '低', className: 'priority-low' },
 };
 
+const priorityOrder: Record<Priority, number> = { high: 0, medium: 1, low: 2 };
+
+const sortFeatures = (features: Feature[]): Feature[] => [
+  ...features.filter((f) => f.status === 'done'),
+  ...features
+    .filter((f) => f.status === 'planned')
+    .sort((a, b) => priorityOrder[a.priority ?? 'low'] - priorityOrder[b.priority ?? 'low']),
+];
+
 const RoadmapPage: React.FC = () => {
   const allFeatures = groups.flatMap((g) => g.features);
   const doneCount = allFeatures.filter((f) => f.status === 'done').length;
@@ -119,7 +128,7 @@ const RoadmapPage: React.FC = () => {
             {group.label}
           </h2>
           <div className="roadmap-grid">
-            {group.features.map((feature) => (
+            {sortFeatures(group.features).map((feature) => (
               <div
                 key={feature.name}
                 className={`roadmap-card ${feature.status === 'done' ? 'roadmap-card-done' : 'roadmap-card-planned'}`}

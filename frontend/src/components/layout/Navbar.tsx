@@ -16,9 +16,7 @@ export const Navbar: React.FC = () => {
     <nav className="navbar">
       <div className="navbar-inner container">
         <Link to="/" className="navbar-logo">
-          <span className="logo-bracket">&lt;</span>
-          <span className="logo-name">Dev</span>
-          <span className="logo-bracket">/&gt;</span>
+          南路志
         </Link>
 
         <ul className={`navbar-links ${open ? 'open' : ''}`}>
