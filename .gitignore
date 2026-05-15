@@ -39,3 +39,7 @@ backend/*.jar
 .vscode/
 *.swp
 *.swo
+
+# .claude
+.claude/
+.catpaw/

@@ -14,8 +14,8 @@ const AboutPage: React.FC = () => (
       </p>
       <h2>联系方式</h2>
       <ul>
-        <li>GitHub: <a href="https://github.com" target="_blank" rel="noreferrer">github.com/yourname</a></li>
-        <li>Email: yourname@example.com</li>
+        <li>GitHub: <a href="https://github.com/NanluQingshi" target="_blank" rel="noreferrer">github.com/NanluQingshi</a></li>
+        <li>Email: nlqs@mail.ustc.edu.cn</li>
       </ul>
     </div>
   </div>
