@@ -31,7 +31,7 @@ public class MusingServiceImpl implements MusingService {
         musing.setType(req.getType() != null ? req.getType() : "idea");
         musing.setDone(0);
         musingMapper.insert(musing);
-        return musingMapper.selectById(musing.getId());
+        return musing;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class MusingServiceImpl implements MusingService {
         musing.setContent(req.getContent());
         if (req.getType() != null) musing.setType(req.getType());
         musingMapper.updateById(musing);
-        return musingMapper.selectById(id);
+        return musing;
     }
 
     @Override

@@ -15,6 +15,7 @@ const TYPE_CONFIG = {
 function groupByMonth(musings: Musing[]): [string, Musing[]][] {
   const map = new Map<string, Musing[]>();
   for (const m of musings) {
+    if (!m.createdAt) continue;
     const key = m.createdAt.slice(0, 7); // "YYYY-MM"
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(m);
@@ -67,9 +68,9 @@ const MusingPage: React.FC = () => {
     setSubmitting(true);
     try {
       const req: MusingRequest = { content, type: inputType };
-      const res = await createMusing(req);
-      setMusings((prev) => [res.data, ...prev]);
+      await createMusing(req);
       setInputVal('');
+      load();
       inputRef.current?.focus();
     } catch {
       addToast('添加失败', 'error');
