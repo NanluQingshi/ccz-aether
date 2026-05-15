@@ -96,6 +96,17 @@ CREATE TABLE IF NOT EXISTS `issue` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `musing` (
+  `id`         BIGINT       NOT NULL AUTO_INCREMENT,
+  `content`    TEXT         NOT NULL,
+  `type`       VARCHAR(16)  NOT NULL DEFAULT 'idea' COMMENT 'idea | todo',
+  `done`       TINYINT      NOT NULL DEFAULT 0       COMMENT '0=open,1=done',
+  `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_created_at` (`created_at` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Migration: add type and event_date to existing post table
 -- NOTE: run only once on an existing DB; skip if columns already exist
 ALTER TABLE `post`

@@ -7,6 +7,7 @@ const navLinks = [
   { to: '/ai', label: 'AI' },
   { to: '/roadmap', label: 'Roadmap' },
   { to: '/issues', label: 'Issue Bin' },
+  { to: '/musings', label: '随想录' },
   { to: '/about', label: '关于' },
 ];
 

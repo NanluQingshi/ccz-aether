@@ -30,7 +30,7 @@ const groups: FeatureGroup[] = [
       { name: '修炼手册', desc: '制定个人学习计划，追踪各方向的学习进度与阶段目标', status: 'planned', priority: 'low' },
       { name: '书籍阅读清单', desc: '记录已读与在读书目，附上个人评分与读后感', status: 'planned', priority: 'low' },
       { name: '个人 Todo', desc: '日常事项与目标追踪，和网站功能无关的个人待办', status: 'planned', priority: 'low' },
-      { name: '随想录', desc: '随手记录灵感、念头与阶段计划，不设格式，想到就写', status: 'planned', priority: 'low' },
+      { name: '随想录', desc: '随手记录灵感、念头与阶段计划，不设格式，想到就写', status: 'done' },
     ],
   },
   {
