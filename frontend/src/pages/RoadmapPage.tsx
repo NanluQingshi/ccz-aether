@@ -26,8 +26,11 @@ const groups: FeatureGroup[] = [
       { name: '评论系统', desc: '访客可在博客文章下留言互动', status: 'planned', priority: 'medium' },
       { name: 'RSS Feed', desc: '输出标准 RSS，方便订阅工具抓取', status: 'planned', priority: 'low' },
       { name: '知识库', desc: '整理、沉淀个人技术笔记与学习资料，支持分类检索', status: 'planned', priority: 'low' },
-      { name: 'Issue Bin', desc: '记录暂时无法解决的技术问题，方便后续追踪与复盘', status: 'planned', priority: 'low' },
+      { name: 'Issue Bin', desc: '记录暂时无法解决的技术问题，方便后续追踪与复盘', status: 'done' },
       { name: '修炼手册', desc: '制定个人学习计划，追踪各方向的学习进度与阶段目标', status: 'planned', priority: 'low' },
+      { name: '书籍阅读清单', desc: '记录已读与在读书目，附上个人评分与读后感', status: 'planned', priority: 'low' },
+      { name: '个人 Todo', desc: '日常事项与目标追踪，和网站功能无关的个人待办', status: 'planned', priority: 'low' },
+      { name: '随想录', desc: '随手记录灵感、念头与阶段计划，不设格式，想到就写', status: 'done' },
     ],
   },
   {
@@ -75,6 +78,15 @@ const priorityMap: Record<Priority, { label: string; className: string }> = {
   low:    { label: '低', className: 'priority-low' },
 };
 
+const priorityOrder: Record<Priority, number> = { high: 0, medium: 1, low: 2 };
+
+const sortFeatures = (features: Feature[]): Feature[] => [
+  ...features.filter((f) => f.status === 'done'),
+  ...features
+    .filter((f) => f.status === 'planned')
+    .sort((a, b) => priorityOrder[a.priority ?? 'low'] - priorityOrder[b.priority ?? 'low']),
+];
+
 const RoadmapPage: React.FC = () => {
   const allFeatures = groups.flatMap((g) => g.features);
   const doneCount = allFeatures.filter((f) => f.status === 'done').length;
@@ -119,7 +131,7 @@ const RoadmapPage: React.FC = () => {
             {group.label}
           </h2>
           <div className="roadmap-grid">
-            {group.features.map((feature) => (
+            {sortFeatures(group.features).map((feature) => (
               <div
                 key={feature.name}
                 className={`roadmap-card ${feature.status === 'done' ? 'roadmap-card-done' : 'roadmap-card-planned'}`}

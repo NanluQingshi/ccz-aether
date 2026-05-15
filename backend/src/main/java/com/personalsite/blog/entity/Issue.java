@@ -10,12 +10,16 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("user")
-public class User {
+@TableName("issue")
+public class Issue {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String username;
-    private String password;
+    private String title;
+    private String description;
+    // 0=todo, 1=in_progress, 2=done
+    private Integer status;
+    // 0=low, 1=medium, 2=high
+    private Integer priority;
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
     @TableField(fill = FieldFill.INSERT_UPDATE)

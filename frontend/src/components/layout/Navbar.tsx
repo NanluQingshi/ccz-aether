@@ -6,6 +6,8 @@ const navLinks = [
   { to: '/blog', label: '博客' },
   { to: '/ai', label: 'AI' },
   { to: '/roadmap', label: 'Roadmap' },
+  { to: '/issues', label: 'Issue Bin' },
+  { to: '/musings', label: '随想录' },
   { to: '/about', label: '关于' },
 ];
 
@@ -15,9 +17,7 @@ export const Navbar: React.FC = () => {
     <nav className="navbar">
       <div className="navbar-inner container">
         <Link to="/" className="navbar-logo">
-          <span className="logo-bracket">&lt;</span>
-          <span className="logo-name">Dev</span>
-          <span className="logo-bracket">/&gt;</span>
+          南路志
         </Link>
 
         <ul className={`navbar-links ${open ? 'open' : ''}`}>

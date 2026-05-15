@@ -85,6 +85,28 @@ INSERT IGNORE INTO `tag` (`name`, `slug`) VALUES
   ('MySQL', 'mysql'),
   ('Docker', 'docker');
 
+CREATE TABLE IF NOT EXISTS `issue` (
+  `id`          BIGINT       NOT NULL AUTO_INCREMENT,
+  `title`       VARCHAR(255) NOT NULL,
+  `description` TEXT,
+  `status`      TINYINT      NOT NULL DEFAULT 0  COMMENT '0=todo,1=in_progress,2=done',
+  `priority`    TINYINT      NOT NULL DEFAULT 1  COMMENT '0=low,1=medium,2=high',
+  `created_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `musing` (
+  `id`         BIGINT       NOT NULL AUTO_INCREMENT,
+  `content`    TEXT         NOT NULL,
+  `type`       VARCHAR(16)  NOT NULL DEFAULT 'idea' COMMENT 'idea | todo',
+  `done`       TINYINT      NOT NULL DEFAULT 0       COMMENT '0=open,1=done',
+  `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_created_at` (`created_at` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Migration: add type and event_date to existing post table
 -- NOTE: run only once on an existing DB; skip if columns already exist
 ALTER TABLE `post`

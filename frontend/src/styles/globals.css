@@ -71,6 +71,12 @@ button {
   font-family: inherit;
 }
 
+/* Text selection */
+::selection {
+  background: rgba(0, 245, 255, 0.25);
+  color: var(--color-text-primary);
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
