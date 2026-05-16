@@ -37,8 +37,9 @@ function StarRating({ value, onChange }: { value?: number; onChange?: (v: number
 }
 
 function BookCover({ book }: { book: Book }) {
-  if (book.cover) {
-    return <img src={book.cover} alt={book.title} className="book-cover-img" />;
+  const [imgError, setImgError] = useState(false);
+  if (book.cover && !imgError) {
+    return <img src={book.cover} alt={book.title} className="book-cover-img" onError={() => setImgError(true)} />;
   }
   return (
     <div className="book-cover-placeholder">
