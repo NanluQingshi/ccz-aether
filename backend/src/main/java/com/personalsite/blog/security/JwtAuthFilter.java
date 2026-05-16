@@ -14,9 +14,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthFilter.class);
 
     private final JwtUtil jwtUtil;
     private final AdminUserDetailsService userDetailsService;
@@ -31,7 +36,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
         String token = header.substring(7);
-        if (!jwtUtil.isTokenValid(token)) {
+        boolean valid = jwtUtil.isTokenValid(token);
+        log.debug("[JWT] {} {} token_valid={}", request.getMethod(), request.getRequestURI(), valid);
+        if (!valid) {
             chain.doFilter(request, response);
             return;
         }

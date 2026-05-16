@@ -8,6 +8,7 @@ const navLinks = [
   { to: '/roadmap', label: 'Roadmap' },
   { to: '/issues', label: 'Issue Bin' },
   { to: '/musings', label: '随想录' },
+  { to: '/books', label: '书页间' },
   { to: '/about', label: '关于' },
 ];
 
