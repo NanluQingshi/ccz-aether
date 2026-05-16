@@ -1637,6 +1637,36 @@
   border-color: var(--color-neon-cyan);
 }
 
+/* Category chips */
+.bookshelf-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.bookshelf-cat-chip {
+  padding: 0.25rem 0.8rem;
+  border-radius: 999px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.bookshelf-cat-chip:hover {
+  border-color: var(--color-neon-purple);
+  color: var(--color-neon-purple);
+}
+
+.bookshelf-cat-chip.active {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.5);
+  color: var(--color-neon-purple);
+}
+
 .bookshelf-header {
   display: flex;
   align-items: flex-start;

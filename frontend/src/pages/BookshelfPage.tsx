@@ -56,6 +56,7 @@ const BookshelfPage: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabStatus>('reading');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -158,7 +159,10 @@ const BookshelfPage: React.FC = () => {
 
   if (loading) return <LoadingSpinner fullPage />;
 
-  const tabBooks = books.filter((b) => b.status === activeTab);
+  const categories = Array.from(new Set(books.map((b) => b.category).filter(Boolean) as string[])).sort();
+  const tabBooks = books
+    .filter((b) => b.status === activeTab)
+    .filter((b) => activeCategory === null || b.category === activeCategory);
   const counts = { reading: 0, want: 0, done: 0 } as Record<TabStatus, number>;
   books.forEach((b) => { if (b.status in counts) counts[b.status as TabStatus]++; });
 
@@ -204,13 +208,34 @@ const BookshelfPage: React.FC = () => {
           <button
             key={tab.key}
             className={`bookshelf-tab ${activeTab === tab.key ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => { setActiveTab(tab.key); setActiveCategory(null); }}
           >
             {tab.label}
             <span className="bookshelf-tab-count">{counts[tab.key]}</span>
           </button>
         ))}
       </div>
+
+      {/* Category filter */}
+      {categories.length > 0 && (
+        <div className="bookshelf-categories">
+          <button
+            className={`bookshelf-cat-chip ${activeCategory === null ? 'active' : ''}`}
+            onClick={() => setActiveCategory(null)}
+          >
+            全部
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              className={`bookshelf-cat-chip ${activeCategory === cat ? 'active' : ''}`}
+              onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Grid */}
       {tabBooks.length === 0 ? (
