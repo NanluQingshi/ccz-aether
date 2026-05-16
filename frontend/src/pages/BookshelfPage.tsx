@@ -193,10 +193,10 @@ const BookshelfPage: React.FC = () => {
                 {book.category && (
                   <span className="book-category">{book.category}</span>
                 )}
-                {book.status === 'done' && book.rating && (
+                {book.rating != null && (
                   <StarRating value={book.rating} />
                 )}
-                {book.status === 'reading' && book.totalPages && book.readPages != null && (
+                {book.totalPages != null && book.readPages != null && (
                   <div className="book-progress">
                     <div className="book-progress-bar">
                       <div
@@ -209,8 +209,11 @@ const BookshelfPage: React.FC = () => {
                     </span>
                   </div>
                 )}
-                {book.status === 'done' && book.review && (
+                {book.review && (
                   <p className="book-review">{book.review}</p>
+                )}
+                {book.startedAt && !book.finishedAt && (
+                  <p className="book-date">开始于 {book.startedAt}</p>
                 )}
                 {book.finishedAt && (
                   <p className="book-date">读完于 {book.finishedAt}</p>
@@ -266,18 +269,10 @@ const BookshelfPage: React.FC = () => {
                   <label className="form-label">总页数</label>
                   <input type="number" min={1} value={form.totalPages ?? ''} onChange={(e) => setField('totalPages', e.target.value ? Number(e.target.value) : undefined)} placeholder="可选" />
                 </div>
-                {form.status === 'reading' && (
-                  <div className="form-group">
-                    <label className="form-label">已读页数</label>
-                    <input type="number" min={0} value={form.readPages ?? ''} onChange={(e) => setField('readPages', e.target.value ? Number(e.target.value) : undefined)} placeholder="可选" />
-                  </div>
-                )}
-                {form.status === 'done' && (
-                  <div className="form-group">
-                    <label className="form-label">评分</label>
-                    <StarRating value={form.rating} onChange={(v) => setField('rating', v)} />
-                  </div>
-                )}
+                <div className="form-group">
+                  <label className="form-label">已读页数</label>
+                  <input type="number" min={0} value={form.readPages ?? ''} onChange={(e) => setField('readPages', e.target.value ? Number(e.target.value) : undefined)} placeholder="可选" />
+                </div>
               </div>
               <div className="book-form-row">
                 <div className="form-group">
@@ -289,12 +284,14 @@ const BookshelfPage: React.FC = () => {
                   <input type="date" value={form.finishedAt} onChange={(e) => setField('finishedAt', e.target.value)} />
                 </div>
               </div>
-              {form.status === 'done' && (
-                <div className="form-group">
-                  <label className="form-label">读后感</label>
-                  <textarea rows={4} value={form.review} onChange={(e) => setField('review', e.target.value)} placeholder="写写你的感受..." />
-                </div>
-              )}
+              <div className="form-group">
+                <label className="form-label">评分</label>
+                <StarRating value={form.rating} onChange={(v) => setField('rating', v)} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">读后感</label>
+                <textarea rows={4} value={form.review} onChange={(e) => setField('review', e.target.value)} placeholder="写写你的感受..." />
+              </div>
               <div className="issue-form-actions">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>取消</button>
                 <button type="submit" className="btn btn-primary" disabled={submitting}>
