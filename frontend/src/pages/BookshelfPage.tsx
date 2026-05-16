@@ -140,11 +140,32 @@ const BookshelfPage: React.FC = () => {
     setForm((f) => ({ ...f, [key]: val }));
   };
 
+  const handleQuickProgress = async (book: Book, newReadPages: number) => {
+    if (newReadPages < 0 || (book.totalPages != null && newReadPages > book.totalPages)) return;
+    try {
+      await updateBook(book.id, {
+        title: book.title, author: book.author, cover: book.cover,
+        status: book.status, rating: book.rating, review: book.review,
+        category: book.category, totalPages: book.totalPages,
+        readPages: newReadPages,
+        startedAt: book.startedAt, finishedAt: book.finishedAt,
+      });
+      setBooks((prev) => prev.map((b) => b.id === book.id ? { ...b, readPages: newReadPages } : b));
+    } catch {
+      addToast('更新失败', 'error');
+    }
+  };
+
   if (loading) return <LoadingSpinner fullPage />;
 
   const tabBooks = books.filter((b) => b.status === activeTab);
   const counts = { reading: 0, want: 0, done: 0 } as Record<TabStatus, number>;
   books.forEach((b) => { if (b.status in counts) counts[b.status as TabStatus]++; });
+
+  const totalBooks = books.filter((b) => b.status !== 'want').length;
+  const thisYear = new Date().getFullYear().toString();
+  const doneThisYear = books.filter((b) => b.status === 'done' && b.finishedAt?.startsWith(thisYear)).length;
+  const totalPages = books.reduce((sum, b) => sum + (b.readPages ?? 0), 0);
 
   return (
     <div className="container page-content">
@@ -157,6 +178,24 @@ const BookshelfPage: React.FC = () => {
         {isAdmin && (
           <button className="btn btn-soft" onClick={openCreate}>+ 添加</button>
         )}
+      </div>
+
+      {/* Stats */}
+      <div className="bookshelf-stats">
+        <div className="bookshelf-stat">
+          <span className="bookshelf-stat-value">{totalBooks}</span>
+          <span className="bookshelf-stat-label">在读 / 已读</span>
+        </div>
+        <div className="bookshelf-stat-divider" />
+        <div className="bookshelf-stat">
+          <span className="bookshelf-stat-value">{doneThisYear}</span>
+          <span className="bookshelf-stat-label">{thisYear} 年读完</span>
+        </div>
+        <div className="bookshelf-stat-divider" />
+        <div className="bookshelf-stat">
+          <span className="bookshelf-stat-value">{totalPages.toLocaleString()}</span>
+          <span className="bookshelf-stat-label">累计页数</span>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -207,6 +246,24 @@ const BookshelfPage: React.FC = () => {
                     <span className="book-progress-text">
                       {book.readPages} / {book.totalPages} 页
                     </span>
+                  </div>
+                )}
+                {isAdmin && book.status === 'reading' && book.totalPages != null && (
+                  <div className="book-quick-progress">
+                    <button className="book-progress-btn" onClick={() => handleQuickProgress(book, (book.readPages ?? 0) - 10)}>−10</button>
+                    <button className="book-progress-btn" onClick={() => handleQuickProgress(book, (book.readPages ?? 0) - 1)}>−1</button>
+                    <span className="book-progress-input-wrap">
+                      <input
+                        className="book-progress-input"
+                        type="number"
+                        min={0}
+                        max={book.totalPages}
+                        value={book.readPages ?? 0}
+                        onChange={(e) => handleQuickProgress(book, Number(e.target.value))}
+                      />
+                    </span>
+                    <button className="book-progress-btn" onClick={() => handleQuickProgress(book, (book.readPages ?? 0) + 1)}>+1</button>
+                    <button className="book-progress-btn" onClick={() => handleQuickProgress(book, (book.readPages ?? 0) + 10)}>+10</button>
                   </div>
                 )}
                 {book.review && (
