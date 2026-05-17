@@ -40,6 +40,21 @@
   height: 64px;
 }
 
+.navbar-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.navbar-motto {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 1rem;
+  color: var(--color-neon-pink);
+  opacity: 0.75;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
 .navbar-logo {
   font-family: 'ZCOOL KuaiLe', var(--font-sans);
   font-size: 1.65rem;
@@ -120,6 +135,14 @@
 .footer-text { color: var(--color-text-muted); font-size: 0.875rem; }
 .footer-links { display: flex; gap: 1.5rem; }
 .footer-links a { color: var(--color-text-secondary); font-size: 0.875rem; }
+
+.footer-motto {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 1rem;
+  color: var(--color-neon-purple);
+  opacity: 0.6;
+  letter-spacing: 0.15em;
+}
 
 /* ─── Buttons ─────────────────────────────────── */
 .btn {
@@ -2191,4 +2214,10 @@
   margin: 1.5rem 0;
   padding-left: 0.5rem;
   border-left: 3px solid rgba(168, 85, 247, 0.4);
+}
+
+.about-motto-warning {
+  color: var(--color-neon-pink);
+  border-left-color: rgba(255, 45, 120, 0.4);
+  margin-top: 0.5rem;
 }
