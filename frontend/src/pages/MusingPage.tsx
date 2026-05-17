@@ -35,7 +35,7 @@ function formatMonth(ym: string) {
 
 const MusingPage: React.FC = () => {
   const { token } = useAuthStore();
-  const { addToast } = useUiStore();
+  const { addToast, showConfirm } = useUiStore();
   const isAdmin = !!token;
 
   const [musings, setMusings] = useState<Musing[]>([]);
@@ -110,7 +110,7 @@ const MusingPage: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('确认删除？')) return;
+    if (!await showConfirm('确认删除这条随想？')) return;
     try {
       await deleteMusing(id);
       setMusings((prev) => prev.filter((m) => m.id !== id));

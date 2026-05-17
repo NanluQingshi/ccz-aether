@@ -6,6 +6,7 @@ import {
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 
 const STATUS_COLS: { key: 0 | 1 | 2; label: string; color: string }[] = [
   { key: 0, label: 'Todo',        color: 'issue-col-todo' },
@@ -30,7 +31,7 @@ const EMPTY_FORM: FormState = { title: '', description: '', priority: 1 };
 
 const IssueBoardPage: React.FC = () => {
   const { token } = useAuthStore();
-  const { addToast } = useUiStore();
+  const { addToast, showConfirm } = useUiStore();
   const isAdmin = !!token;
 
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -93,7 +94,7 @@ const IssueBoardPage: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('确认删除？')) return;
+    if (!await showConfirm('确认删除这条 Issue？')) return;
     try {
       await deleteIssue(id);
       setIssues((prev) => prev.filter((i) => i.id !== id));
@@ -195,14 +196,14 @@ const IssueBoardPage: React.FC = () => {
               </div>
               <div className="form-group">
                 <label className="form-label">优先级</label>
-                <select
-                  value={form.priority}
-                  onChange={(e) => setForm((f) => ({ ...f, priority: Number(e.target.value) as 0 | 1 | 2 }))}
-                >
-                  <option value={0}>低</option>
-                  <option value={1}>中</option>
-                  <option value={2}>高</option>
-                </select>
+                <Select value={String(form.priority)} onValueChange={(v) => setForm((f) => ({ ...f, priority: Number(v) as 0 | 1 | 2 }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">低</SelectItem>
+                    <SelectItem value="1">中</SelectItem>
+                    <SelectItem value="2">高</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="issue-form-actions">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>取消</button>

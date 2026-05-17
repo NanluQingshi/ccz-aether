@@ -8,10 +8,12 @@ import type { PostVO } from '../../types/post';
 export const RecentPosts: React.FC = () => {
   const [posts, setPosts] = useState<PostVO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     getPosts({ page: 1, size: 3 })
       .then((res) => setPosts(res.data.records))
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -23,6 +25,10 @@ export const RecentPosts: React.FC = () => {
       </div>
       {loading ? (
         <LoadingSpinner />
+      ) : error ? (
+        <p className="empty-state">加载失败，请刷新重试</p>
+      ) : posts.length === 0 ? (
+        <p className="empty-state">暂无最新文章</p>
       ) : (
         <div className="posts-grid">
           {posts.map((p) => <PostCard key={p.id} post={p} />)}

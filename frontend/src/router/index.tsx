@@ -22,13 +22,13 @@ const PostManagerPage = lazy(() => import('../pages/admin/PostManagerPage'));
 const PostEditorPage = lazy(() => import('../pages/admin/PostEditorPage'));
 
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <>
+  <div className="public-layout">
     <Navbar />
     <main className="main-content">
       <Suspense fallback={<LoadingSpinner fullPage />}>{children}</Suspense>
     </main>
     <Footer />
-  </>
+  </div>
 );
 
 export const router = createBrowserRouter([

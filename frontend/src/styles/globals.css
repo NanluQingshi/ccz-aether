@@ -2,6 +2,10 @@
 @import './components.css';
 @import 'highlight.js/styles/github-dark.css';
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 *,
 *::before,
 *::after {
@@ -99,10 +103,13 @@ button {
 /* Toast container */
 .toast-container {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  top: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 9999;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
+  pointer-events: none;
 }

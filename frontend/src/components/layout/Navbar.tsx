@@ -17,9 +17,10 @@ export const Navbar: React.FC = () => {
   return (
     <nav className="navbar">
       <div className="navbar-inner container">
-        <Link to="/" className="navbar-logo">
-          南路志
-        </Link>
+        <div className="navbar-brand">
+          <Link to="/" className="navbar-logo">南路志</Link>
+          <span className="navbar-motto">切勿眼高手低</span>
+        </div>
 
         <ul className={`navbar-links ${open ? 'open' : ''}`}>
           {navLinks.map((l) => (

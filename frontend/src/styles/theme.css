@@ -70,6 +70,21 @@
   background: #f0f2f5;
 }
 
+.admin-layout .btn-primary,
+.login-page .btn-primary {
+  background: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+}
+
+.admin-layout .btn-primary:hover:not(:disabled),
+.login-page .btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  color: #ffffff !important;
+}
+
 .admin-content {
   background: #f0f2f5;
 }
