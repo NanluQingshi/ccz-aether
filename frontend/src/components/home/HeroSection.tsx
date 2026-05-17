@@ -11,6 +11,7 @@ export const HeroSection: React.FC = () => (
       <p className="hero-desc">
         专注于全栈开发，热衷于探索新技术，喜欢写代码、写文章。
       </p>
+      <p className="hero-motto">沉心蓄力，静待风起</p>
       <div className="hero-actions">
         <Link to="/blog" className="btn btn-primary btn-lg">阅读博客</Link>
         <Link to="/about" className="btn btn-ghost btn-lg">关于我</Link>

@@ -12,6 +12,7 @@ const AboutPage: React.FC = () => (
         主要技术栈：Spring Boot、MyBatis-Plus、React、TypeScript、MySQL、Docker。
         喜欢写整洁的代码，关注系统设计与架构。
       </p>
+      <p className="about-motto">敛翼三秋，以飞云霄</p>
       <h2>联系方式</h2>
       <ul>
         <li>GitHub: <a href="https://github.com/NanluQingshi" target="_blank" rel="noreferrer">github.com/NanluQingshi</a></li>

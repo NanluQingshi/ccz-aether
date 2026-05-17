@@ -107,6 +107,25 @@ CREATE TABLE IF NOT EXISTS `musing` (
   INDEX `idx_created_at` (`created_at` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `book` (
+  `id`          BIGINT       NOT NULL AUTO_INCREMENT,
+  `title`       VARCHAR(255) NOT NULL,
+  `author`      VARCHAR(128) NOT NULL,
+  `cover`       VARCHAR(512) COMMENT '封面图 URL，可为空',
+  `status`      VARCHAR(16)  NOT NULL DEFAULT 'want' COMMENT 'want|reading|done',
+  `rating`      TINYINT      COMMENT '1-5，仅 done 状态填写',
+  `review`      TEXT         COMMENT '读后感',
+  `category`    VARCHAR(64)  COMMENT '分类，如：技术/文学/历史',
+  `total_pages` INT          COMMENT '总页数',
+  `read_pages`  INT          COMMENT '已读页数，仅 reading 状态使用',
+  `started_at`  DATE         COMMENT '开始阅读日期',
+  `finished_at` DATE         COMMENT '完成日期',
+  `created_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Migration: add type and event_date to existing post table
 -- NOTE: run only once on an existing DB; skip if columns already exist
 ALTER TABLE `post`

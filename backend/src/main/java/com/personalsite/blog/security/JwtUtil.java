@@ -20,6 +20,19 @@ public class JwtUtil {
                    @Value("${jwt.expiration-ms}") long expirationMs) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
+        org.slf4j.LoggerFactory.getLogger(JwtUtil.class)
+                .info("[JWT] secret length={} prefix={}", secret.length(), secret.substring(0, Math.min(8, secret.length())));
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            return claims.getExpiration().after(new Date());
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(JwtUtil.class)
+                    .warn("[JWT] token invalid: {}", e.getMessage());
+            return false;
+        }
     }
 
     public String generateToken(String username) {
@@ -33,15 +46,6 @@ public class JwtUtil {
 
     public String extractUsername(String token) {
         return parseClaims(token).getSubject();
-    }
-
-    public boolean isTokenValid(String token) {
-        try {
-            Claims claims = parseClaims(token);
-            return claims.getExpiration().after(new Date());
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     private Claims parseClaims(String token) {
