@@ -8,6 +8,7 @@ import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 
 type TabStatus = 'reading' | 'want' | 'done';
+type DrawerMode = 'detail' | 'edit' | 'create';
 
 const TABS: { key: TabStatus; label: string }[] = [
   { key: 'reading', label: '在读' },
@@ -58,8 +59,9 @@ const BookshelfPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabStatus>('reading');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const [showModal, setShowModal] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  // 抽屉状态
+  const [drawerBook, setDrawerBook] = useState<Book | null>(null);
+  const [drawerMode, setDrawerMode] = useState<DrawerMode>('detail');
   const [form, setForm] = useState<BookRequest>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
 
@@ -73,28 +75,32 @@ const BookshelfPage: React.FC = () => {
 
   useEffect(() => { load(); }, []);
 
+  const closeDrawer = () => {
+    setDrawerBook(null);
+    setDrawerMode('detail');
+  };
+
+  const openDetail = (book: Book) => {
+    setDrawerBook(book);
+    setDrawerMode('detail');
+  };
+
   const openCreate = () => {
-    setEditingId(null);
+    setDrawerBook(null);
     setForm(EMPTY_FORM);
-    setShowModal(true);
+    setDrawerMode('create');
   };
 
   const openEdit = (book: Book) => {
-    setEditingId(book.id);
+    setDrawerBook(book);
     setForm({
-      title: book.title,
-      author: book.author,
-      cover: book.cover ?? '',
-      status: book.status,
-      rating: book.rating,
-      review: book.review ?? '',
-      category: book.category ?? '',
-      totalPages: book.totalPages,
-      readPages: book.readPages,
-      startedAt: book.startedAt ?? '',
+      title: book.title, author: book.author, cover: book.cover ?? '',
+      status: book.status, rating: book.rating, review: book.review ?? '',
+      category: book.category ?? '', totalPages: book.totalPages,
+      readPages: book.readPages, startedAt: book.startedAt ?? '',
       finishedAt: book.finishedAt ?? '',
     });
-    setShowModal(true);
+    setDrawerMode('edit');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -110,14 +116,14 @@ const BookshelfPage: React.FC = () => {
       finishedAt: form.finishedAt || undefined,
     };
     try {
-      if (editingId !== null) {
-        await updateBook(editingId, payload);
+      if (drawerMode === 'edit' && drawerBook) {
+        await updateBook(drawerBook.id, payload);
         addToast('已更新', 'success');
       } else {
         await createBook(payload);
         addToast('已添加', 'success');
       }
-      setShowModal(false);
+      closeDrawer();
       load();
     } catch {
       addToast('操作失败', 'error');
@@ -131,6 +137,7 @@ const BookshelfPage: React.FC = () => {
     try {
       await deleteBook(id);
       setBooks((prev) => prev.filter((b) => b.id !== id));
+      closeDrawer();
       addToast('已删除', 'success');
     } catch {
       addToast('删除失败', 'error');
@@ -148,10 +155,12 @@ const BookshelfPage: React.FC = () => {
         title: book.title, author: book.author, cover: book.cover,
         status: book.status, rating: book.rating, review: book.review,
         category: book.category, totalPages: book.totalPages,
-        readPages: newReadPages,
-        startedAt: book.startedAt, finishedAt: book.finishedAt,
+        readPages: newReadPages, startedAt: book.startedAt, finishedAt: book.finishedAt,
       });
       setBooks((prev) => prev.map((b) => b.id === book.id ? { ...b, readPages: newReadPages } : b));
+      if (drawerBook?.id === book.id) {
+        setDrawerBook((prev) => prev ? { ...prev, readPages: newReadPages } : prev);
+      }
     } catch {
       addToast('更新失败', 'error');
     }
@@ -170,6 +179,74 @@ const BookshelfPage: React.FC = () => {
   const thisYear = new Date().getFullYear().toString();
   const doneThisYear = books.filter((b) => b.status === 'done' && b.finishedAt?.startsWith(thisYear)).length;
   const totalPages = books.reduce((sum, b) => sum + (b.readPages ?? 0), 0);
+
+  const drawerOpen = drawerMode === 'create' || drawerBook !== null;
+
+  // 表单 JSX（detail 和 create 共用）
+  const renderForm = () => (
+    <form onSubmit={handleSubmit} className="issue-form book-drawer-form">
+      <div className="book-form-row">
+        <div className="form-group">
+          <label className="form-label">书名 *</label>
+          <input value={form.title} onChange={(e) => setField('title', e.target.value)} required placeholder="书名" />
+        </div>
+        <div className="form-group">
+          <label className="form-label">作者 *</label>
+          <input value={form.author} onChange={(e) => setField('author', e.target.value)} required placeholder="作者" />
+        </div>
+      </div>
+      <div className="book-form-row">
+        <div className="form-group">
+          <label className="form-label">状态</label>
+          <select value={form.status} onChange={(e) => setField('status', e.target.value as BookRequest['status'])}>
+            <option value="want">想读</option>
+            <option value="reading">在读</option>
+            <option value="done">已读</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label className="form-label">分类</label>
+          <input value={form.category} onChange={(e) => setField('category', e.target.value)} placeholder="如：技术 / 文学" />
+        </div>
+      </div>
+      <div className="form-group">
+        <label className="form-label">封面图 URL</label>
+        <input value={form.cover} onChange={(e) => setField('cover', e.target.value)} placeholder="可选" />
+      </div>
+      <div className="book-form-row">
+        <div className="form-group">
+          <label className="form-label">总页数</label>
+          <input type="number" min={1} value={form.totalPages ?? ''} onChange={(e) => setField('totalPages', e.target.value ? Number(e.target.value) : undefined)} placeholder="可选" />
+        </div>
+        <div className="form-group">
+          <label className="form-label">已读页数</label>
+          <input type="number" min={0} value={form.readPages ?? ''} onChange={(e) => setField('readPages', e.target.value ? Number(e.target.value) : undefined)} placeholder="可选" />
+        </div>
+      </div>
+      <div className="book-form-row">
+        <div className="form-group">
+          <label className="form-label">开始日期</label>
+          <input type="date" value={form.startedAt} onChange={(e) => setField('startedAt', e.target.value)} />
+        </div>
+        <div className="form-group">
+          <label className="form-label">完成日期</label>
+          <input type="date" value={form.finishedAt} onChange={(e) => setField('finishedAt', e.target.value)} />
+        </div>
+      </div>
+      <div className="form-group">
+        <label className="form-label">评分</label>
+        <StarRating value={form.rating} onChange={(v) => setField('rating', v)} />
+      </div>
+      <div className="form-group">
+        <label className="form-label">读后感</label>
+        <textarea rows={5} value={form.review} onChange={(e) => setField('review', e.target.value)} placeholder="写写你的感受..." />
+      </div>
+      <div className="book-drawer-actions">
+        <button type="button" className="btn btn-secondary btn-sm" onClick={() => drawerBook ? setDrawerMode('detail') : closeDrawer()}>取消</button>
+        <button type="submit" className="btn btn-primary btn-sm" disabled={submitting}>{submitting ? '保存中...' : '保存'}</button>
+      </div>
+    </form>
+  );
 
   return (
     <div className="container page-content">
@@ -219,20 +296,9 @@ const BookshelfPage: React.FC = () => {
       {/* Category filter */}
       {categories.length > 0 && (
         <div className="bookshelf-categories">
-          <button
-            className={`bookshelf-cat-chip ${activeCategory === null ? 'active' : ''}`}
-            onClick={() => setActiveCategory(null)}
-          >
-            全部
-          </button>
+          <button className={`bookshelf-cat-chip ${activeCategory === null ? 'active' : ''}`} onClick={() => setActiveCategory(null)}>全部</button>
           {categories.map((cat) => (
-            <button
-              key={cat}
-              className={`bookshelf-cat-chip ${activeCategory === cat ? 'active' : ''}`}
-              onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
-            >
-              {cat}
-            </button>
+            <button key={cat} className={`bookshelf-cat-chip ${activeCategory === cat ? 'active' : ''}`} onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}>{cat}</button>
           ))}
         </div>
       )}
@@ -247,140 +313,119 @@ const BookshelfPage: React.FC = () => {
       ) : (
         <div className="book-grid">
           {tabBooks.map((book) => (
-            <div key={book.id} className="book-card">
+            <div key={book.id} className="book-card" onClick={() => openDetail(book)} style={{ cursor: 'pointer' }}>
               <div className="book-cover">
                 <BookCover book={book} />
               </div>
               <div className="book-info">
                 <h3 className="book-title">{book.title}</h3>
                 <p className="book-author">{book.author}</p>
-                {book.category && (
-                  <span className="book-category">{book.category}</span>
-                )}
-                {book.rating != null && (
-                  <StarRating value={book.rating} />
-                )}
+                {book.category && <span className="book-category">{book.category}</span>}
+                {book.rating != null && <StarRating value={book.rating} />}
                 {book.totalPages != null && book.readPages != null && (
                   <div className="book-progress">
                     <div className="book-progress-bar">
-                      <div
-                        className="book-progress-fill"
-                        style={{ width: `${Math.min(100, Math.round((book.readPages / book.totalPages) * 100))}%` }}
-                      />
+                      <div className="book-progress-fill" style={{ width: `${Math.min(100, Math.round((book.readPages / book.totalPages) * 100))}%` }} />
                     </div>
-                    <span className="book-progress-text">
-                      {book.readPages} / {book.totalPages} 页
-                    </span>
+                    <span className="book-progress-text">{book.readPages} / {book.totalPages} 页</span>
                   </div>
                 )}
                 {isAdmin && book.status === 'reading' && book.totalPages != null && (
-                  <div className="book-quick-progress">
+                  <div className="book-quick-progress" onClick={(e) => e.stopPropagation()}>
                     <button className="book-progress-btn" onClick={() => handleQuickProgress(book, (book.readPages ?? 0) - 10)}>−10</button>
                     <button className="book-progress-btn" onClick={() => handleQuickProgress(book, (book.readPages ?? 0) - 1)}>−1</button>
                     <span className="book-progress-input-wrap">
-                      <input
-                        className="book-progress-input"
-                        type="number"
-                        min={0}
-                        max={book.totalPages}
-                        value={book.readPages ?? 0}
-                        onChange={(e) => handleQuickProgress(book, Number(e.target.value))}
-                      />
+                      <input className="book-progress-input" type="number" min={0} max={book.totalPages} value={book.readPages ?? 0}
+                        onChange={(e) => handleQuickProgress(book, Number(e.target.value))} />
                     </span>
                     <button className="book-progress-btn" onClick={() => handleQuickProgress(book, (book.readPages ?? 0) + 1)}>+1</button>
                     <button className="book-progress-btn" onClick={() => handleQuickProgress(book, (book.readPages ?? 0) + 10)}>+10</button>
                   </div>
                 )}
-                {book.review && (
-                  <p className="book-review">{book.review}</p>
-                )}
-                {book.startedAt && !book.finishedAt && (
-                  <p className="book-date">开始于 {book.startedAt}</p>
-                )}
-                {book.finishedAt && (
-                  <p className="book-date">读完于 {book.finishedAt}</p>
-                )}
+                {book.review && <p className="book-review">{book.review}</p>}
+                {book.startedAt && !book.finishedAt && <p className="book-date">开始于 {book.startedAt}</p>}
+                {book.finishedAt && <p className="book-date">读完于 {book.finishedAt}</p>}
               </div>
-              {isAdmin && (
-                <div className="book-card-actions">
-                  <button className="musing-action-btn" onClick={() => openEdit(book)}>编辑</button>
-                  <button className="musing-action-btn danger" onClick={() => handleDelete(book.id)}>删除</button>
-                </div>
-              )}
             </div>
           ))}
         </div>
       )}
 
-      {/* Modal */}
-      {showModal && (
-        <div className="issue-modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="issue-modal book-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 className="issue-modal-title">{editingId !== null ? '编辑书目' : '添加书目'}</h3>
-            <form onSubmit={handleSubmit} className="issue-form">
-              <div className="book-form-row">
-                <div className="form-group">
-                  <label className="form-label">书名 *</label>
-                  <input value={form.title} onChange={(e) => setField('title', e.target.value)} required placeholder="书名" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">作者 *</label>
-                  <input value={form.author} onChange={(e) => setField('author', e.target.value)} required placeholder="作者" />
-                </div>
+      {/* Drawer */}
+      {drawerOpen && (
+        <div className="book-drawer-overlay" onClick={closeDrawer}>
+          <div className="book-drawer" onClick={(e) => e.stopPropagation()}>
+            <button className="book-drawer-close" onClick={closeDrawer}>✕</button>
+
+            {/* 新增模式 */}
+            {drawerMode === 'create' && (
+              <div className="book-drawer-body">
+                <h3 className="book-drawer-title" style={{ marginBottom: '1rem' }}>添加书目</h3>
+                {renderForm()}
               </div>
-              <div className="book-form-row">
-                <div className="form-group">
-                  <label className="form-label">状态</label>
-                  <select value={form.status} onChange={(e) => setField('status', e.target.value as BookRequest['status'])}>
-                    <option value="want">想读</option>
-                    <option value="reading">在读</option>
-                    <option value="done">已读</option>
-                  </select>
+            )}
+
+            {/* 详情模式 */}
+            {drawerMode === 'detail' && drawerBook && (
+              <>
+                <div className="book-drawer-cover">
+                  <BookCover book={drawerBook} />
                 </div>
-                <div className="form-group">
-                  <label className="form-label">分类</label>
-                  <input value={form.category} onChange={(e) => setField('category', e.target.value)} placeholder="如：技术 / 文学" />
+                <div className="book-drawer-body">
+                  <h2 className="book-drawer-title">{drawerBook.title}</h2>
+                  <p className="book-drawer-author">{drawerBook.author}</p>
+                  <div className="book-drawer-meta">
+                    {drawerBook.category && <span className="book-category">{drawerBook.category}</span>}
+                    <span className={`book-drawer-status book-drawer-status-${drawerBook.status}`}>
+                      {drawerBook.status === 'reading' ? '在读' : drawerBook.status === 'done' ? '已读' : '想读'}
+                    </span>
+                  </div>
+                  {drawerBook.rating != null && <StarRating value={drawerBook.rating} />}
+                  {drawerBook.totalPages != null && (
+                    <div className="book-drawer-pages">
+                      {drawerBook.readPages != null ? (
+                        <div className="book-progress">
+                          <div className="book-progress-bar">
+                            <div className="book-progress-fill" style={{ width: `${Math.min(100, Math.round((drawerBook.readPages / drawerBook.totalPages) * 100))}%` }} />
+                          </div>
+                          <span className="book-progress-text">
+                            {drawerBook.readPages} / {drawerBook.totalPages} 页 · {Math.round((drawerBook.readPages / drawerBook.totalPages) * 100)}%
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="book-drawer-info-row"><span>总页数</span><span>{drawerBook.totalPages}</span></p>
+                      )}
+                    </div>
+                  )}
+                  {(drawerBook.startedAt || drawerBook.finishedAt) && (
+                    <div className="book-drawer-dates">
+                      {drawerBook.startedAt && <p className="book-drawer-info-row"><span>开始阅读</span><span>{drawerBook.startedAt}</span></p>}
+                      {drawerBook.finishedAt && <p className="book-drawer-info-row"><span>读完日期</span><span>{drawerBook.finishedAt}</span></p>}
+                    </div>
+                  )}
+                  {drawerBook.review && (
+                    <div className="book-drawer-review">
+                      <p className="book-drawer-review-label">读后感</p>
+                      <p className="book-drawer-review-text">{drawerBook.review}</p>
+                    </div>
+                  )}
+                  {isAdmin && (
+                    <div className="book-drawer-actions">
+                      <button className="btn btn-secondary btn-sm" onClick={() => openEdit(drawerBook)}>编辑</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(drawerBook.id)}>删除</button>
+                    </div>
+                  )}
                 </div>
+              </>
+            )}
+
+            {/* 编辑模式 */}
+            {drawerMode === 'edit' && drawerBook && (
+              <div className="book-drawer-body">
+                <h3 className="book-drawer-title" style={{ marginBottom: '1rem' }}>编辑书目</h3>
+                {renderForm()}
               </div>
-              <div className="form-group">
-                <label className="form-label">封面图 URL</label>
-                <input value={form.cover} onChange={(e) => setField('cover', e.target.value)} placeholder="可选" />
-              </div>
-              <div className="book-form-row">
-                <div className="form-group">
-                  <label className="form-label">总页数</label>
-                  <input type="number" min={1} value={form.totalPages ?? ''} onChange={(e) => setField('totalPages', e.target.value ? Number(e.target.value) : undefined)} placeholder="可选" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">已读页数</label>
-                  <input type="number" min={0} value={form.readPages ?? ''} onChange={(e) => setField('readPages', e.target.value ? Number(e.target.value) : undefined)} placeholder="可选" />
-                </div>
-              </div>
-              <div className="book-form-row">
-                <div className="form-group">
-                  <label className="form-label">开始日期</label>
-                  <input type="date" value={form.startedAt} onChange={(e) => setField('startedAt', e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">完成日期</label>
-                  <input type="date" value={form.finishedAt} onChange={(e) => setField('finishedAt', e.target.value)} />
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">评分</label>
-                <StarRating value={form.rating} onChange={(v) => setField('rating', v)} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">读后感</label>
-                <textarea rows={4} value={form.review} onChange={(e) => setField('review', e.target.value)} placeholder="写写你的感受..." />
-              </div>
-              <div className="issue-form-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>取消</button>
-                <button type="submit" className="btn btn-primary" disabled={submitting}>
-                  {submitting ? '保存中...' : '保存'}
-                </button>
-              </div>
-            </form>
+            )}
           </div>
         </div>
       )}
