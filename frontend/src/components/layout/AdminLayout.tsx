@@ -1,14 +1,17 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { useUiStore } from '../../store/uiStore';
 
 export const AdminLayout: React.FC = () => {
   const { username, logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const { addToast } = useUiStore();
 
   const handleLogout = () => {
     logout();
+    addToast('已退出登录', 'info');
     navigate('/admin/login');
   };
 

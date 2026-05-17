@@ -12,7 +12,7 @@ const PostManagerPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const { addToast } = useUiStore();
+  const { addToast, showConfirm } = useUiStore();
 
   const load = (p = page) => {
     setLoading(true);
@@ -21,22 +21,31 @@ const PostManagerPage: React.FC = () => {
         setPosts(r.data.records);
         setPages(r.data.pages);
       })
+      .catch(() => addToast('加载失败，请刷新重试', 'error'))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, [page]);
 
   const handleDelete = async (id: number, title: string) => {
-    if (!confirm(`确认删除「${title}」？`)) return;
-    await adminDeletePost(id);
-    addToast('已删除', 'success');
-    load();
+    if (!await showConfirm(`确认删除「${title}」？`)) return;
+    try {
+      await adminDeletePost(id);
+      addToast('已删除', 'success');
+      load();
+    } catch {
+      addToast('删除失败', 'error');
+    }
   };
 
   const handleToggle = async (id: number) => {
-    await adminTogglePublish(id);
-    addToast('状态已更新', 'success');
-    load();
+    try {
+      await adminTogglePublish(id);
+      addToast('状态已更新', 'success');
+      load();
+    } catch {
+      addToast('操作失败', 'error');
+    }
   };
 
   return (

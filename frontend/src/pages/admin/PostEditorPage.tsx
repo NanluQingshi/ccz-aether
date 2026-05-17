@@ -6,6 +6,7 @@ import { getTags } from '../../api/tags';
 import { getCategories } from '../../api/categories';
 import { useUiStore } from '../../store/uiStore';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/shadcn/Select';
 import type { TagVO } from '../../types/tag';
 import type { CategoryVO } from '../../types/category';
 import type { PostType } from '../../types/post';
@@ -32,8 +33,8 @@ const PostEditorPage: React.FC = () => {
   const [initialLoading, setInitialLoading] = useState(isEdit);
 
   useEffect(() => {
-    getTags().then((r) => setTags(r.data));
-    getCategories().then((r) => setCategories(r.data));
+    getTags().then((r) => setTags(r.data)).catch(() => {});
+    getCategories().then((r) => setCategories(r.data)).catch(() => {});
 
     if (isEdit && id) {
       adminGetPosts(1, 999)
@@ -50,6 +51,7 @@ const PostEditorPage: React.FC = () => {
             setSelectedTagIds(post.tags.map((t) => t.id));
           }
         })
+        .catch(() => addToast('文章加载失败', 'error'))
         .finally(() => setInitialLoading(false));
 
     }
@@ -141,10 +143,13 @@ const PostEditorPage: React.FC = () => {
         <aside className="editor-sidebar">
           <div className="editor-field">
             <label className="form-label">文章类型</label>
-            <select value={type} onChange={(e) => setType(e.target.value as PostType)}>
-              <option value="blog">普通博客</option>
-              <option value="ai_timeline">AI 大事纪</option>
-            </select>
+            <Select value={type} onValueChange={(v) => setType(v as PostType)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="blog">普通博客</SelectItem>
+                <SelectItem value="ai_timeline">AI 大事纪</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           {type === 'ai_timeline' && (
             <div className="editor-field">
@@ -179,12 +184,15 @@ const PostEditorPage: React.FC = () => {
           </div>
           <div className="editor-field">
             <label className="form-label">分类</label>
-            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value === '' ? '' : Number(e.target.value))}>
-              <option value="">— 无分类 —</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+            <Select value={String(categoryId)} onValueChange={(v) => setCategoryId(v === '' ? '' : Number(v))}>
+              <SelectTrigger><SelectValue placeholder="— 无分类 —" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">— 无分类 —</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="editor-field">
             <label className="form-label">标签（可多选）</label>

@@ -6,6 +6,7 @@ import {
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 
 type TabStatus = 'reading' | 'want' | 'done';
 type DrawerMode = 'detail' | 'edit' | 'create';
@@ -52,7 +53,7 @@ function BookCover({ book }: { book: Book }) {
 
 const BookshelfPage: React.FC = () => {
   const { token } = useAuthStore();
-  const { addToast } = useUiStore();
+  const { addToast, showConfirm } = useUiStore();
   const isAdmin = !!token;
 
   const [books, setBooks] = useState<Book[]>([]);
@@ -135,7 +136,7 @@ const BookshelfPage: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('确认删除？')) return;
+    if (!await showConfirm('确认删除这本书？')) return;
     try {
       await deleteBook(id);
       setBooks((prev) => prev.filter((b) => b.id !== id));
@@ -215,11 +216,14 @@ const BookshelfPage: React.FC = () => {
       <div className="book-form-row">
         <div className="form-group">
           <label className="form-label">状态</label>
-          <select value={form.status} onChange={(e) => setField('status', e.target.value as BookRequest['status'])}>
-            <option value="want">想读</option>
-            <option value="reading">在读</option>
-            <option value="done">已读</option>
-          </select>
+          <Select value={form.status} onValueChange={(v) => setField('status', v as BookRequest['status'])}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="want">想读</SelectItem>
+              <SelectItem value="reading">在读</SelectItem>
+              <SelectItem value="done">已读</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="form-group">
           <label className="form-label">分类</label>
@@ -310,15 +314,14 @@ const BookshelfPage: React.FC = () => {
             </button>
           ))}
         </div>
-        <select
-          className="bookshelf-sort-select"
-          value={sortKey}
-          onChange={(e) => setSortKey(e.target.value as SortKey)}
-        >
-          <option value="createdAt">添加时间</option>
-          {activeTab === 'done' && <option value="finishedAt">完成日期</option>}
-          {activeTab === 'done' && <option value="rating">评分</option>}
-        </select>
+        <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+          <SelectTrigger className="bookshelf-sort-select"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="createdAt">添加时间</SelectItem>
+            {activeTab === 'done' && <SelectItem value="finishedAt">完成日期</SelectItem>}
+            {activeTab === 'done' && <SelectItem value="rating">评分</SelectItem>}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Category filter */}

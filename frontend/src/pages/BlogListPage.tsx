@@ -10,6 +10,7 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import type { PostVO } from '../types/post';
 import type { TagVO } from '../types/tag';
 import type { CategoryVO } from '../types/category';
+import { useUiStore } from '../store/uiStore';
 
 const BlogListPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,10 +24,11 @@ const BlogListPage: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const { addToast } = useUiStore();
 
   useEffect(() => {
-    getTags().then((r) => setTags(r.data));
-    getCategories().then((r) => setCategories(r.data));
+    getTags().then((r) => setTags(r.data)).catch(() => {});
+    getCategories().then((r) => setCategories(r.data)).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -37,6 +39,7 @@ const BlogListPage: React.FC = () => {
         setTotal(r.data.total);
         setPages(r.data.pages);
       })
+      .catch(() => addToast('文章加载失败，请刷新重试', 'error'))
       .finally(() => setLoading(false));
   }, [page, tagSlug, categorySlug]);
 
