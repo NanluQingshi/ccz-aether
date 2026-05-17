@@ -5,8 +5,15 @@
   padding: 0 1.25rem;
 }
 
+.public-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .main-content {
-  min-height: calc(100vh - 120px);
+  flex: 1;
+  padding-bottom: 4rem;
 }
 
 .page-content {
@@ -119,9 +126,15 @@
 
 /* ─── Footer ─────────────────────────────────── */
 .footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   border-top: 1px solid var(--color-border);
-  padding: 2rem 0;
-  margin-top: 4rem;
+  padding: 0.85rem 0;
+  background: rgba(10, 14, 26, 0.85);
+  backdrop-filter: blur(12px);
+  z-index: 90;
 }
 
 .footer-inner {
