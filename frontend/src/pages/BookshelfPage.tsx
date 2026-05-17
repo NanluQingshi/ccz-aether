@@ -9,6 +9,7 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 
 type TabStatus = 'reading' | 'want' | 'done';
 type DrawerMode = 'detail' | 'edit' | 'create';
+type SortKey = 'createdAt' | 'finishedAt' | 'rating';
 
 const TABS: { key: TabStatus; label: string }[] = [
   { key: 'reading', label: '在读' },
@@ -58,6 +59,7 @@ const BookshelfPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabStatus>('reading');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey>('createdAt');
 
   // 抽屉状态
   const [drawerBook, setDrawerBook] = useState<Book | null>(null);
@@ -169,9 +171,24 @@ const BookshelfPage: React.FC = () => {
   if (loading) return <LoadingSpinner fullPage />;
 
   const categories = Array.from(new Set(books.map((b) => b.category).filter(Boolean) as string[])).sort();
-  const tabBooks = books
-    .filter((b) => b.status === activeTab)
-    .filter((b) => activeCategory === null || b.category === activeCategory);
+
+  const sortBooks = (list: Book[]) => {
+    const sorted = [...list];
+    if (sortKey === 'finishedAt') {
+      sorted.sort((a, b) => (b.finishedAt ?? '').localeCompare(a.finishedAt ?? ''));
+    } else if (sortKey === 'rating') {
+      sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    } else {
+      sorted.sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
+    }
+    return sorted;
+  };
+
+  const tabBooks = sortBooks(
+    books
+      .filter((b) => b.status === activeTab)
+      .filter((b) => activeCategory === null || b.category === activeCategory)
+  );
   const counts = { reading: 0, want: 0, done: 0 } as Record<TabStatus, number>;
   books.forEach((b) => { if (b.status in counts) counts[b.status as TabStatus]++; });
 
@@ -280,17 +297,28 @@ const BookshelfPage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="bookshelf-tabs">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            className={`bookshelf-tab ${activeTab === tab.key ? 'active' : ''}`}
-            onClick={() => { setActiveTab(tab.key); setActiveCategory(null); }}
-          >
-            {tab.label}
-            <span className="bookshelf-tab-count">{counts[tab.key]}</span>
-          </button>
-        ))}
+      <div className="bookshelf-tabs-row">
+        <div className="bookshelf-tabs">
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              className={`bookshelf-tab ${activeTab === tab.key ? 'active' : ''}`}
+              onClick={() => { setActiveTab(tab.key); setActiveCategory(null); setSortKey('createdAt'); }}
+            >
+              {tab.label}
+              <span className="bookshelf-tab-count">{counts[tab.key]}</span>
+            </button>
+          ))}
+        </div>
+        <select
+          className="bookshelf-sort-select"
+          value={sortKey}
+          onChange={(e) => setSortKey(e.target.value as SortKey)}
+        >
+          <option value="createdAt">添加时间</option>
+          {activeTab === 'done' && <option value="finishedAt">完成日期</option>}
+          {activeTab === 'done' && <option value="rating">评分</option>}
+        </select>
       </div>
 
       {/* Category filter */}
