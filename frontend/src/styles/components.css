@@ -1762,7 +1762,7 @@
 .book-card:hover .book-card-actions { opacity: 1; }
 
 /* Cover */
-.book-cover { width: 100%; aspect-ratio: 2/3; overflow: hidden; flex-shrink: 0; }
+.book-cover { width: 100%; aspect-ratio: 3/4; overflow: hidden; flex-shrink: 0; }
 
 .book-cover-img {
   width: 100%;
@@ -1963,7 +1963,7 @@
 .book-drawer-cover {
   width: 100%;
   aspect-ratio: 3/4;
-  max-height: 300px;
+  max-height: 220px;
   overflow: hidden;
   flex-shrink: 0;
 }
