@@ -41,5 +41,5 @@ backend/*.jar
 *.swo
 
 # .claude
-.claude/
 .catpaw/
+.claude/rules/[0-3]*.md
