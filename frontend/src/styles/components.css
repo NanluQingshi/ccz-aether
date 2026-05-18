@@ -245,24 +245,32 @@
 /* ─── Hero ────────────────────────────────────── */
 .hero {
   position: relative;
-  padding: 6rem 1.25rem 5rem;
-  max-width: 1100px;
+  padding: 7rem 0 6rem;
+  max-width: 1300px;
   margin: 0 auto;
   overflow: hidden;
+}
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 6rem;
+  padding: 0 2rem;
 }
 
 .hero-greeting {
   color: var(--color-neon-cyan);
   font-family: var(--font-mono);
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.85rem;
 }
 
 .hero-name {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(3rem, 7vw, 5.5rem);
   font-weight: 900;
   line-height: 1.1;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .hero-name-highlight {
@@ -274,8 +282,8 @@
 
 .hero-desc {
   color: var(--color-text-secondary);
-  font-size: 1.1rem;
-  max-width: 540px;
+  font-size: 1.2rem;
+  line-height: 1.7;
   margin-bottom: 2rem;
 }
 
@@ -283,21 +291,91 @@
 
 .hero-motto {
   font-family: 'Ma Shan Zheng', cursive;
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   color: var(--color-neon-purple);
   opacity: 0.85;
   letter-spacing: 0.2em;
-  margin-bottom: 1.75rem;
+  margin-bottom: 2rem;
+}
+
+/* 右侧装饰区 */
+.hero-decoration {
+  position: relative;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero-glow {
   position: absolute;
-  top: -120px;
-  right: -120px;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(0, 245, 255, 0.06) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(0, 245, 255, 0.07) 0%, transparent 70%);
   pointer-events: none;
+}
+
+/* 技术标签云 */
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.hero-tag {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.5em 1.1em;
+  border-radius: 999px;
+  border: 1px solid;
+  letter-spacing: 0.03em;
+  animation: hero-tag-float linear infinite;
+  /* 每个标签用 nth-child 错开动画相位和时长 */
+}
+
+.hero-tag:nth-child(1)  { animation-duration: 5.1s; animation-delay: 0s;     transform: translateY(0); }
+.hero-tag:nth-child(2)  { animation-duration: 6.3s; animation-delay: -1.2s;  }
+.hero-tag:nth-child(3)  { animation-duration: 4.8s; animation-delay: -2.5s;  }
+.hero-tag:nth-child(4)  { animation-duration: 5.7s; animation-delay: -0.7s;  }
+.hero-tag:nth-child(5)  { animation-duration: 6.1s; animation-delay: -3.1s;  }
+.hero-tag:nth-child(6)  { animation-duration: 4.5s; animation-delay: -1.8s;  }
+.hero-tag:nth-child(7)  { animation-duration: 5.9s; animation-delay: -0.4s;  }
+.hero-tag:nth-child(8)  { animation-duration: 6.7s; animation-delay: -2.2s;  }
+.hero-tag:nth-child(9)  { animation-duration: 5.3s; animation-delay: -3.8s;  }
+.hero-tag:nth-child(10) { animation-duration: 4.9s; animation-delay: -1.5s;  }
+.hero-tag:nth-child(11) { animation-duration: 6.4s; animation-delay: -0.9s;  }
+.hero-tag:nth-child(12) { animation-duration: 5.6s; animation-delay: -2.8s;  }
+
+@keyframes hero-tag-float {
+  0%, 100% { transform: translateY(0px);   }
+  50%       { transform: translateY(-8px);  }
+}
+
+.hero-tag-cyan {
+  background: rgba(0, 245, 255, 0.08);
+  border-color: rgba(0, 245, 255, 0.3);
+  color: var(--color-neon-cyan);
+}
+
+.hero-tag-purple {
+  background: rgba(168, 85, 247, 0.08);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: var(--color-neon-purple);
+}
+
+/* 移动端：折叠为单列，装饰区隐藏 */
+@media (max-width: 768px) {
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .hero-decoration { display: none; }
 }
 
 /* ─── Section ─────────────────────────────────── */

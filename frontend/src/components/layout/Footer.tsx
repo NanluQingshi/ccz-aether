@@ -6,7 +6,7 @@ export const Footer: React.FC = () => (
       <p className="footer-text">
         © {new Date().getFullYear()} 南路情诗.
       </p>
-      <span className="footer-motto">敛翼三秋，以飞云霄</span>
+      <span className="footer-motto">切勿眼高手低</span>
       <div className="footer-links">
         <a href="https://github.com/NanluQingshi" target="_blank" rel="noreferrer">GitHub</a>
       </div>

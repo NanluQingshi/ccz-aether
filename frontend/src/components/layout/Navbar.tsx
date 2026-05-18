@@ -19,7 +19,7 @@ export const Navbar: React.FC = () => {
       <div className="navbar-inner container">
         <div className="navbar-brand">
           <Link to="/" className="navbar-logo">南路志</Link>
-          <span className="navbar-motto">切勿眼高手低</span>
+          <span className="navbar-motto">敛翼三秋，以飞云霄</span>
         </div>
 
         <ul className={`navbar-links ${open ? 'open' : ''}`}>
