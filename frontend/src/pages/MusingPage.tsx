@@ -34,6 +34,14 @@ function formatMonth(ym: string) {
   return `${y} / ${m}`;
 }
 
+type FilterType = 'all' | 'idea' | 'todo';
+
+const FILTER_OPTIONS: { key: FilterType; label: string }[] = [
+  { key: 'all',  label: '全部' },
+  { key: 'idea', label: '💭 随想' },
+  { key: 'todo', label: '✓ Todo' },
+];
+
 const MusingPage: React.FC = () => {
   const { token } = useAuthStore();
   const { addToast, showConfirm } = useUiStore();
@@ -41,6 +49,7 @@ const MusingPage: React.FC = () => {
 
   const [musings, setMusings] = useState<Musing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterType>('all');
 
   // quick-input state
   const [inputVal, setInputVal] = useState('');
@@ -123,7 +132,13 @@ const MusingPage: React.FC = () => {
 
   if (loading) return <LoadingSpinner fullPage />;
 
-  const groups = groupByMonth(musings);
+  const filtered = filter === 'all' ? musings : musings.filter((m) => m.type === filter);
+  // 同组内已完成的 todo 排到末尾
+  const sorted = [...filtered].sort((a, b) => {
+    if (a.done === b.done) return 0;
+    return a.done ? 1 : -1;
+  });
+  const groups = groupByMonth(sorted);
 
   return (
     <div className="container page-content">
@@ -133,7 +148,18 @@ const MusingPage: React.FC = () => {
           <h1 className="page-title">随想录</h1>
           <p className="musing-subtitle">随手记录灵感、念头与阶段计划，不设格式，想到就写</p>
         </div>
-        <span className="musing-count">{musings.length} 条</span>
+        <div className="musing-filter">
+          {FILTER_OPTIONS.map((opt) => (
+            <button
+              key={opt.key}
+              className={`musing-filter-btn ${filter === opt.key ? 'active' : ''} ${filter === opt.key && opt.key !== 'all' ? `musing-type-${opt.key}` : ''}`}
+              onClick={() => setFilter(opt.key)}
+            >
+              {opt.label}
+            </button>
+          ))}
+          <span className="musing-count">{filtered.length} 条</span>
+        </div>
       </div>
 
       {/* Quick input (admin only) */}
