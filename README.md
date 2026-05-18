@@ -1,7 +1,7 @@
 # Personal Site
 
-> 个人网站 · 技术博客 · AI 大事纪  
-> A personal website featuring a tech blog and an AI timeline, built with a modern full-stack architecture.
+> 个人网站 · 技术博客 · 随想录 · 书架 · Issue Bin · Roadmap  
+> A personal website with a tech blog, AI timeline, bookshelf, musings, and more — built with a modern full-stack architecture.
 
 [中文](#中文) · [English](#english)
 
@@ -11,7 +11,7 @@
 
 ### 项目简介
 
-一个持续成长的个人网站，目前包含技术博客与 AI 大事纪两个板块，后续会持续扩展。支持 Markdown 写作、标签与分类管理，以及统一的后台管理系统。前后端分离，部署灵活。
+一个持续成长的个人网站，前后端分离，部署灵活。目前包含技术博客、AI 大事纪、随想录、书页间、Issue Bin、Roadmap 等板块，后续会持续扩展。支持 Markdown 写作、标签与分类管理，以及统一的后台管理系统。
 
 ### 技术栈
 
@@ -22,16 +22,20 @@
 | Markdown | react-markdown · rehype-highlight · @uiw/react-md-editor |
 | 后端 | Java 17 · Spring Boot 3 · Spring Security · MyBatis-Plus |
 | 数据库 | MySQL 8（支持全文检索） |
-| 认证 | JWT（单管理员模式） |
+| 认证 | JWT（单管理员模式，30 天有效期） |
 | 部署 | Docker Compose |
 
 ### 功能特性
 
 **公开页面**
-- 首页：个人介绍、技能展示、最新文章
+- 首页：个人介绍、技能展示、最新文章；Hero 区双栏布局，右侧技术标签浮动装饰
 - 博客列表：分页浏览，按标签 / 分类筛选
 - 博客详情：Markdown 渲染，代码语法高亮，标题锚点
 - AI 大事纪：竖向时间轴，按年份分组，记录 AI 发展里程碑
+- 随想录：时间轴展示，支持随想 / Todo 两种类型，可按类型筛选，Todo 已完成自动置底
+- 书页间：书架展示，按在读 / 想读 / 已读分类，支持评分、读后感、阅读进度
+- Issue Bin：看板式三列布局（Todo / In Progress / Done），按优先级与创建时间排序，列内容超出可滚动
+- Roadmap：功能规划与进展追踪，进度条展示整体完成率
 - 关于页
 
 **后台管理**（需登录）
@@ -39,6 +43,11 @@
 - Markdown 分栏编辑器，实时预览
 - 标签与分类管理
 - 仪表盘统计（文章数、阅读量等）
+- 随想录管理：新增 / 编辑 / 删除 / 标记完成
+- 书页间管理：新增 / 编辑 / 删除，更新阅读进度
+- Issue Bin 管理：新建 / 编辑 / 删除 / 状态流转
+- Roadmap 管理：新增 / 编辑 / 删除条目，动态维护规划内容
+- Token 过期自动登出并提示，无需手动清除本地存储
 
 ### 项目结构
 
@@ -46,11 +55,11 @@
 full-stack-project/
 ├── frontend/                  # React 前端
 │   └── src/
-│       ├── api/               # Axios 封装
+│       ├── api/               # Axios 封装（含响应拦截、错误提取）
 │       ├── components/        # 通用组件 & 布局
 │       ├── pages/             # 页面（含 admin/）
 │       ├── router/            # 路由 & 权限守卫
-│       ├── store/             # Zustand 全局状态
+│       ├── store/             # Zustand 全局状态（auth / ui）
 │       ├── types/             # TypeScript 类型
 │       └── styles/            # 主题 CSS 变量
 ├── backend/                   # Spring Boot 后端
@@ -62,6 +71,8 @@ full-stack-project/
 │       ├── dto/               # 请求 / 响应 DTO
 │       ├── security/          # JWT 认证过滤器
 │       └── config/            # Spring 配置
+├── docs/
+│   └── troubleshooting/       # 问题排查文档
 ├── docker-compose.yml
 └── README.md
 ```
@@ -101,8 +112,8 @@ cd backend
 mvn spring-boot:run
 ```
 
-- 后端地址：`http://localhost:8080`
-- Swagger UI：`http://localhost:8080/swagger-ui.html`
+- 后端地址：`http://localhost:9090`
+- Swagger UI：`http://localhost:9090/swagger-ui.html`
 
 #### 4. 启动前端
 
@@ -132,6 +143,10 @@ pnpm dev
 | `/blog` | 博客列表 |
 | `/blog/:slug` | 博客详情 |
 | `/ai` | AI 大事纪时间轴 |
+| `/musings` | 随想录 |
+| `/bookshelf` | 书页间 |
+| `/issues` | Issue Bin |
+| `/roadmap` | Roadmap |
 | `/about` | 关于 |
 | `/admin/login` | 管理员登录 |
 | `/admin/dashboard` | 仪表盘 |
@@ -148,6 +163,10 @@ GET  /api/posts/:slug           文章详情
 GET  /api/posts/ai-timeline     AI 大事纪列表
 GET  /api/tags                  标签列表
 GET  /api/categories            分类列表
+GET  /api/musings               随想录列表
+GET  /api/books                 书架列表
+GET  /api/issues                Issue 列表
+GET  /api/roadmap               Roadmap 条目列表
 POST /api/auth/login            管理员登录
 ```
 
@@ -164,6 +183,24 @@ DELETE /api/admin/tags/:id           删除标签
 POST   /api/admin/categories         创建分类
 DELETE /api/admin/categories/:id     删除分类
 GET    /api/admin/stats              仪表盘统计
+
+POST   /api/musings                  新建随想
+PUT    /api/musings/:id              编辑随想
+PATCH  /api/musings/:id/toggle       切换 Todo 完成状态
+DELETE /api/musings/:id              删除随想
+
+POST   /api/books                    新增书目
+PUT    /api/books/:id                更新书目
+DELETE /api/books/:id                删除书目
+
+POST   /api/issues                   新建 Issue
+PUT    /api/issues/:id               更新 Issue
+PATCH  /api/issues/:id/status        更新 Issue 状态
+DELETE /api/issues/:id               删除 Issue
+
+POST   /api/roadmap                  新增 Roadmap 条目
+PUT    /api/roadmap/:id              更新 Roadmap 条目
+DELETE /api/roadmap/:id              删除 Roadmap 条目
 ```
 
 ### 生产部署
@@ -199,6 +236,7 @@ SPRING_DATASOURCE_URL=jdbc:mysql://your-host:3306/blog_db?useSSL=true&serverTime
 SPRING_DATASOURCE_USERNAME=your_user
 SPRING_DATASOURCE_PASSWORD=your_password
 JWT_SECRET=your-random-secret-at-least-32-chars
+JWT_EXPIRATION_MS=2592000000   # 30天，可按需调整
 ```
 
 **迁移到云数据库**
@@ -211,22 +249,13 @@ mysql -h cloud-host -u user -p blog_db < backup.sql
 # 3. 更新 SPRING_DATASOURCE_URL 指向云端地址
 ```
 
-### 后续扩展方向
-
-- [ ] 博客评论系统
-- [ ] 全文搜索（升级 MeiliSearch）
-- [ ] 图片上传（本地 / S3）
-- [ ] RSS Feed
-- [ ] 明暗主题切换
-- [ ] 访问统计看板
-
 ---
 
 ## English
 
 ### Overview
 
-A growing personal website, currently featuring a tech blog and an AI milestone timeline, with more sections planned. Supports Markdown writing, tag & category management, and a unified admin dashboard. Decoupled frontend and backend, flexible deployment.
+A growing personal website with a tech blog, AI milestone timeline, bookshelf, musings, issue tracker, and roadmap — built with a decoupled frontend/backend architecture and flexible deployment.
 
 ### Tech Stack
 
@@ -237,23 +266,29 @@ A growing personal website, currently featuring a tech blog and an AI milestone 
 | Markdown | react-markdown · rehype-highlight · @uiw/react-md-editor |
 | Backend | Java 17 · Spring Boot 3 · Spring Security · MyBatis-Plus |
 | Database | MySQL 8 (with full-text search support) |
-| Auth | JWT (single-admin model) |
+| Auth | JWT (single-admin model, 30-day expiry) |
 | Deployment | Docker Compose |
 
 ### Features
 
 **Public Pages**
-- Home: personal intro, skills, recent posts
+- Home: personal intro, skills, recent posts; two-column Hero layout with floating tech-tag decoration
 - Blog list: paginated, filterable by tag / category
 - Blog detail: Markdown rendering, syntax highlighting, heading anchors
 - AI Timeline: vertical timeline grouped by year, tracking AI milestones
+- Musings: timeline view with idea / todo types, filterable by type, completed todos sink to the bottom
+- Bookshelf: categorized by reading status, with rating, review, and progress tracking
+- Issue Bin: kanban board (Todo / In Progress / Done), sorted by priority and creation time, columns scroll independently
+- Roadmap: feature planning with overall progress bar, dynamically managed from the admin panel
 - About page
 
 **Admin Panel** (login required)
-- Post management: create / edit / delete / publish, supporting both blog posts and AI timeline entries
+- Post management: create / edit / delete / publish (blog posts & AI timeline entries)
 - Split-pane Markdown editor with live preview
 - Tag & category management
 - Dashboard stats (post count, total views, etc.)
+- Full CRUD for musings, books, issues, and roadmap items
+- Token expiry: auto logout with toast notification, no manual localStorage cleanup needed
 
 ### Project Structure
 
@@ -261,11 +296,11 @@ A growing personal website, currently featuring a tech blog and an AI milestone 
 full-stack-project/
 ├── frontend/                  # React frontend
 │   └── src/
-│       ├── api/               # Axios wrappers
+│       ├── api/               # Axios wrappers (with interceptors & error extraction)
 │       ├── components/        # Shared components & layouts
 │       ├── pages/             # Pages (including admin/)
 │       ├── router/            # Routes & auth guard
-│       ├── store/             # Zustand global state
+│       ├── store/             # Zustand global state (auth / ui)
 │       ├── types/             # TypeScript types
 │       └── styles/            # CSS theme variables
 ├── backend/                   # Spring Boot backend
@@ -277,6 +312,8 @@ full-stack-project/
 │       ├── dto/               # Request / response DTOs
 │       ├── security/          # JWT auth filter
 │       └── config/            # Spring configuration
+├── docs/
+│   └── troubleshooting/       # Troubleshooting guides
 ├── docker-compose.yml
 └── README.md
 ```
@@ -316,8 +353,8 @@ cd backend
 mvn spring-boot:run
 ```
 
-- Backend: `http://localhost:8080`
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- Backend: `http://localhost:9090`
+- Swagger UI: `http://localhost:9090/swagger-ui.html`
 
 #### 4. Start the Frontend
 
@@ -347,6 +384,10 @@ pnpm dev
 | `/blog` | Blog list |
 | `/blog/:slug` | Blog post detail |
 | `/ai` | AI timeline |
+| `/musings` | Musings |
+| `/bookshelf` | Bookshelf |
+| `/issues` | Issue Bin |
+| `/roadmap` | Roadmap |
 | `/about` | About |
 | `/admin/login` | Admin login |
 | `/admin/dashboard` | Dashboard |
@@ -363,6 +404,10 @@ GET  /api/posts/:slug           Post detail
 GET  /api/posts/ai-timeline     AI timeline entries
 GET  /api/tags                  All tags
 GET  /api/categories            All categories
+GET  /api/musings               Musings list
+GET  /api/books                 Bookshelf list
+GET  /api/issues                Issue list
+GET  /api/roadmap               Roadmap items
 POST /api/auth/login            Admin login
 ```
 
@@ -379,6 +424,24 @@ DELETE /api/admin/tags/:id           Delete tag
 POST   /api/admin/categories         Create category
 DELETE /api/admin/categories/:id     Delete category
 GET    /api/admin/stats              Dashboard stats
+
+POST   /api/musings                  Create musing
+PUT    /api/musings/:id              Update musing
+PATCH  /api/musings/:id/toggle       Toggle todo done state
+DELETE /api/musings/:id              Delete musing
+
+POST   /api/books                    Add book
+PUT    /api/books/:id                Update book
+DELETE /api/books/:id                Delete book
+
+POST   /api/issues                   Create issue
+PUT    /api/issues/:id               Update issue
+PATCH  /api/issues/:id/status        Update issue status
+DELETE /api/issues/:id               Delete issue
+
+POST   /api/roadmap                  Create roadmap item
+PUT    /api/roadmap/:id              Update roadmap item
+DELETE /api/roadmap/:id              Delete roadmap item
 ```
 
 ### Production Deployment
@@ -412,6 +475,7 @@ SPRING_DATASOURCE_URL=jdbc:mysql://your-host:3306/blog_db?useSSL=true&serverTime
 SPRING_DATASOURCE_USERNAME=your_user
 SPRING_DATASOURCE_PASSWORD=your_password
 JWT_SECRET=your-random-secret-at-least-32-chars
+JWT_EXPIRATION_MS=2592000000   # 30 days, adjust as needed
 ```
 
 **Migrate to a cloud database**
@@ -423,12 +487,3 @@ mysqldump -u root -p blog_db > backup.sql
 mysql -h cloud-host -u user -p blog_db < backup.sql
 # Update SPRING_DATASOURCE_URL to point to the cloud host
 ```
-
-### Roadmap
-
-- [ ] Comment system
-- [ ] Full-text search (MeiliSearch upgrade)
-- [ ] Image upload (local / S3)
-- [ ] RSS Feed
-- [ ] Dark / light theme toggle
-- [ ] Analytics dashboard
