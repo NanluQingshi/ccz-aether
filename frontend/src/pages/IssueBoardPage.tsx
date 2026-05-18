@@ -108,7 +108,7 @@ const IssueBoardPage: React.FC = () => {
   if (loading) return <LoadingSpinner fullPage />;
 
   return (
-    <div className="container page-content">
+    <div className="container page-content page-content--board">
       <div className="issue-header">
         <div>
           <h1 className="page-title" style={{ marginBottom: '0.25rem' }}>Issue Bin</h1>
@@ -122,7 +122,9 @@ const IssueBoardPage: React.FC = () => {
       {/* 看板 */}
       <div className="issue-board">
         {STATUS_COLS.map((col) => {
-          const colIssues = issues.filter((i) => i.status === col.key);
+          const colIssues = issues
+            .filter((i) => i.status === col.key)
+            .sort((a, b) => b.priority - a.priority || new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
           return (
             <div key={col.key} className={`issue-col ${col.color}`}>
               <div className="issue-col-header">

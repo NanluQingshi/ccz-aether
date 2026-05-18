@@ -1203,6 +1203,11 @@
 }
 
 /* ─── Issue Board ─────────────────────────────── */
+/* 看板页不需要底部额外留白（footer 已 fixed） */
+.page-content--board {
+  padding-bottom: 0;
+}
+
 .issue-header {
   display: flex;
   align-items: flex-end;
@@ -1220,12 +1225,16 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
-  align-items: start;
+  /* navbar 64px + footer 48px + page header ~110px + 上下 padding 80px */
+  height: calc(100vh - 302px);
+  align-items: stretch;
 }
 
 .issue-col {
   border-radius: var(--radius-lg);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .issue-col-header {
@@ -1256,7 +1265,8 @@
   gap: 0.75rem;
   padding: 0.75rem;
   background: rgba(0,0,0,0.02);
-  min-height: 120px;
+  flex: 1;
+  overflow-y: auto;
   border: 1px solid var(--color-border);
   border-top: none;
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
