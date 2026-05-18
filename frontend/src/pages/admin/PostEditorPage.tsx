@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MDEditor from '@uiw/react-md-editor';
 import { adminCreatePost, adminUpdatePost, adminGetPosts } from '../../api/posts';
+import { getErrorMessage } from '../../api/client';
 import { getTags } from '../../api/tags';
 import { getCategories } from '../../api/categories';
 import { useUiStore } from '../../store/uiStore';
@@ -98,8 +99,8 @@ const PostEditorPage: React.FC = () => {
         addToast('创建成功', 'success');
         navigate('/admin/posts');
       }
-    } catch {
-      addToast('保存失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '保存失败'); if (msg) addToast(msg, 'error');
     } finally {
       setLoading(false);
     }

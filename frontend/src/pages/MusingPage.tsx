@@ -3,6 +3,7 @@ import {
   getMusings, createMusing, updateMusing, toggleMusingDone, deleteMusing,
   type Musing, type MusingRequest,
 } from '../api/musings';
+import { getErrorMessage } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
@@ -72,8 +73,8 @@ const MusingPage: React.FC = () => {
       setInputVal('');
       load();
       inputRef.current?.focus();
-    } catch {
-      addToast('添加失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '添加失败'); if (msg) addToast(msg, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -95,8 +96,8 @@ const MusingPage: React.FC = () => {
       setMusings((prev) => prev.map((m) => m.id === id ? res.data : m));
       setEditingId(null);
       addToast('已更新', 'success');
-    } catch {
-      addToast('更新失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '更新失败'); if (msg) addToast(msg, 'error');
     }
   };
 
@@ -104,8 +105,8 @@ const MusingPage: React.FC = () => {
     try {
       const res = await toggleMusingDone(id);
       setMusings((prev) => prev.map((m) => m.id === id ? res.data : m));
-    } catch {
-      addToast('操作失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '操作失败'); if (msg) addToast(msg, 'error');
     }
   };
 
@@ -115,8 +116,8 @@ const MusingPage: React.FC = () => {
       await deleteMusing(id);
       setMusings((prev) => prev.filter((m) => m.id !== id));
       addToast('已删除', 'success');
-    } catch {
-      addToast('删除失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '删除失败'); if (msg) addToast(msg, 'error');
     }
   };
 
