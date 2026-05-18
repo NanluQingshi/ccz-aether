@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../api/auth';
+import { getErrorMessage } from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
 
@@ -20,8 +21,8 @@ const LoginPage: React.FC = () => {
       const res = await login({ username, password });
       storeLogin(res.data.token, res.data.username);
       navigate('/admin/dashboard');
-    } catch {
-      addToast('用户名或密码错误', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '用户名或密码错误'); if (msg) addToast(msg, 'error');
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@ import {
   getBooks, createBook, updateBook, deleteBook,
   type Book, type BookRequest,
 } from '../api/books';
+import { getErrorMessage } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
@@ -128,8 +129,8 @@ const BookshelfPage: React.FC = () => {
       }
       closeDrawer();
       load();
-    } catch {
-      addToast('操作失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '操作失败'); if (msg) addToast(msg, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -142,8 +143,8 @@ const BookshelfPage: React.FC = () => {
       setBooks((prev) => prev.filter((b) => b.id !== id));
       closeDrawer();
       addToast('已删除', 'success');
-    } catch {
-      addToast('删除失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '删除失败'); if (msg) addToast(msg, 'error');
     }
   };
 
@@ -164,8 +165,8 @@ const BookshelfPage: React.FC = () => {
       if (drawerBook?.id === book.id) {
         setDrawerBook((prev) => prev ? { ...prev, readPages: newReadPages } : prev);
       }
-    } catch {
-      addToast('更新失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '更新失败'); if (msg) addToast(msg, 'error');
     }
   };
 

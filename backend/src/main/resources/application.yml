@@ -19,7 +19,7 @@ mybatis-plus:
 
 jwt:
   secret: ${JWT_SECRET:dev-secret-key-must-be-at-least-32-characters-long}
-  expiration-ms: ${JWT_EXPIRATION_MS:604800000}
+  expiration-ms: ${JWT_EXPIRATION_MS:2592000000}
 
 server:
   port: 8080

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { adminGetPosts, adminDeletePost, adminTogglePublish } from '../../api/posts';
+import { getErrorMessage } from '../../api/client';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
 import { useUiStore } from '../../store/uiStore';
@@ -33,8 +34,8 @@ const PostManagerPage: React.FC = () => {
       await adminDeletePost(id);
       addToast('已删除', 'success');
       load();
-    } catch {
-      addToast('删除失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '删除失败'); if (msg) addToast(msg, 'error');
     }
   };
 
@@ -43,8 +44,8 @@ const PostManagerPage: React.FC = () => {
       await adminTogglePublish(id);
       addToast('状态已更新', 'success');
       load();
-    } catch {
-      addToast('操作失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '操作失败'); if (msg) addToast(msg, 'error');
     }
   };
 

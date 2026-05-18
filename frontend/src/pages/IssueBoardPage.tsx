@@ -3,6 +3,7 @@ import {
   getIssues, createIssue, updateIssue, updateIssueStatus, deleteIssue,
   type Issue, type IssueRequest,
 } from '../api/issues';
+import { getErrorMessage } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
@@ -77,8 +78,8 @@ const IssueBoardPage: React.FC = () => {
       }
       setShowForm(false);
       load();
-    } catch {
-      addToast('操作失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '操作失败'); if (msg) addToast(msg, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -88,8 +89,8 @@ const IssueBoardPage: React.FC = () => {
     try {
       await updateIssueStatus(id, status);
       setIssues((prev) => prev.map((i) => i.id === id ? { ...i, status } : i));
-    } catch {
-      addToast('更新失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '更新失败'); if (msg) addToast(msg, 'error');
     }
   };
 
@@ -99,8 +100,8 @@ const IssueBoardPage: React.FC = () => {
       await deleteIssue(id);
       setIssues((prev) => prev.filter((i) => i.id !== id));
       addToast('已删除', 'success');
-    } catch {
-      addToast('删除失败', 'error');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '删除失败'); if (msg) addToast(msg, 'error');
     }
   };
 
