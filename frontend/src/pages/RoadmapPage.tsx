@@ -1,107 +1,144 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  getRoadmapItems, createRoadmapItem, updateRoadmapItem, deleteRoadmapItem,
+  type RoadmapItem, type RoadmapItemRequest,
+} from '../api/roadmap';
+import { getErrorMessage } from '../api/client';
+import { useAuthStore } from '../store/authStore';
+import { useUiStore } from '../store/uiStore';
+import { LoadingSpinner } from '../components/ui/LoadingSpinner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 
-type Priority = 'high' | 'medium' | 'low';
-type Status = 'done' | 'planned';
-
-interface Feature {
-  name: string;
-  desc: string;
-  status: Status;
-  priority?: Priority;
-}
-
-interface FeatureGroup {
-  label: string;
-  icon: string;
-  features: Feature[];
-}
-
-const groups: FeatureGroup[] = [
-  {
-    label: '内容',
-    icon: '◈',
-    features: [
-      { name: '技术博客', desc: 'Markdown 写作，代码高亮，标签 / 分类筛选', status: 'done' },
-      { name: 'AI 大事纪', desc: '竖向时间轴，按年份分组，记录 AI 发展里程碑', status: 'done' },
-      { name: '评论系统', desc: '访客可在博客文章下留言互动', status: 'planned', priority: 'medium' },
-      { name: 'RSS Feed', desc: '输出标准 RSS，方便订阅工具抓取', status: 'planned', priority: 'low' },
-      { name: '知识库', desc: '整理、沉淀个人技术笔记与学习资料，支持分类检索', status: 'planned', priority: 'low' },
-      { name: 'Issue Bin', desc: '记录暂时无法解决的技术问题，方便后续追踪与复盘', status: 'done' },
-      { name: '修炼手册', desc: '制定个人学习计划，追踪各方向的学习进度与阶段目标', status: 'planned', priority: 'low' },
-      { name: '书页间', desc: '记录已读与在读书目，附上个人评分与读后感', status: 'done' },
-      { name: '个人 Todo', desc: '日常事项与目标追踪，和网站功能无关的个人待办', status: 'planned', priority: 'low' },
-      { name: '随想录', desc: '随手记录灵感、念头与阶段计划，不设格式，想到就写', status: 'done' },
-    ],
-  },
-  {
-    label: '功能',
-    icon: '⚙',
-    features: [
-      { name: 'Markdown 编辑器', desc: '分栏实时预览，后台写作体验', status: 'done' },
-      { name: '标签 / 分类管理', desc: '多维度组织文章内容', status: 'done' },
-      { name: '全文搜索', desc: '快速检索站内所有文章', status: 'planned', priority: 'high' },
-      { name: '图片上传', desc: '支持本地存储或 S3，告别外链依赖', status: 'planned', priority: 'medium' },
-    ],
-  },
-  {
-    label: '管理后台',
-    icon: '⊞',
-    features: [
-      { name: 'JWT 认证', desc: '单管理员登录，Token 鉴权', status: 'done' },
-      { name: '文章管理', desc: '创建、编辑、删除、发布一站式管理', status: 'done' },
-      { name: '仪表盘统计', desc: '文章数、阅读量等核心数据一览', status: 'done' },
-      { name: '访问统计看板', desc: '更详细的 PV / UV 与热门文章分析', status: 'planned', priority: 'low' },
-    ],
-  },
-  {
-    label: '体验',
-    icon: '✦',
-    features: [
-      { name: '暗色科技感主题', desc: '全站统一的深色 UI，霓虹青 / 紫双主色', status: 'done' },
-      { name: '响应式布局', desc: '适配移动端、平板、桌面多种屏幕', status: 'done' },
-      { name: '明暗主题切换', desc: '用户可自由切换 Dark / Light 模式', status: 'planned', priority: 'medium' },
-    ],
-  },
-  {
-    label: '部署',
-    icon: '⬡',
-    features: [
-      { name: 'Docker Compose', desc: '一键启动 MySQL + 后端容器', status: 'done' },
-      { name: '云数据库支持', desc: '通过环境变量无缝切换本地 / 云端 MySQL', status: 'done' },
-    ],
-  },
-];
-
-const priorityMap: Record<Priority, { label: string; className: string }> = {
+const PRIORITY_MAP: Record<string, { label: string; className: string }> = {
   high:   { label: '高', className: 'priority-high' },
   medium: { label: '中', className: 'priority-medium' },
   low:    { label: '低', className: 'priority-low' },
 };
 
-const priorityOrder: Record<Priority, number> = { high: 0, medium: 1, low: 2 };
+const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
-const sortFeatures = (features: Feature[]): Feature[] => [
-  ...features.filter((f) => f.status === 'done'),
-  ...features
-    .filter((f) => f.status === 'planned')
-    .sort((a, b) => priorityOrder[a.priority ?? 'low'] - priorityOrder[b.priority ?? 'low']),
-];
+const EMPTY_FORM: RoadmapItemRequest = {
+  groupLabel: '', groupIcon: '', name: '', description: '',
+  status: 'planned', priority: 'medium', sortOrder: 0,
+};
+
+function groupItems(items: RoadmapItem[]): { label: string; icon: string; items: RoadmapItem[] }[] {
+  const map = new Map<string, { label: string; icon: string; items: RoadmapItem[] }>();
+  for (const item of items) {
+    if (!map.has(item.groupLabel)) {
+      map.set(item.groupLabel, { label: item.groupLabel, icon: item.groupIcon ?? '', items: [] });
+    }
+    map.get(item.groupLabel)!.items.push(item);
+  }
+  return Array.from(map.values());
+}
+
+function sortItems(items: RoadmapItem[]): RoadmapItem[] {
+  return [...items].sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'done' ? -1 : 1;
+    if (a.status === 'planned' && b.status === 'planned') {
+      return (PRIORITY_ORDER[a.priority ?? 'low'] ?? 2) - (PRIORITY_ORDER[b.priority ?? 'low'] ?? 2);
+    }
+    return 0;
+  });
+}
 
 const RoadmapPage: React.FC = () => {
-  const allFeatures = groups.flatMap((g) => g.features);
-  const doneCount = allFeatures.filter((f) => f.status === 'done').length;
-  const totalCount = allFeatures.length;
-  const percent = Math.round((doneCount / totalCount) * 100);
+  const { token } = useAuthStore();
+  const { addToast, showConfirm } = useUiStore();
+  const isAdmin = !!token;
+
+  const [items, setItems] = useState<RoadmapItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [form, setForm] = useState<RoadmapItemRequest>(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
+
+  const load = () => {
+    setLoading(true);
+    getRoadmapItems()
+      .then((r) => setItems(r.data))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const openCreate = () => {
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+    setShowForm(true);
+  };
+
+  const openEdit = (item: RoadmapItem) => {
+    setEditingId(item.id);
+    setForm({
+      groupLabel: item.groupLabel,
+      groupIcon: item.groupIcon ?? '',
+      name: item.name,
+      description: item.description ?? '',
+      status: item.status,
+      priority: item.priority ?? '',
+      sortOrder: item.sortOrder,
+    });
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.groupLabel.trim() || !form.name.trim()) return;
+    setSubmitting(true);
+    const payload: RoadmapItemRequest = {
+      ...form,
+      priority: form.status === 'done' ? undefined : (form.priority || undefined),
+    };
+    try {
+      if (editingId !== null) {
+        await updateRoadmapItem(editingId, payload);
+        addToast('已更新', 'success');
+      } else {
+        await createRoadmapItem(payload);
+        addToast('已创建', 'success');
+      }
+      setShowForm(false);
+      load();
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '操作失败'); if (msg) addToast(msg, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!await showConfirm('确认删除这条 Roadmap 条目？')) return;
+    try {
+      await deleteRoadmapItem(id);
+      setItems((prev) => prev.filter((i) => i.id !== id));
+      addToast('已删除', 'success');
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '删除失败'); if (msg) addToast(msg, 'error');
+    }
+  };
+
+  if (loading) return <LoadingSpinner fullPage />;
+
+  const doneCount = items.filter((i) => i.status === 'done').length;
+  const totalCount = items.length;
+  const percent = totalCount === 0 ? 0 : Math.round((doneCount / totalCount) * 100);
+  const groups = groupItems(items);
 
   return (
     <div className="container page-content">
-      {/* Header */}
       <div className="roadmap-header">
-        <h1 className="page-title">Roadmap</h1>
-        <p className="roadmap-subtitle">功能规划与进展追踪</p>
+        <div>
+          <h1 className="page-title">Roadmap</h1>
+          <p className="roadmap-subtitle">功能规划与进展追踪</p>
+        </div>
+        {isAdmin && (
+          <button className="btn btn-soft" onClick={openCreate}>+ 新增</button>
+        )}
       </div>
 
-      {/* Progress bar */}
       <div className="roadmap-progress-wrap">
         <div className="roadmap-progress-header">
           <span className="roadmap-progress-label">
@@ -111,19 +148,14 @@ const RoadmapPage: React.FC = () => {
           <span className="roadmap-progress-percent">{percent}%</span>
         </div>
         <div className="roadmap-progress-bar">
-          <div
-            className="roadmap-progress-fill"
-            style={{ width: `${percent}%` }}
-          />
+          <div className="roadmap-progress-fill" style={{ width: `${percent}%` }} />
         </div>
       </div>
 
-      {/* Priority note */}
       <p className="roadmap-priority-note">
         优先级基于当前的开发想法与技术储备评估，仅供参考，会随实际情况动态调整。
       </p>
 
-      {/* Groups */}
       {groups.map((group) => (
         <div key={group.label} className="roadmap-group">
           <h2 className="roadmap-group-title">
@@ -131,28 +163,120 @@ const RoadmapPage: React.FC = () => {
             {group.label}
           </h2>
           <div className="roadmap-grid">
-            {sortFeatures(group.features).map((feature) => (
+            {sortItems(group.items).map((item) => (
               <div
-                key={feature.name}
-                className={`roadmap-card ${feature.status === 'done' ? 'roadmap-card-done' : 'roadmap-card-planned'}`}
+                key={item.id}
+                className={`roadmap-card ${item.status === 'done' ? 'roadmap-card-done' : 'roadmap-card-planned'}`}
               >
                 <div className="roadmap-card-top">
-                  <span className={`roadmap-status-icon ${feature.status === 'done' ? 'icon-done' : 'icon-planned'}`}>
-                    {feature.status === 'done' ? '✓' : '○'}
+                  <span className={`roadmap-status-icon ${item.status === 'done' ? 'icon-done' : 'icon-planned'}`}>
+                    {item.status === 'done' ? '✓' : '○'}
                   </span>
-                  {feature.priority && (
-                    <span className={`roadmap-priority ${priorityMap[feature.priority].className}`}>
-                      {priorityMap[feature.priority].label}
+                  {item.priority && item.status === 'planned' && (
+                    <span className={`roadmap-priority ${PRIORITY_MAP[item.priority]?.className}`}>
+                      {PRIORITY_MAP[item.priority]?.label}
                     </span>
                   )}
+                  {isAdmin && (
+                    <div className="roadmap-card-admin">
+                      <button className="issue-action-btn" onClick={() => openEdit(item)}>编辑</button>
+                      <button className="issue-action-btn danger" onClick={() => handleDelete(item.id)}>删除</button>
+                    </div>
+                  )}
                 </div>
-                <h3 className="roadmap-card-name">{feature.name}</h3>
-                <p className="roadmap-card-desc">{feature.desc}</p>
+                <h3 className="roadmap-card-name">{item.name}</h3>
+                {item.description && <p className="roadmap-card-desc">{item.description}</p>}
               </div>
             ))}
           </div>
         </div>
       ))}
+
+      {showForm && (
+        <div className="issue-modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="issue-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="issue-modal-title">{editingId !== null ? '编辑条目' : '新增条目'}</h3>
+            <form onSubmit={handleSubmit} className="issue-form">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px', gap: '0.75rem' }}>
+                <div className="form-group">
+                  <label className="form-label">分组名称</label>
+                  <input
+                    value={form.groupLabel}
+                    onChange={(e) => setForm((f) => ({ ...f, groupLabel: e.target.value }))}
+                    placeholder="如：内容、功能、体验"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">图标</label>
+                  <input
+                    value={form.groupIcon}
+                    onChange={(e) => setForm((f) => ({ ...f, groupIcon: e.target.value }))}
+                    placeholder="◈"
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">功能名称</label>
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  placeholder="简要描述功能"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">功能描述</label>
+                <textarea
+                  rows={2}
+                  value={form.description}
+                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                  placeholder="可选"
+                />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-group">
+                  <label className="form-label">状态</label>
+                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as 'done' | 'planned' }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="planned">Planned</SelectItem>
+                      <SelectItem value="done">Done</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {form.status === 'planned' && (
+                  <div className="form-group">
+                    <label className="form-label">优先级</label>
+                    <Select value={form.priority ?? ''} onValueChange={(v) => setForm((f) => ({ ...f, priority: v as 'high' | 'medium' | 'low' }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="high">高</SelectItem>
+                        <SelectItem value="medium">中</SelectItem>
+                        <SelectItem value="low">低</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+              <div className="form-group">
+                <label className="form-label">排序值（同组内越小越靠前）</label>
+                <input
+                  type="number"
+                  value={form.sortOrder ?? 0}
+                  onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))}
+                />
+              </div>
+              <div className="issue-form-actions">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>取消</button>
+                <button type="submit" className="btn btn-primary" disabled={submitting}>
+                  {submitting ? '保存中...' : '保存'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

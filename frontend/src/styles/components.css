@@ -1010,6 +1010,15 @@
   margin-bottom: 0.25rem;
 }
 
+.roadmap-card-admin {
+  display: flex;
+  gap: 0.3rem;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.roadmap-card:hover .roadmap-card-admin { opacity: 1; }
+
 .roadmap-status-icon {
   font-size: 1rem;
   font-weight: 700;
