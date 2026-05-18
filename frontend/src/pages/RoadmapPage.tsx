@@ -130,13 +130,13 @@ const RoadmapPage: React.FC = () => {
   return (
     <div className="container page-content">
       <div className="roadmap-header">
-        <div>
+        <div className="roadmap-title-row">
           <h1 className="page-title">Roadmap</h1>
-          <p className="roadmap-subtitle">功能规划与进展追踪</p>
+          <span className="roadmap-subtitle">功能规划与进展追踪</span>
         </div>
-        {isAdmin && (
-          <button className="btn btn-soft" onClick={openCreate}>+ 新增</button>
-        )}
+        <p className="roadmap-priority-note">
+          优先级基于当前的开发想法与技术储备评估，仅供参考，会随实际情况动态调整。
+        </p>
       </div>
 
       <div className="roadmap-progress-wrap">
@@ -146,15 +146,16 @@ const RoadmapPage: React.FC = () => {
             <span className="roadmap-progress-fraction">{doneCount} / {totalCount}</span>
           </span>
           <span className="roadmap-progress-percent">{percent}%</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {isAdmin && (
+              <button className="btn btn-soft btn-sm" onClick={openCreate}>+ 新增条目</button>
+            )}
+          </div>
         </div>
         <div className="roadmap-progress-bar">
           <div className="roadmap-progress-fill" style={{ width: `${percent}%` }} />
         </div>
       </div>
-
-      <p className="roadmap-priority-note">
-        优先级基于当前的开发想法与技术储备评估，仅供参考，会随实际情况动态调整。
-      </p>
 
       {groups.map((group) => (
         <div key={group.label} className="roadmap-group">

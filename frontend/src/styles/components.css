@@ -894,10 +894,20 @@
 /* ─── Roadmap Page ───────────────────────────── */
 .roadmap-header { margin-bottom: 2rem; }
 
+.roadmap-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.roadmap-title-row .page-title {
+  margin-bottom: 0;
+}
+
 .roadmap-subtitle {
   color: var(--color-text-secondary);
-  font-size: 1rem;
-  margin-top: -1rem;
+  font-size: 0.95rem;
 }
 
 .roadmap-progress-wrap {
@@ -1059,7 +1069,7 @@
   color: var(--color-text-muted);
   border-left: 2px solid var(--color-border);
   padding-left: 0.75rem;
-  margin: 0 0 2.5rem;
+  margin: 0;
   line-height: 1.6;
 }
 
