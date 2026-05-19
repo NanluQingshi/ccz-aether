@@ -18,8 +18,8 @@ public class Practice {
     private String categoryIcon;
     private String name;
     private String description;
-    // learning | proficient | mastered
-    private String level;
+    // todo | in_progress | mastered
+    private String status;
     private Integer sortOrder;
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

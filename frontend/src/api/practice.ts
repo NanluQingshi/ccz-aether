@@ -7,7 +7,7 @@ export interface Practice {
   categoryIcon: string;
   name: string;
   description: string;
-  level: 'learning' | 'proficient' | 'mastered';
+  status: 'todo' | 'in_progress' | 'mastered';
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -18,7 +18,7 @@ export interface PracticeRequest {
   categoryIcon: string;
   name: string;
   description?: string;
-  level: 'learning' | 'proficient' | 'mastered';
+  status: 'todo' | 'in_progress' | 'mastered';
   sortOrder: number;
 }
 

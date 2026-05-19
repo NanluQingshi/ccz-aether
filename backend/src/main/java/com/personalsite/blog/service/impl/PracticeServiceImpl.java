@@ -33,7 +33,7 @@ public class PracticeServiceImpl implements PracticeService {
         practice.setCategoryIcon(req.getCategoryIcon());
         practice.setName(req.getName());
         practice.setDescription(req.getDescription());
-        practice.setLevel(req.getLevel() != null ? req.getLevel() : "learning");
+        practice.setStatus(req.getStatus() != null ? req.getStatus() : "todo");
         practice.setSortOrder(req.getSortOrder() != null ? req.getSortOrder() : 0);
         practiceMapper.insert(practice);
         return practice;
@@ -47,7 +47,7 @@ public class PracticeServiceImpl implements PracticeService {
         practice.setCategoryIcon(req.getCategoryIcon());
         practice.setName(req.getName());
         practice.setDescription(req.getDescription());
-        if (req.getLevel() != null) practice.setLevel(req.getLevel());
+        if (req.getStatus() != null) practice.setStatus(req.getStatus());
         if (req.getSortOrder() != null) practice.setSortOrder(req.getSortOrder());
         practiceMapper.updateById(practice);
         return practice;

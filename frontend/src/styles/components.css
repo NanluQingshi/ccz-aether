@@ -1233,6 +1233,14 @@
   border-color: var(--color-text-muted);
 }
 
+.practice-card-in-progress {
+  border-color: rgba(168, 85, 247, 0.25);
+}
+
+.practice-card-in-progress:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
 .practice-card-mastered {
   border-color: rgba(0, 212, 255, 0.3);
   box-shadow: 0 0 10px rgba(0, 212, 255, 0.06);
@@ -1276,43 +1284,33 @@
   line-height: 1.55;
 }
 
-/* Level dots */
-.practice-level-dots {
-  display: flex;
+/* Status badge */
+.practice-status-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 3px;
-}
-
-.practice-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--color-border);
-  transition: background 0.2s;
-}
-
-.practice-level-dots.level-learning .practice-dot.filled {
-  background: var(--color-text-muted);
-}
-
-.practice-level-dots.level-proficient .practice-dot.filled {
-  background: var(--color-neon-purple);
-}
-
-.practice-level-dots.level-mastered .practice-dot.filled {
-  background: var(--color-neon-cyan);
-  box-shadow: 0 0 4px rgba(0, 212, 255, 0.6);
-}
-
-.practice-level-label {
-  font-size: 0.76rem;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 0.72rem;
   font-weight: 500;
-  margin-left: 5px;
-  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
 }
 
-.practice-level-dots.level-mastered .practice-level-label {
+.practice-status-badge.status-todo {
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
+.practice-status-badge.status-in-progress {
+  color: var(--color-neon-purple);
+  background: rgba(168, 85, 247, 0.1);
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.practice-status-badge.status-mastered {
   color: var(--color-neon-cyan);
+  background: rgba(0, 212, 255, 0.08);
+  border-color: rgba(0, 212, 255, 0.3);
 }
 
 @media (max-width: 640px) {

@@ -172,7 +172,7 @@ CREATE TABLE IF NOT EXISTS `practice` (
   `category_icon` VARCHAR(16)  COMMENT '分类图标字符',
   `name`          VARCHAR(128) NOT NULL COMMENT '技能名称',
   `description`   VARCHAR(512) COMMENT '技能描述',
-  `level`         VARCHAR(16)  NOT NULL DEFAULT 'learning' COMMENT 'learning | proficient | mastered',
+  `status`        VARCHAR(16)  NOT NULL DEFAULT 'todo' COMMENT 'todo | in_progress | mastered',
   `sort_order`    INT          NOT NULL DEFAULT 0 COMMENT '同分类内排序',
   `created_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

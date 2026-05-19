@@ -10,24 +10,24 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 import { Pencil, Trash2 } from 'lucide-react';
 
-const LEVEL_MAP: Record<string, { label: string; dots: number; className: string }> = {
-  learning:   { label: '入门',   dots: 1, className: 'level-learning' },
-  proficient: { label: '熟练',   dots: 2, className: 'level-proficient' },
-  mastered:   { label: '精通',   dots: 3, className: 'level-mastered' },
+const STATUS_MAP: Record<string, { label: string; className: string }> = {
+  todo:        { label: '待学习', className: 'status-todo' },
+  in_progress: { label: '学习中', className: 'status-in-progress' },
+  mastered:    { label: '已掌握', className: 'status-mastered' },
 };
 
-type FilterLevel = 'all' | 'learning' | 'proficient' | 'mastered';
+type FilterStatus = 'all' | 'todo' | 'in_progress' | 'mastered';
 
-const FILTER_OPTIONS: { key: FilterLevel; label: string }[] = [
-  { key: 'all',       label: '全部' },
-  { key: 'learning',  label: '入门' },
-  { key: 'proficient', label: '熟练' },
-  { key: 'mastered',  label: '精通' },
+const FILTER_OPTIONS: { key: FilterStatus; label: string }[] = [
+  { key: 'all',         label: '全部' },
+  { key: 'todo',        label: '待学习' },
+  { key: 'in_progress', label: '学习中' },
+  { key: 'mastered',    label: '已掌握' },
 ];
 
 const EMPTY_FORM: PracticeRequest = {
   category: '', categoryIcon: '', name: '', description: '',
-  level: 'learning', sortOrder: 0,
+  status: 'todo', sortOrder: 0,
 };
 
 function groupItems(items: Practice[]): { category: string; icon: string; items: Practice[] }[] {
@@ -41,16 +41,9 @@ function groupItems(items: Practice[]): { category: string; icon: string; items:
   return Array.from(map.values());
 }
 
-const LevelDots: React.FC<{ level: string }> = ({ level }) => {
-  const config = LEVEL_MAP[level] ?? LEVEL_MAP.learning;
-  return (
-    <span className={`practice-level-dots ${config.className}`}>
-      {[1, 2, 3].map((n) => (
-        <span key={n} className={`practice-dot ${n <= config.dots ? 'filled' : ''}`} />
-      ))}
-      <span className="practice-level-label">{config.label}</span>
-    </span>
-  );
+const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
+  const config = STATUS_MAP[status] ?? STATUS_MAP.todo;
+  return <span className={`practice-status-badge ${config.className}`}>{config.label}</span>;
 };
 
 const PracticePage: React.FC = () => {
@@ -60,7 +53,7 @@ const PracticePage: React.FC = () => {
 
   const [items, setItems] = useState<Practice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<FilterLevel>('all');
+  const [filter, setFilter] = useState<FilterStatus>('all');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<PracticeRequest>(EMPTY_FORM);
@@ -88,7 +81,7 @@ const PracticePage: React.FC = () => {
       categoryIcon: item.categoryIcon ?? '',
       name: item.name,
       description: item.description ?? '',
-      level: item.level,
+      status: item.status,
       sortOrder: item.sortOrder,
     });
     setShowForm(true);
@@ -128,18 +121,21 @@ const PracticePage: React.FC = () => {
 
   if (loading) return <LoadingSpinner fullPage />;
 
-  const filtered = filter === 'all' ? items : items.filter((i) => i.level === filter);
+  const filtered = filter === 'all' ? items : items.filter((i) => i.status === filter);
   const groups = groupItems(filtered);
-  const masteredCount = items.filter((i) => i.level === 'mastered').length;
+  const inProgressCount = items.filter((i) => i.status === 'in_progress').length;
+  const masteredCount = items.filter((i) => i.status === 'mastered').length;
 
   return (
     <div className="container page-content">
       <div className="practice-header">
         <div className="practice-title-row">
           <h1 className="page-title">修炼手册</h1>
-          <span className="practice-subtitle">技能修炼路径与掌握进度</span>
+          <span className="practice-subtitle">学习路线与进度追踪</span>
         </div>
-        <p className="practice-desc">记录各方向的学习进度，精通 {masteredCount} 项</p>
+        <p className="practice-desc">
+          共 {items.length} 项 · {inProgressCount} 项学习中 · {masteredCount} 项已掌握
+        </p>
       </div>
 
       <div className="practice-filter-bar">
@@ -150,8 +146,7 @@ const PracticePage: React.FC = () => {
               className={`filter-chip ${filter === opt.key ? 'active' : ''}`}
               onClick={() => setFilter(opt.key)}
             >
-              {opt.key !== 'all' && <LevelDots level={opt.key} />}
-              {opt.key === 'all' && opt.label}
+              {opt.label}
             </button>
           ))}
         </div>
@@ -174,10 +169,10 @@ const PracticePage: React.FC = () => {
             {group.items.map((item) => (
               <div
                 key={item.id}
-                className={`practice-card practice-card-${item.level}`}
+                className={`practice-card practice-card-${item.status}`}
               >
                 <div className="practice-card-top">
-                  <LevelDots level={item.level} />
+                  <StatusBadge status={item.status} />
                   {isAdmin && (
                     <div className="practice-card-admin">
                       <button className="issue-action-btn" onClick={() => openEdit(item)} title="编辑">
@@ -208,7 +203,7 @@ const PracticePage: React.FC = () => {
                   <input
                     value={form.category}
                     onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-                    placeholder="如：编程语言、前端框架"
+                    placeholder="如：编程语言、后端框架"
                     required
                   />
                 </div>
@@ -222,32 +217,32 @@ const PracticePage: React.FC = () => {
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label">技能名称</label>
+                <label className="form-label">知识点名称</label>
                 <input
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="如：React、TypeScript"
+                  placeholder="如：Kubernetes、系统设计"
                   required
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">技能描述</label>
+                <label className="form-label">学习目标 / 备注</label>
                 <textarea
                   rows={2}
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                  placeholder="可选"
+                  placeholder="可选，记录想学到什么程度或相关资料"
                 />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group">
-                  <label className="form-label">掌握程度</label>
-                  <Select value={form.level} onValueChange={(v) => setForm((f) => ({ ...f, level: v as PracticeRequest['level'] }))}>
+                  <label className="form-label">学习状态</label>
+                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as PracticeRequest['status'] }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="learning">入门</SelectItem>
-                      <SelectItem value="proficient">熟练</SelectItem>
-                      <SelectItem value="mastered">精通</SelectItem>
+                      <SelectItem value="todo">待学习</SelectItem>
+                      <SelectItem value="in_progress">学习中</SelectItem>
+                      <SelectItem value="mastered">已掌握</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

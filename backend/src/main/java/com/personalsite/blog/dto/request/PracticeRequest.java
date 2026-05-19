@@ -11,6 +11,6 @@ public class PracticeRequest {
     @NotBlank
     private String name;
     private String description;
-    private String level;
+    private String status;
     private Integer sortOrder;
 }
