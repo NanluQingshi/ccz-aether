@@ -166,6 +166,20 @@ INSERT IGNORE INTO `roadmap_item` (`group_label`, `group_icon`, `name`, `descrip
   ('部署', '⬡', 'Docker Compose', '一键启动 MySQL + 后端容器',                               'done',    NULL,     1),
   ('部署', '⬡', '云数据库支持', '通过环境变量无缝切换本地 / 云端 MySQL',                    'done',    NULL,     2);
 
+CREATE TABLE IF NOT EXISTS `practice` (
+  `id`            BIGINT       NOT NULL AUTO_INCREMENT,
+  `category`      VARCHAR(64)  NOT NULL COMMENT '分类名称，如：编程语言、框架',
+  `category_icon` VARCHAR(16)  COMMENT '分类图标字符',
+  `name`          VARCHAR(128) NOT NULL COMMENT '技能名称',
+  `description`   VARCHAR(512) COMMENT '技能描述',
+  `level`         VARCHAR(16)  NOT NULL DEFAULT 'learning' COMMENT 'learning | proficient | mastered',
+  `sort_order`    INT          NOT NULL DEFAULT 0 COMMENT '同分类内排序',
+  `created_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_category_sort` (`category`, `sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Migration: add type and event_date to existing post table
 -- NOTE: run only once on an existing DB; skip if columns already exist
 ALTER TABLE `post`
