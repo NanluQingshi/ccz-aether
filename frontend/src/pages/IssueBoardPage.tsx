@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
+import { ArrowDown, ArrowRight, ArrowUp, Pencil, Trash2 } from 'lucide-react';
 
 const STATUS_COLS: { key: 0 | 1 | 2; label: string; color: string }[] = [
   { key: 0, label: 'Todo',        color: 'issue-col-todo' },
@@ -15,10 +16,10 @@ const STATUS_COLS: { key: 0 | 1 | 2; label: string; color: string }[] = [
   { key: 2, label: 'Done',        color: 'issue-col-done' },
 ];
 
-const PRIORITY_LABELS: Record<number, { label: string; cls: string }> = {
-  0: { label: '低',  cls: 'issue-priority-low' },
-  1: { label: '中',  cls: 'issue-priority-medium' },
-  2: { label: '高',  cls: 'issue-priority-high' },
+const PRIORITY_LABELS: Record<number, { label: string; cls: string; icon: React.ReactNode }> = {
+  0: { label: '低',  cls: 'issue-priority-low',    icon: <ArrowDown  size={11} /> },
+  1: { label: '中',  cls: 'issue-priority-medium', icon: <ArrowRight size={11} /> },
+  2: { label: '高',  cls: 'issue-priority-high',   icon: <ArrowUp    size={11} /> },
 };
 
 const NEXT_STATUS: Record<number, { status: 0 | 1 | 2; label: string }[]> = {
@@ -108,7 +109,7 @@ const IssueBoardPage: React.FC = () => {
   if (loading) return <LoadingSpinner fullPage />;
 
   return (
-    <div className="container page-content">
+    <div className="container page-content page-content--board">
       <div className="issue-header">
         <div>
           <h1 className="page-title" style={{ marginBottom: '0.25rem' }}>Issue Bin</h1>
@@ -122,7 +123,9 @@ const IssueBoardPage: React.FC = () => {
       {/* 看板 */}
       <div className="issue-board">
         {STATUS_COLS.map((col) => {
-          const colIssues = issues.filter((i) => i.status === col.key);
+          const colIssues = issues
+            .filter((i) => i.status === col.key)
+            .sort((a, b) => b.priority - a.priority || new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
           return (
             <div key={col.key} className={`issue-col ${col.color}`}>
               <div className="issue-col-header">
@@ -137,12 +140,13 @@ const IssueBoardPage: React.FC = () => {
                   <div key={issue.id} className="issue-card">
                     <div className="issue-card-top">
                       <span className={`issue-priority ${PRIORITY_LABELS[issue.priority].cls}`}>
+                        {PRIORITY_LABELS[issue.priority].icon}
                         {PRIORITY_LABELS[issue.priority].label}
                       </span>
                       {isAdmin && (
                         <div className="issue-card-actions">
-                          <button className="issue-action-btn" onClick={() => openEdit(issue)}>编辑</button>
-                          <button className="issue-action-btn danger" onClick={() => handleDelete(issue.id)}>删除</button>
+                          <button className="issue-action-btn" onClick={() => openEdit(issue)} title="编辑"><Pencil size={13} /></button>
+                          <button className="issue-action-btn danger" onClick={() => handleDelete(issue.id)} title="删除"><Trash2 size={13} /></button>
                         </div>
                       )}
                     </div>

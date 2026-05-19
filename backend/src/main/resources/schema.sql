@@ -126,6 +126,46 @@ CREATE TABLE IF NOT EXISTS `book` (
   INDEX `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `roadmap_item` (
+  `id`          BIGINT       NOT NULL AUTO_INCREMENT,
+  `group_label` VARCHAR(64)  NOT NULL COMMENT '分组名称，如：内容、功能、体验',
+  `group_icon`  VARCHAR(16)  COMMENT '分组图标字符',
+  `name`        VARCHAR(128) NOT NULL COMMENT '功能名称',
+  `description` VARCHAR(512) COMMENT '功能描述',
+  `status`      VARCHAR(16)  NOT NULL DEFAULT 'planned' COMMENT 'done | planned',
+  `priority`    VARCHAR(16)  COMMENT 'high | medium | low，planned 时使用',
+  `sort_order`  INT          NOT NULL DEFAULT 0 COMMENT '同组内排序',
+  `created_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_group_sort` (`group_label`, `sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `roadmap_item` (`group_label`, `group_icon`, `name`, `description`, `status`, `priority`, `sort_order`) VALUES
+  ('内容', '◈', '技术博客',     'Markdown 写作，代码高亮，标签 / 分类筛选',                   'done',    NULL,     1),
+  ('内容', '◈', 'AI 大事纪',   '竖向时间轴，按年份分组，记录 AI 发展里程碑',                   'done',    NULL,     2),
+  ('内容', '◈', 'Issue Bin',   '记录暂时无法解决的技术问题，方便后续追踪与复盘',               'done',    NULL,     3),
+  ('内容', '◈', '书页间',       '记录已读与在读书目，附上个人评分与读后感',                     'done',    NULL,     4),
+  ('内容', '◈', '随想录',       '随手记录灵感、念头与阶段计划，不设格式，想到就写',             'done',    NULL,     5),
+  ('内容', '◈', '评论系统',     '访客可在博客文章下留言互动',                                   'planned', 'medium', 6),
+  ('内容', '◈', 'RSS Feed',    '输出标准 RSS，方便订阅工具抓取',                               'planned', 'low',    7),
+  ('内容', '◈', '知识库',       '整理、沉淀个人技术笔记与学习资料，支持分类检索',               'planned', 'low',    8),
+  ('内容', '◈', '修炼手册',     '制定个人学习计划，追踪各方向的学习进度与阶段目标',             'planned', 'low',    9),
+  ('内容', '◈', '个人 Todo',   '日常事项与目标追踪，和网站功能无关的个人待办',                 'planned', 'low',    10),
+  ('功能', '⚙', 'Markdown 编辑器', '分栏实时预览，后台写作体验',                              'done',    NULL,     1),
+  ('功能', '⚙', '标签 / 分类管理', '多维度组织文章内容',                                      'done',    NULL,     2),
+  ('功能', '⚙', '全文搜索',     '快速检索站内所有文章',                                        'planned', 'high',   3),
+  ('功能', '⚙', '图片上传',     '支持本地存储或 S3，告别外链依赖',                             'planned', 'medium', 4),
+  ('管理后台', '⊞', 'JWT 认证', '单管理员登录，Token 鉴权',                                   'done',    NULL,     1),
+  ('管理后台', '⊞', '文章管理', '创建、编辑、删除、发布一站式管理',                             'done',    NULL,     2),
+  ('管理后台', '⊞', '仪表盘统计', '文章数、阅读量等核心数据一览',                              'done',    NULL,     3),
+  ('管理后台', '⊞', '访问统计看板', '更详细的 PV / UV 与热门文章分析',                        'planned', 'low',    4),
+  ('体验', '✦', '暗色科技感主题', '全站统一的深色 UI，霓虹青 / 紫双主色',                     'done',    NULL,     1),
+  ('体验', '✦', '响应式布局',   '适配移动端、平板、桌面多种屏幕',                               'done',    NULL,     2),
+  ('体验', '✦', '明暗主题切换', '用户可自由切换 Dark / Light 模式',                            'planned', 'medium', 3),
+  ('部署', '⬡', 'Docker Compose', '一键启动 MySQL + 后端容器',                               'done',    NULL,     1),
+  ('部署', '⬡', '云数据库支持', '通过环境变量无缝切换本地 / 云端 MySQL',                    'done',    NULL,     2);
+
 -- Migration: add type and event_date to existing post table
 -- NOTE: run only once on an existing DB; skip if columns already exist
 ALTER TABLE `post`

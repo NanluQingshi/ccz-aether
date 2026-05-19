@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 
 const navLinks = [
   { to: '/', label: '首页' },
@@ -19,7 +20,7 @@ export const Navbar: React.FC = () => {
       <div className="navbar-inner container">
         <div className="navbar-brand">
           <Link to="/" className="navbar-logo">南路志</Link>
-          <span className="navbar-motto">切勿眼高手低</span>
+          <span className="navbar-motto">敛翼三秋，以飞云霄</span>
         </div>
 
         <ul className={`navbar-links ${open ? 'open' : ''}`}>
@@ -38,7 +39,7 @@ export const Navbar: React.FC = () => {
         </ul>
 
         <button className="navbar-toggle" onClick={() => setOpen(!open)} aria-label="Toggle menu">
-          <span /><span /><span />
+          {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
     </nav>

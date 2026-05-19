@@ -22,4 +22,4 @@ jwt:
   expiration-ms: ${JWT_EXPIRATION_MS:2592000000}
 
 server:
-  port: 8080
+  port: 9090

@@ -6,6 +6,7 @@ import { getErrorMessage } from '../../api/client';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
 import { useUiStore } from '../../store/uiStore';
+import { Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 import type { PostVO } from '../../types/post';
 
 const PostManagerPage: React.FC = () => {
@@ -91,18 +92,22 @@ const PostManagerPage: React.FC = () => {
                         : '—'}
                     </td>
                     <td className="table-actions">
-                      <Link to={`/admin/posts/${p.id}/edit`} className="action-btn edit">编辑</Link>
+                      <Link to={`/admin/posts/${p.id}/edit`} className="action-btn edit" title="编辑">
+                        <Pencil size={14} />
+                      </Link>
                       <button
                         className="action-btn toggle"
                         onClick={() => handleToggle(p.id)}
+                        title={p.status === 1 ? '取消发布' : '发布'}
                       >
-                        {p.status === 1 ? '取消发布' : '发布'}
+                        {p.status === 1 ? <EyeOff size={14} /> : <Eye size={14} />}
                       </button>
                       <button
                         className="action-btn delete"
                         onClick={() => handleDelete(p.id, p.title)}
+                        title="删除"
                       >
-                        删除
+                        <Trash2 size={14} />
                       </button>
                     </td>
                   </tr>

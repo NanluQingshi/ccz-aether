@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { getAiTimeline } from '../api/posts';
@@ -88,7 +89,7 @@ const AiTimelinePage: React.FC = () => {
                           </div>
                         )}
                         <Link to={`/blog/${post.slug}`} className="timeline-read-more">
-                          阅读详情 →
+                          阅读详情 <ArrowRight size={13} />
                         </Link>
                       </div>
                     </div>

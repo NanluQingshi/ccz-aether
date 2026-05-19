@@ -4,6 +4,7 @@ import {
   type Book, type BookRequest,
 } from '../api/books';
 import { getErrorMessage } from '../api/client';
+import { Pencil, Trash2, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
@@ -387,7 +388,7 @@ const BookshelfPage: React.FC = () => {
       {drawerOpen && (
         <div className="book-drawer-overlay" onClick={closeDrawer}>
           <div className="book-drawer" onClick={(e) => e.stopPropagation()}>
-            <button className="book-drawer-close" onClick={closeDrawer}>✕</button>
+            <button className="book-drawer-close" onClick={closeDrawer}><X size={18} /></button>
 
             {/* 新增模式 */}
             {drawerMode === 'create' && (
@@ -443,8 +444,8 @@ const BookshelfPage: React.FC = () => {
                   )}
                   {isAdmin && (
                     <div className="book-drawer-actions">
-                      <button className="btn btn-secondary btn-sm" onClick={() => openEdit(drawerBook)}>编辑</button>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(drawerBook.id)}>删除</button>
+                      <button className="btn btn-secondary btn-sm" onClick={() => openEdit(drawerBook)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}><Pencil size={14} />编辑</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(drawerBook.id)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}><Trash2 size={14} />删除</button>
                     </div>
                   )}
                 </div>
