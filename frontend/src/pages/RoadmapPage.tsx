@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
+import { Pencil, Trash2 } from 'lucide-react';
 
 const PRIORITY_MAP: Record<string, { label: string; className: string }> = {
   high:   { label: '高', className: 'priority-high' },
@@ -180,8 +181,8 @@ const RoadmapPage: React.FC = () => {
                   )}
                   {isAdmin && (
                     <div className="roadmap-card-admin">
-                      <button className="issue-action-btn" onClick={() => openEdit(item)}>编辑</button>
-                      <button className="issue-action-btn danger" onClick={() => handleDelete(item.id)}>删除</button>
+                      <button className="issue-action-btn" onClick={() => openEdit(item)} title="编辑"><Pencil size={13} /></button>
+                      <button className="issue-action-btn danger" onClick={() => handleDelete(item.id)} title="删除"><Trash2 size={13} /></button>
                     </div>
                   )}
                 </div>
