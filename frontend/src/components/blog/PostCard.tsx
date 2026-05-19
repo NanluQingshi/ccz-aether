@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import { Calendar, Eye } from 'lucide-react';
 import type { PostVO } from '../../types/post';
 
 interface PostCardProps {
@@ -25,11 +26,12 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => (
       {post.summary && <p className="post-card-summary">{post.summary}</p>}
       <div className="post-card-meta">
         <span className="post-card-date">
+          <Calendar size={12} />
           {post.publishedAt
             ? format(new Date(post.publishedAt), 'yyyy年MM月dd日', { locale: zhCN })
             : '草稿'}
         </span>
-        <span className="post-card-views">{post.viewCount} 阅读</span>
+        <span className="post-card-views"><Eye size={12} />{post.viewCount}</span>
       </div>
       {post.tags.length > 0 && (
         <div className="post-card-tags">

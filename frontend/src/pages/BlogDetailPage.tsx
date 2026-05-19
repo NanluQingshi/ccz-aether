@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import { ArrowLeft, Calendar, Eye } from 'lucide-react';
 import { getPostBySlug } from '../api/posts';
 import { MarkdownRenderer } from '../components/blog/MarkdownRenderer';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
@@ -34,7 +35,7 @@ const BlogDetailPage: React.FC = () => {
 
   return (
     <div className="container page-content">
-      <Link to="/blog" className="back-link">← 返回博客</Link>
+      <Link to="/blog" className="back-link"><ArrowLeft size={15} /> 返回博客</Link>
 
       <article className="post-detail">
         {post.category && (
@@ -42,12 +43,8 @@ const BlogDetailPage: React.FC = () => {
         )}
         <h1 className="post-detail-title">{post.title}</h1>
         <div className="post-detail-meta">
-          <span>
-            {post.publishedAt
-              ? format(new Date(post.publishedAt), 'yyyy年MM月dd日', { locale: zhCN })
-              : ''}
-          </span>
-          <span>{post.viewCount} 阅读</span>
+          <span><Calendar size={13} />{post.publishedAt ? format(new Date(post.publishedAt), 'yyyy年MM月dd日', { locale: zhCN }) : ''}</span>
+          <span><Eye size={13} />{post.viewCount} 阅读</span>
           {post.tags.length > 0 && (
             <div className="post-detail-tags">
               {post.tags.map((t) => (

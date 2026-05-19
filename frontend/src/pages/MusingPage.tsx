@@ -7,10 +7,11 @@ import { getErrorMessage } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
+import { Lightbulb, CheckSquare, Check, RotateCcw, Pencil, Trash2 } from 'lucide-react';
 
 const TYPE_CONFIG = {
-  idea: { label: '随想', cls: 'musing-type-idea' },
-  todo: { label: 'Todo', cls: 'musing-type-todo' },
+  idea: { label: '随想', cls: 'musing-type-idea', icon: <Lightbulb size={13} /> },
+  todo: { label: 'Todo', cls: 'musing-type-todo', icon: <CheckSquare size={13} /> },
 } as const;
 
 function groupByMonth(musings: Musing[]): [string, Musing[]][] {
@@ -36,10 +37,10 @@ function formatMonth(ym: string) {
 
 type FilterType = 'all' | 'idea' | 'todo';
 
-const FILTER_OPTIONS: { key: FilterType; label: string }[] = [
+const FILTER_OPTIONS: { key: FilterType; label: string; icon?: React.ReactNode }[] = [
   { key: 'all',  label: '全部' },
-  { key: 'idea', label: '💭 随想' },
-  { key: 'todo', label: '✓ Todo' },
+  { key: 'idea', label: '随想', icon: <Lightbulb size={13} /> },
+  { key: 'todo', label: 'Todo', icon: <CheckSquare size={13} /> },
 ];
 
 const MusingPage: React.FC = () => {
@@ -152,10 +153,10 @@ const MusingPage: React.FC = () => {
           {FILTER_OPTIONS.map((opt) => (
             <button
               key={opt.key}
-              className={`musing-filter-btn ${filter === opt.key ? 'active' : ''} ${filter === opt.key && opt.key !== 'all' ? `musing-type-${opt.key}` : ''}`}
+              className={`filter-chip musing-filter-btn ${filter === opt.key ? 'active' : ''} ${filter === opt.key && opt.key !== 'all' ? `musing-type-${opt.key}` : ''}`}
               onClick={() => setFilter(opt.key)}
             >
-              {opt.label}
+              {opt.icon}{opt.label}
             </button>
           ))}
           <span className="musing-count">{filtered.length} 条</span>
@@ -173,7 +174,7 @@ const MusingPage: React.FC = () => {
                 className={`musing-type-btn ${inputType === t ? 'active' : ''} ${TYPE_CONFIG[t].cls}`}
                 onClick={() => setInputType(t)}
               >
-                {t === 'idea' ? '💭' : '✓'} {TYPE_CONFIG[t].label}
+                {TYPE_CONFIG[t].icon} {TYPE_CONFIG[t].label}
               </button>
             ))}
           </div>
@@ -241,7 +242,7 @@ const MusingPage: React.FC = () => {
                       <div className="musing-card-header">
                         <div className="musing-card-meta">
                           <span className={`musing-type-tag ${TYPE_CONFIG[m.type].cls}`}>
-                            {m.type === 'idea' ? '💭' : '✓'} {TYPE_CONFIG[m.type].label}
+                            {TYPE_CONFIG[m.type].icon} {TYPE_CONFIG[m.type].label}
                           </span>
                           <span className="musing-date">{formatDate(m.createdAt)}</span>
                         </div>
@@ -253,11 +254,11 @@ const MusingPage: React.FC = () => {
                                 onClick={() => handleToggle(m.id)}
                                 title={m.done ? '重新打开' : '标为完成'}
                               >
-                                {m.done ? '↩' : '✓'}
+                                {m.done ? <RotateCcw size={13} /> : <Check size={13} />}
                               </button>
                             )}
-                            <button className="musing-action-btn" onClick={() => startEdit(m)}>编辑</button>
-                            <button className="musing-action-btn danger" onClick={() => handleDelete(m.id)}>删除</button>
+                            <button className="musing-action-btn" onClick={() => startEdit(m)} title="编辑"><Pencil size={13} /></button>
+                            <button className="musing-action-btn danger" onClick={() => handleDelete(m.id)} title="删除"><Trash2 size={13} /></button>
                           </div>
                         )}
                       </div>
