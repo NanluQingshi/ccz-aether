@@ -5,7 +5,10 @@ import com.personalsite.blog.dto.response.PageResult;
 import com.personalsite.blog.dto.response.PostDetailVO;
 import com.personalsite.blog.dto.response.PostVO;
 import com.personalsite.blog.service.PostService;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,14 +16,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
+@Validated
 public class PostController {
 
     private final PostService postService;
 
     @GetMapping
     public ApiResponse<PageResult<PostVO>> list(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size,
             @RequestParam(required = false) String tagSlug,
             @RequestParam(required = false) String categorySlug,
             @RequestParam(required = false) String keyword) {

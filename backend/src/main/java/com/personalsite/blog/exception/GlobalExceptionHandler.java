@@ -1,6 +1,7 @@
 package com.personalsite.blog.exception;
 
 import com.personalsite.blog.dto.response.ApiResponse;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,15 @@ public class GlobalExceptionHandler {
     public ApiResponse<Void> handleValidation(MethodArgumentNotValidException e) {
         String message = e.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+        return ApiResponse.error(400, message);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Void> handleConstraintViolation(ConstraintViolationException e) {
+        String message = e.getConstraintViolations().stream()
+                .map(v -> v.getPropertyPath() + " " + v.getMessage())
                 .collect(Collectors.joining(", "));
         return ApiResponse.error(400, message);
     }
