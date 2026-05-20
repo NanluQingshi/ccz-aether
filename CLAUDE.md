@@ -37,13 +37,13 @@
 full-stack-project/
 ├── frontend/                  # React 前端
 │   └── src/
-│       ├── api/               # Axios 封装的 API 调用模块（9 个）
+│       ├── api/               # Axios 封装的 API 调用模块（10 个）
 │       ├── components/        # 可复用组件
 │       │   ├── blog/          # MarkdownRenderer、PostCard、TagFilter
 │       │   ├── home/          # HeroSection、RecentPosts、SkillsSection
 │       │   ├── layout/        # Navbar、Footer、AdminLayout
 │       │   └── ui/            # Badge、Button、ConfirmDialog、LoadingSpinner、Pagination、ToastContainer、shadcn/
-│       ├── pages/             # 页面组件（10 个公开 + 4 个 admin）
+│       ├── pages/             # 页面组件（11 个公开 + 4 个 admin）
 │       ├── router/            # 路由配置 + ProtectedRoute
 │       ├── store/             # authStore、uiStore（Zustand）
 │       ├── styles/            # components.css、globals.css、markdown.css、theme.css
@@ -51,14 +51,14 @@ full-stack-project/
 ├── backend/                   # Spring Boot 后端
 │   └── src/main/java/com/personalsite/blog/
 │       ├── config/            # Security、MybatisPlus、WebMvc 配置
-│       ├── controller/        # REST 控制器（9 个）
+│       ├── controller/        # REST 控制器（10 个）
 │       ├── converter/         # MapStruct 对象转换器
 │       ├── dto/               # request/ 和 response/ DTO
-│       ├── entity/            # 数据库实体（9 个）
+│       ├── entity/            # 数据库实体（10 个 + PracticeLink 值对象）
 │       ├── exception/         # BizException、ErrorCode、GlobalExceptionHandler
-│       ├── mapper/            # MyBatis-Plus Mapper（9 个）
+│       ├── mapper/            # MyBatis-Plus Mapper（10 个）
 │       ├── security/          # JwtUtil、JwtAuthFilter、AdminUserDetailsService
-│       ├── service/           # 服务接口 + impl/ 实现（8 个）
+│       ├── service/           # 服务接口 + impl/ 实现（9 个）
 │       └── util/              # SlugUtils
 │   └── src/main/resources/
 │       ├── application.yml       # 主配置（dev/prod profile 切换）
@@ -74,7 +74,7 @@ full-stack-project/
 
 ## 页面模块
 
-### 公开页面（10 个）
+### 公开页面（11 个）
 
 | 文件 | 路由 | 功能 |
 |------|------|------|
@@ -86,6 +86,7 @@ full-stack-project/
 | BookshelfPage.tsx | /bookshelf | 书架 |
 | IssueBoardPage.tsx | /issues | Issue Bin（看板三列布局） |
 | RoadmapPage.tsx | /roadmap | Roadmap 功能规划（进度条 + 分组卡片） |
+| PracticePage.tsx | /practice | 修炼手册（学习清单，状态筛选，卡片多链接） |
 | AboutPage.tsx | /about | 关于页面 |
 | NotFoundPage.tsx | * | 404 页面 |
 
@@ -112,6 +113,7 @@ full-stack-project/
 | issues.ts | IssueController |
 | musings.ts | MusingController |
 | roadmap.ts | RoadmapController |
+| practice.ts | PracticeController |
 | client.ts | Axios 实例 + 拦截器（401 自动登出） |
 
 ---
@@ -128,6 +130,8 @@ full-stack-project/
 | Issue | Issue Bin（标题、描述、状态、优先级） |
 | Musing | 随想录（content、type=idea/todo、done 状态） |
 | RoadmapItem | Roadmap 条目（groupLabel、status、priority） |
+| Practice | 修炼手册条目（category、name、status=todo/in_progress/mastered、links JSON） |
+| PracticeLink | 关联链接值对象（title、url），通过 Practice.links JSON 字段内嵌存储 |
 | User | 管理员用户（单用户 JWT 认证） |
 
 ---
