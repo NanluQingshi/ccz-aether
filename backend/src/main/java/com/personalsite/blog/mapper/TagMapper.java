@@ -14,4 +14,6 @@ public interface TagMapper extends BaseMapper<Tag> {
     List<TagVO> selectWithPostCount();
 
     List<TagVO> selectByPostId(@Param("postId") Long postId);
+
+    List<TagVO> selectByPostIds(@Param("postIds") List<Long> postIds);
 }

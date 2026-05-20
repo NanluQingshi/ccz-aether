@@ -20,4 +20,14 @@
         WHERE pt.post_id = #{postId}
     </select>
 
+    <select id="selectByPostIds" resultType="com.personalsite.blog.dto.response.TagVO">
+        SELECT t.id, t.name, t.slug, 0 AS post_count, pt.post_id
+        FROM tag t
+        INNER JOIN post_tag pt ON pt.tag_id = t.id
+        WHERE pt.post_id IN
+        <foreach collection="postIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>
