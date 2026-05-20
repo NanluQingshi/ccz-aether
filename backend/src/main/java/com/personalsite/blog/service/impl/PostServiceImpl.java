@@ -154,15 +154,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public StatsVO getStats() {
-        StatsVO stats = new StatsVO();
-        stats.setTotalPosts(postMapper.selectCount(new LambdaQueryWrapper<Post>()));
-        stats.setPublishedPosts(postMapper.selectCount(new LambdaQueryWrapper<Post>().eq(Post::getStatus, 1)));
-        stats.setDraftPosts(postMapper.selectCount(new LambdaQueryWrapper<Post>().eq(Post::getStatus, 0)));
-        stats.setTotalViews(postMapper.selectList(new LambdaQueryWrapper<Post>())
-                .stream().mapToLong(p -> p.getViewCount() == null ? 0 : p.getViewCount()).sum());
-        stats.setTotalTags(tagMapper.selectCount(null));
-        stats.setTotalCategories(categoryMapper.selectCount(null));
-        return stats;
+        return postMapper.selectStats();
     }
 
     @Override

@@ -71,4 +71,14 @@
         LIMIT 10
     </select>
 
+    <select id="selectStats" resultType="com.personalsite.blog.dto.response.StatsVO">
+        SELECT
+            (SELECT COUNT(*) FROM post WHERE deleted = 0)                        AS totalPosts,
+            (SELECT COUNT(*) FROM post WHERE deleted = 0 AND status = 1)         AS publishedPosts,
+            (SELECT COUNT(*) FROM post WHERE deleted = 0 AND status = 0)         AS draftPosts,
+            (SELECT IFNULL(SUM(view_count), 0) FROM post WHERE deleted = 0)      AS totalViews,
+            (SELECT COUNT(*) FROM tag)                                            AS totalTags,
+            (SELECT COUNT(*) FROM category)                                       AS totalCategories
+    </select>
+
 </mapper>
