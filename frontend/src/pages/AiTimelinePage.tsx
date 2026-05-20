@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
@@ -6,6 +6,7 @@ import { zhCN } from 'date-fns/locale';
 import { getAiTimeline } from '../api/posts';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { useUiStore } from '../store/uiStore';
+import { usePageData } from '../hooks/usePageData';
 import type { PostVO } from '../types/post';
 
 function formatEventDate(dateStr: string): string {
@@ -29,19 +30,14 @@ function groupByYear(posts: PostVO[]): Record<string, PostVO[]> {
 }
 
 const AiTimelinePage: React.FC = () => {
-  const [posts, setPosts] = useState<PostVO[]>([]);
-  const [loading, setLoading] = useState(true);
   const { addToast } = useUiStore();
+  const { data: posts, loading } = usePageData(
+    getAiTimeline,
+    () => addToast('加载失败，请刷新重试', 'error'),
+  );
 
-  useEffect(() => {
-    getAiTimeline()
-      .then((r) => setPosts(r.data))
-      .catch(() => addToast('加载失败，请刷新重试', 'error'))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const grouped = groupByYear(posts);
-  const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
+  const grouped = useMemo(() => groupByYear(posts), [posts]);
+  const years = useMemo(() => Object.keys(grouped).sort((a, b) => Number(b) - Number(a)), [grouped]);
 
   return (
     <div className="container page-content">

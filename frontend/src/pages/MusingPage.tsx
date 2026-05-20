@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   getMusings, createMusing, updateMusing, toggleMusingDone, deleteMusing,
   type Musing, type MusingRequest,
 } from '../api/musings';
+import { usePageData } from '../hooks/usePageData';
 import { getErrorMessage } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
@@ -48,8 +49,7 @@ const MusingPage: React.FC = () => {
   const { addToast, showConfirm } = useUiStore();
   const isAdmin = !!token;
 
-  const [musings, setMusings] = useState<Musing[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: musings, loading, setData: setMusings, reload: load } = usePageData(getMusings);
   const [filter, setFilter] = useState<FilterType>('all');
 
   // quick-input state
@@ -62,15 +62,6 @@ const MusingPage: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editVal, setEditVal] = useState('');
   const [editType, setEditType] = useState<'idea' | 'todo'>('idea');
-
-  const load = () => {
-    setLoading(true);
-    getMusings()
-      .then((r) => setMusings(r.data))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => { load(); }, []);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,15 +122,21 @@ const MusingPage: React.FC = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner fullPage />;
-
-  const filtered = filter === 'all' ? musings : musings.filter((m) => m.type === filter);
+  const filtered = useMemo(
+    () => filter === 'all' ? musings : musings.filter((m) => m.type === filter),
+    [filter, musings],
+  );
   // 同组内已完成的 todo 排到末尾
-  const sorted = [...filtered].sort((a, b) => {
-    if (a.done === b.done) return 0;
-    return a.done ? 1 : -1;
-  });
-  const groups = groupByMonth(sorted);
+  const sorted = useMemo(
+    () => [...filtered].sort((a, b) => {
+      if (a.done === b.done) return 0;
+      return a.done ? 1 : -1;
+    }),
+    [filtered],
+  );
+  const groups = useMemo(() => groupByMonth(sorted), [sorted]);
+
+  if (loading) return <LoadingSpinner fullPage />;
 
   return (
     <div className="container page-content">

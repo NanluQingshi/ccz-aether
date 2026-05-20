@@ -11,12 +11,16 @@ import com.personalsite.blog.service.CategoryService;
 import com.personalsite.blog.service.PostService;
 import com.personalsite.blog.service.TagService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
+@Validated
 public class AdminController {
 
     private final PostService postService;
@@ -27,8 +31,8 @@ public class AdminController {
 
     @GetMapping("/posts")
     public ApiResponse<PageResult<PostVO>> adminPosts(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
         return ApiResponse.ok(postService.adminListAll(page, size));
     }
 

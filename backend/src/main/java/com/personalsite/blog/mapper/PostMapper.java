@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.personalsite.blog.entity.Post;
 import com.personalsite.blog.dto.response.ChartVO;
 import com.personalsite.blog.dto.response.PostVO;
+import com.personalsite.blog.dto.response.StatsVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
@@ -30,4 +31,6 @@ public interface PostMapper extends BaseMapper<Post> {
     List<ChartVO.NameValue> selectCategoryStats();
 
     List<ChartVO.NameValue> selectTagStats();
+
+    StatsVO selectStats();
 }

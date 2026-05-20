@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,10 +42,9 @@ public class PostServiceImpl implements PostService {
         Page<PostVO> pageParam = new Page<>(page, size);
         postMapper.selectPublishedPage(pageParam,
                 blankToNull(tagSlug), blankToNull(categorySlug), blankToNull(keyword));
-        pageParam.getRecords().forEach(vo -> {
-            List<TagVO> tags = tagMapper.selectByPostId(vo.getId());
-            vo.setTags(tags != null ? tags : Collections.emptyList());
-        });
+        List<Long> postIds = pageParam.getRecords().stream().map(PostVO::getId).collect(Collectors.toList());
+        Map<Long, List<TagVO>> tagsMap = tagsByPostId(postIds);
+        pageParam.getRecords().forEach(vo -> vo.setTags(tagsMap.getOrDefault(vo.getId(), Collections.emptyList())));
         return PageResult.of(pageParam);
     }
 
@@ -61,8 +62,17 @@ public class PostServiceImpl implements PostService {
         Page<Post> pageParam = new Page<>(page, size);
         postMapper.selectPage(pageParam,
                 new LambdaQueryWrapper<Post>().orderByDesc(Post::getCreatedAt));
-        List<PostVO> vos = pageParam.getRecords().stream()
-                .map(this::buildVO)
+        List<Post> posts = pageParam.getRecords();
+        List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+        Map<Long, List<TagVO>> tagsMap = tagsByPostId(postIds);
+        List<Long> catIds = posts.stream().map(Post::getCategoryId)
+                .filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        Map<Long, Category> catMap = catIds.isEmpty() ? Collections.emptyMap()
+                : categoryMapper.selectBatchIds(catIds).stream()
+                        .collect(Collectors.toMap(Category::getId, c -> c));
+        List<PostVO> vos = posts.stream()
+                .map(p -> PostConverter.toVO(p, catMap.get(p.getCategoryId()),
+                        tagsMap.getOrDefault(p.getId(), Collections.emptyList())))
                 .collect(Collectors.toList());
         Page<PostVO> result = new Page<>(pageParam.getCurrent(), pageParam.getSize(), pageParam.getTotal());
         result.setRecords(vos);
@@ -154,24 +164,15 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public StatsVO getStats() {
-        StatsVO stats = new StatsVO();
-        stats.setTotalPosts(postMapper.selectCount(new LambdaQueryWrapper<Post>()));
-        stats.setPublishedPosts(postMapper.selectCount(new LambdaQueryWrapper<Post>().eq(Post::getStatus, 1)));
-        stats.setDraftPosts(postMapper.selectCount(new LambdaQueryWrapper<Post>().eq(Post::getStatus, 0)));
-        stats.setTotalViews(postMapper.selectList(new LambdaQueryWrapper<Post>())
-                .stream().mapToLong(p -> p.getViewCount() == null ? 0 : p.getViewCount()).sum());
-        stats.setTotalTags(tagMapper.selectCount(null));
-        stats.setTotalCategories(categoryMapper.selectCount(null));
-        return stats;
+        return postMapper.selectStats();
     }
 
     @Override
     public List<PostVO> listAiTimeline() {
         List<PostVO> list = postMapper.selectAiTimeline();
-        list.forEach(vo -> {
-            List<TagVO> tags = tagMapper.selectByPostId(vo.getId());
-            vo.setTags(tags != null ? tags : Collections.emptyList());
-        });
+        List<Long> postIds = list.stream().map(PostVO::getId).collect(Collectors.toList());
+        Map<Long, List<TagVO>> tagsMap = tagsByPostId(postIds);
+        list.forEach(vo -> vo.setTags(tagsMap.getOrDefault(vo.getId(), Collections.emptyList())));
         return list;
     }
 
@@ -192,6 +193,12 @@ public class PostServiceImpl implements PostService {
     private void savePostTags(Long postId, List<Long> tagIds) {
         if (tagIds == null || tagIds.isEmpty()) return;
         tagIds.forEach(tagId -> postTagMapper.insert(new PostTag(postId, tagId)));
+    }
+
+    private Map<Long, List<TagVO>> tagsByPostId(List<Long> postIds) {
+        if (postIds == null || postIds.isEmpty()) return Collections.emptyMap();
+        return tagMapper.selectByPostIds(postIds).stream()
+                .collect(Collectors.groupingBy(TagVO::getPostId));
     }
 
     private void checkSlugUnique(String slug, Long excludeId) {
