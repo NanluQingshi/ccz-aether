@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   getBooks, createBook, updateBook, deleteBook,
   type Book, type BookRequest,
@@ -7,6 +7,7 @@ import { getErrorMessage } from '../api/client';
 import { Pencil, Trash2, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
+import { usePageData } from '../hooks/usePageData';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 
@@ -58,8 +59,10 @@ const BookshelfPage: React.FC = () => {
   const { addToast, showConfirm } = useUiStore();
   const isAdmin = !!token;
 
-  const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: books, loading, setData: setBooks, reload: load } = usePageData(
+    getBooks,
+    () => addToast('加载失败', 'error'),
+  );
   const [activeTab, setActiveTab] = useState<TabStatus>('reading');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
@@ -69,16 +72,6 @@ const BookshelfPage: React.FC = () => {
   const [drawerMode, setDrawerMode] = useState<DrawerMode>('detail');
   const [form, setForm] = useState<BookRequest>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
-
-  const load = () => {
-    setLoading(true);
-    getBooks()
-      .then((r) => setBooks(r.data))
-      .catch(() => addToast('加载失败', 'error'))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => { load(); }, []);
 
   const closeDrawer = () => {
     setDrawerBook(null);

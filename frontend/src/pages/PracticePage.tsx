@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   getPractices, createPractice, updatePractice, deletePractice,
   type Practice, type PracticeLink, type PracticeRequest,
@@ -6,6 +6,7 @@ import {
 import { getErrorMessage } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
+import { usePageData } from '../hooks/usePageData';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 import { ExternalLink, Pencil, Trash2, X } from 'lucide-react';
@@ -51,22 +52,12 @@ const PracticePage: React.FC = () => {
   const { addToast, showConfirm } = useUiStore();
   const isAdmin = !!token;
 
-  const [items, setItems] = useState<Practice[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: items, loading, setData: setItems, reload: load } = usePageData(getPractices);
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<PracticeRequest>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
-
-  const load = () => {
-    setLoading(true);
-    getPractices()
-      .then((r) => setItems(r.data))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => { load(); }, []);
 
   const openCreate = () => {
     setEditingId(null);

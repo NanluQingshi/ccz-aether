@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   getIssues, createIssue, updateIssue, updateIssueStatus, deleteIssue,
   type Issue, type IssueRequest,
@@ -6,6 +6,7 @@ import {
 import { getErrorMessage } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
+import { usePageData } from '../hooks/usePageData';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 import { ArrowDown, ArrowRight, ArrowUp, Pencil, Trash2 } from 'lucide-react';
@@ -36,21 +37,11 @@ const IssueBoardPage: React.FC = () => {
   const { addToast, showConfirm } = useUiStore();
   const isAdmin = !!token;
 
-  const [issues, setIssues] = useState<Issue[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: issues, loading, setData: setIssues, reload: load } = usePageData(getIssues);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
-
-  const load = () => {
-    setLoading(true);
-    getIssues()
-      .then((r) => setIssues(r.data))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => { load(); }, []);
 
   const openCreate = () => {
     setEditingId(null);

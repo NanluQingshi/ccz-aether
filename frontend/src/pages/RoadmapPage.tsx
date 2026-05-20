@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   getRoadmapItems, createRoadmapItem, updateRoadmapItem, deleteRoadmapItem,
   type RoadmapItem, type RoadmapItemRequest,
@@ -6,6 +6,7 @@ import {
 import { getErrorMessage } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
+import { usePageData } from '../hooks/usePageData';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -50,21 +51,11 @@ const RoadmapPage: React.FC = () => {
   const { addToast, showConfirm } = useUiStore();
   const isAdmin = !!token;
 
-  const [items, setItems] = useState<RoadmapItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: items, loading, setData: setItems, reload: load } = usePageData(getRoadmapItems);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<RoadmapItemRequest>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
-
-  const load = () => {
-    setLoading(true);
-    getRoadmapItems()
-      .then((r) => setItems(r.data))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => { load(); }, []);
 
   const openCreate = () => {
     setEditingId(null);
