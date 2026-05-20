@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
   getPractices, createPractice, updatePractice, deletePractice,
-  type Practice, type PracticeRequest,
+  type Practice, type PracticeLink, type PracticeRequest,
 } from '../api/practice';
 import { getErrorMessage } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
-import { Pencil, Trash2 } from 'lucide-react';
+import { ExternalLink, Pencil, Trash2, X } from 'lucide-react';
 
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
   todo:        { label: '待学习', className: 'status-todo' },
@@ -27,7 +27,7 @@ const FILTER_OPTIONS: { key: FilterStatus; label: string }[] = [
 
 const EMPTY_FORM: PracticeRequest = {
   category: '', categoryIcon: '', name: '', description: '',
-  status: 'todo', sortOrder: 0,
+  links: [], status: 'todo', sortOrder: 0,
 };
 
 function groupItems(items: Practice[]): { category: string; icon: string; items: Practice[] }[] {
@@ -81,11 +81,24 @@ const PracticePage: React.FC = () => {
       categoryIcon: item.categoryIcon ?? '',
       name: item.name,
       description: item.description ?? '',
+      links: item.links ?? [],
       status: item.status,
       sortOrder: item.sortOrder,
     });
     setShowForm(true);
   };
+
+  const addLink = () =>
+    setForm((f) => ({ ...f, links: [...f.links, { title: '', url: '' }] }));
+
+  const removeLink = (idx: number) =>
+    setForm((f) => ({ ...f, links: f.links.filter((_, i) => i !== idx) }));
+
+  const updateLink = (idx: number, field: keyof PracticeLink, value: string) =>
+    setForm((f) => ({
+      ...f,
+      links: f.links.map((l, i) => (i === idx ? { ...l, [field]: value } : l)),
+    }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,6 +199,23 @@ const PracticePage: React.FC = () => {
                 </div>
                 <h3 className="practice-card-name">{item.name}</h3>
                 {item.description && <p className="practice-card-desc">{item.description}</p>}
+                {item.links && item.links.length > 0 && (
+                  <div className="practice-card-links">
+                    {item.links.map((link, idx) => (
+                      <a
+                        key={idx}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="practice-link-chip"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink size={10} />
+                        {link.title || link.url}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -234,6 +264,32 @@ const PracticePage: React.FC = () => {
                   placeholder="可选，记录想学到什么程度或相关资料"
                 />
               </div>
+              <div className="form-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <label className="form-label" style={{ margin: 0 }}>关联链接</label>
+                  <button type="button" className="btn btn-soft btn-sm" onClick={addLink}>+ 添加</button>
+                </div>
+                {form.links.map((link, idx) => (
+                  <div key={idx} className="practice-link-row">
+                    <input
+                      value={link.title}
+                      onChange={(e) => updateLink(idx, 'title', e.target.value)}
+                      placeholder="标题"
+                      style={{ flex: '0 0 110px' }}
+                    />
+                    <input
+                      value={link.url}
+                      onChange={(e) => updateLink(idx, 'url', e.target.value)}
+                      placeholder="URL"
+                      style={{ flex: 1 }}
+                    />
+                    <button type="button" className="issue-action-btn danger" onClick={() => removeLink(idx)}>
+                      <X size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group">
                   <label className="form-label">学习状态</label>

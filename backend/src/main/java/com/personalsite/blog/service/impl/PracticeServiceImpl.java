@@ -10,6 +10,7 @@ import com.personalsite.blog.service.PracticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -33,6 +34,7 @@ public class PracticeServiceImpl implements PracticeService {
         practice.setCategoryIcon(req.getCategoryIcon());
         practice.setName(req.getName());
         practice.setDescription(req.getDescription());
+        practice.setLinks(req.getLinks() != null ? req.getLinks() : Collections.emptyList());
         practice.setStatus(req.getStatus() != null ? req.getStatus() : "todo");
         practice.setSortOrder(req.getSortOrder() != null ? req.getSortOrder() : 0);
         practiceMapper.insert(practice);
@@ -47,6 +49,7 @@ public class PracticeServiceImpl implements PracticeService {
         practice.setCategoryIcon(req.getCategoryIcon());
         practice.setName(req.getName());
         practice.setDescription(req.getDescription());
+        practice.setLinks(req.getLinks() != null ? req.getLinks() : Collections.emptyList());
         if (req.getStatus() != null) practice.setStatus(req.getStatus());
         if (req.getSortOrder() != null) practice.setSortOrder(req.getSortOrder());
         practiceMapper.updateById(practice);

@@ -1261,7 +1261,7 @@
 .practice-card-admin {
   display: flex;
   gap: 0.25rem;
-  opacity: 0;
+  opacity: 0.45;
   transition: opacity 0.15s;
 }
 
@@ -1282,6 +1282,48 @@
   color: var(--color-text-muted);
   margin: 0;
   line-height: 1.55;
+}
+
+.practice-card-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.1rem;
+}
+
+.practice-link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border);
+  text-decoration: none;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  max-width: 160px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.practice-link-chip:hover {
+  color: var(--color-neon-cyan);
+  border-color: rgba(0, 212, 255, 0.4);
+  background: rgba(0, 212, 255, 0.06);
+}
+
+.practice-link-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.practice-link-row input {
+  min-width: 0;
 }
 
 /* Status badge */
@@ -1655,6 +1697,8 @@
   padding: 2rem;
   width: 100%;
   max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: var(--shadow-card);
 }
 
