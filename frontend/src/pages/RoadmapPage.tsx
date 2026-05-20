@@ -16,6 +16,7 @@ const PRIORITY_MAP: Record<string, { label: string; className: string }> = {
   low:    { label: '低', className: 'priority-low' },
 };
 
+
 const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
 const EMPTY_FORM: RoadmapItemRequest = {
