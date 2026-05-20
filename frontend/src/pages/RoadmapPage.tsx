@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   getRoadmapItems, createRoadmapItem, updateRoadmapItem, deleteRoadmapItem,
   type RoadmapItem, type RoadmapItemRequest,
@@ -122,12 +122,15 @@ const RoadmapPage: React.FC = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner fullPage />;
-
-  const doneCount = items.filter((i) => i.status === 'done').length;
+  const doneCount = useMemo(() => items.filter((i) => i.status === 'done').length, [items]);
   const totalCount = items.length;
   const percent = totalCount === 0 ? 0 : Math.round((doneCount / totalCount) * 100);
-  const groups = groupItems(items);
+  const groups = useMemo(
+    () => groupItems(items).map((g) => ({ ...g, sortedItems: sortItems(g.items) })),
+    [items],
+  );
+
+  if (loading) return <LoadingSpinner fullPage />;
 
   return (
     <div className="container page-content">
@@ -166,7 +169,7 @@ const RoadmapPage: React.FC = () => {
             {group.label}
           </h2>
           <div className="roadmap-grid">
-            {sortItems(group.items).map((item) => (
+            {group.sortedItems.map((item) => (
               <div
                 key={item.id}
                 className={`roadmap-card ${item.status === 'done' ? 'roadmap-card-done' : 'roadmap-card-planned'}`}

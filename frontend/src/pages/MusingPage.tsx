@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   getMusings, createMusing, updateMusing, toggleMusingDone, deleteMusing,
   type Musing, type MusingRequest,
@@ -131,15 +131,21 @@ const MusingPage: React.FC = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner fullPage />;
-
-  const filtered = filter === 'all' ? musings : musings.filter((m) => m.type === filter);
+  const filtered = useMemo(
+    () => filter === 'all' ? musings : musings.filter((m) => m.type === filter),
+    [filter, musings],
+  );
   // 同组内已完成的 todo 排到末尾
-  const sorted = [...filtered].sort((a, b) => {
-    if (a.done === b.done) return 0;
-    return a.done ? 1 : -1;
-  });
-  const groups = groupByMonth(sorted);
+  const sorted = useMemo(
+    () => [...filtered].sort((a, b) => {
+      if (a.done === b.done) return 0;
+      return a.done ? 1 : -1;
+    }),
+    [filtered],
+  );
+  const groups = useMemo(() => groupByMonth(sorted), [sorted]);
+
+  if (loading) return <LoadingSpinner fullPage />;
 
   return (
     <div className="container page-content">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   getPractices, createPractice, updatePractice, deletePractice,
   type Practice, type PracticeLink, type PracticeRequest,
@@ -132,12 +132,15 @@ const PracticePage: React.FC = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner fullPage />;
+  const filtered = useMemo(
+    () => filter === 'all' ? items : items.filter((i) => i.status === filter),
+    [filter, items],
+  );
+  const groups = useMemo(() => groupItems(filtered), [filtered]);
+  const inProgressCount = useMemo(() => items.filter((i) => i.status === 'in_progress').length, [items]);
+  const masteredCount = useMemo(() => items.filter((i) => i.status === 'mastered').length, [items]);
 
-  const filtered = filter === 'all' ? items : items.filter((i) => i.status === filter);
-  const groups = groupItems(filtered);
-  const inProgressCount = items.filter((i) => i.status === 'in_progress').length;
-  const masteredCount = items.filter((i) => i.status === 'mastered').length;
+  if (loading) return <LoadingSpinner fullPage />;
 
   return (
     <div className="container page-content">

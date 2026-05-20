@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   getBooks, createBook, updateBook, deleteBook,
   type Book, type BookRequest,
@@ -171,12 +171,16 @@ const BookshelfPage: React.FC = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner fullPage />;
+  const categories = useMemo(
+    () => Array.from(new Set(books.map((b) => b.category).filter(Boolean) as string[])).sort(),
+    [books],
+  );
 
-  const categories = Array.from(new Set(books.map((b) => b.category).filter(Boolean) as string[])).sort();
-
-  const sortBooks = (list: Book[]) => {
-    const sorted = [...list];
+  const tabBooks = useMemo(() => {
+    const base = books
+      .filter((b) => b.status === activeTab)
+      .filter((b) => activeCategory === null || b.category === activeCategory);
+    const sorted = [...base];
     if (sortKey === 'finishedAt') {
       sorted.sort((a, b) => (b.finishedAt ?? '').localeCompare(a.finishedAt ?? ''));
     } else if (sortKey === 'rating') {
@@ -185,20 +189,22 @@ const BookshelfPage: React.FC = () => {
       sorted.sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
     }
     return sorted;
-  };
+  }, [books, activeTab, activeCategory, sortKey]);
 
-  const tabBooks = sortBooks(
-    books
-      .filter((b) => b.status === activeTab)
-      .filter((b) => activeCategory === null || b.category === activeCategory)
-  );
-  const counts = { reading: 0, want: 0, done: 0 } as Record<TabStatus, number>;
-  books.forEach((b) => { if (b.status in counts) counts[b.status as TabStatus]++; });
+  const counts = useMemo(() => {
+    const c = { reading: 0, want: 0, done: 0 } as Record<TabStatus, number>;
+    books.forEach((b) => { if (b.status in c) c[b.status as TabStatus]++; });
+    return c;
+  }, [books]);
 
-  const totalBooks = books.filter((b) => b.status !== 'want').length;
-  const thisYear = new Date().getFullYear().toString();
-  const doneThisYear = books.filter((b) => b.status === 'done' && b.finishedAt?.startsWith(thisYear)).length;
-  const totalPages = books.reduce((sum, b) => sum + (b.readPages ?? 0), 0);
+  const totalBooks = useMemo(() => books.filter((b) => b.status !== 'want').length, [books]);
+  const doneThisYear = useMemo(() => {
+    const thisYear = new Date().getFullYear().toString();
+    return books.filter((b) => b.status === 'done' && b.finishedAt?.startsWith(thisYear)).length;
+  }, [books]);
+  const totalPages = useMemo(() => books.reduce((sum, b) => sum + (b.readPages ?? 0), 0), [books]);
+
+  if (loading) return <LoadingSpinner fullPage />;
 
   const drawerOpen = drawerMode === 'create' || drawerBook !== null;
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
@@ -40,8 +40,8 @@ const AiTimelinePage: React.FC = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const grouped = groupByYear(posts);
-  const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
+  const grouped = useMemo(() => groupByYear(posts), [posts]);
+  const years = useMemo(() => Object.keys(grouped).sort((a, b) => Number(b) - Number(a)), [grouped]);
 
   return (
     <div className="container page-content">
