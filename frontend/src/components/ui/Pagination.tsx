@@ -7,7 +7,7 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-export const Pagination: React.FC<PaginationProps> = ({ page, pages, onPageChange }) => {
+export const Pagination = React.memo<PaginationProps>(({ page, pages, onPageChange }) => {
   if (pages <= 1) return null;
   return (
     <div className="pagination">
@@ -20,4 +20,4 @@ export const Pagination: React.FC<PaginationProps> = ({ page, pages, onPageChang
       </button>
     </div>
   );
-};
+});

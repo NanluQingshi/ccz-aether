@@ -27,8 +27,12 @@ const BlogListPage: React.FC = () => {
   const { addToast } = useUiStore();
 
   useEffect(() => {
-    getTags().then((r) => setTags(r.data)).catch(() => {});
-    getCategories().then((r) => setCategories(r.data)).catch(() => {});
+    Promise.all([getTags(), getCategories()])
+      .then(([tagsRes, catsRes]) => {
+        setTags(tagsRes.data);
+        setCategories(catsRes.data);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {

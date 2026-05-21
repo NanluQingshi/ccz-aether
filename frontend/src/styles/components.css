@@ -350,6 +350,10 @@
   50%       { transform: translateY(-8px);  }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .hero-tag { animation: none; }
+}
+
 .hero-tag-cyan {
   background: rgba(0, 245, 255, 0.08);
   border-color: rgba(0, 245, 255, 0.3);

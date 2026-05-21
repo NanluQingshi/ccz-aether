@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import MDEditor from '@uiw/react-md-editor';
-import { adminCreatePost, adminUpdatePost, adminGetPosts } from '../../api/posts';
+import { adminCreatePost, adminUpdatePost, adminGetPost } from '../../api/posts';
+
+const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 import { getErrorMessage } from '../../api/client';
 import { getTags } from '../../api/tags';
 import { getCategories } from '../../api/categories';
@@ -34,28 +35,37 @@ const PostEditorPage: React.FC = () => {
   const [initialLoading, setInitialLoading] = useState(isEdit);
 
   useEffect(() => {
-    getTags().then((r) => setTags(r.data)).catch(() => {});
-    getCategories().then((r) => setCategories(r.data)).catch(() => {});
+    let cancelled = false;
+
+    Promise.all([getTags(), getCategories()])
+      .then(([tagsRes, catsRes]) => {
+        if (!cancelled) {
+          setTags(tagsRes.data);
+          setCategories(catsRes.data);
+        }
+      })
+      .catch(() => {});
 
     if (isEdit && id) {
-      adminGetPosts(1, 999)
+      adminGetPost(Number(id))
         .then((r) => {
-          const post = r.data.records.find((p) => p.id === Number(id));
-          if (post) {
-            setTitle(post.title);
-            setSlug(post.slug);
-            setSummary(post.summary ?? '');
-            setCoverImage(post.coverImage ?? '');
-            setType(post.type ?? 'blog');
-            setEventDate(post.eventDate ?? '');
-            setCategoryId(post.category?.id ?? '');
-            setSelectedTagIds(post.tags.map((t) => t.id));
-          }
+          if (cancelled) return;
+          const post = r.data;
+          setTitle(post.title);
+          setSlug(post.slug);
+          setSummary(post.summary ?? '');
+          setContent(post.content ?? '');
+          setCoverImage(post.coverImage ?? '');
+          setType((post.type as import('../../types/post').PostType) ?? 'blog');
+          setEventDate(post.eventDate ? String(post.eventDate) : '');
+          setCategoryId(post.category?.id ?? '');
+          setSelectedTagIds(post.tags.map((t) => t.id));
         })
-        .catch(() => addToast('文章加载失败', 'error'))
-        .finally(() => setInitialLoading(false));
-
+        .catch(() => { if (!cancelled) addToast('文章加载失败', 'error'); })
+        .finally(() => { if (!cancelled) setInitialLoading(false); });
     }
+
+    return () => { cancelled = true; };
   }, [id, isEdit]);
 
   const toSlug = (t: string) =>
@@ -131,13 +141,15 @@ const PostEditorPage: React.FC = () => {
             onChange={(e) => handleTitleChange(e.target.value)}
           />
           <div className="editor-md">
-            <MDEditor
-              value={content}
-              onChange={(v) => setContent(v ?? '')}
-              height={520}
-              preview="live"
-              data-color-mode="light"
-            />
+            <Suspense fallback={<div style={{ height: 520, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>编辑器加载中...</div>}>
+              <MDEditor
+                value={content}
+                onChange={(v) => setContent(v ?? '')}
+                height={520}
+                preview="live"
+                data-color-mode="light"
+              />
+            </Suspense>
           </div>
         </div>
 

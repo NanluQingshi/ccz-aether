@@ -19,6 +19,9 @@ export const getAiTimeline = () =>
 export const adminGetPosts = (page = 1, size = 10) =>
   client.get<never, ApiResponse<PageResult<PostVO>>>('/api/admin/posts', { params: { page, size } });
 
+export const adminGetPost = (id: number) =>
+  client.get<never, ApiResponse<PostDetailVO>>(`/api/admin/posts/${id}`);
+
 export const adminCreatePost = (data: PostCreateRequest) =>
   client.post<never, ApiResponse<PostDetailVO>>('/api/admin/posts', data);
 

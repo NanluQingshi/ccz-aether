@@ -80,6 +80,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public PostDetailVO adminGetById(Long id) {
+        Post post = postMapper.selectById(id);
+        if (post == null) throw new BizException(ErrorCode.POST_NOT_FOUND);
+        return buildDetailVO(post);
+    }
+
+    @Override
     @Transactional
     public PostDetailVO create(PostCreateRequest req) {
         String slug = req.getSlug() != null && !req.getSlug().isBlank()

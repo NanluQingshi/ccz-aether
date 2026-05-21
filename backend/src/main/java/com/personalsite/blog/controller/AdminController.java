@@ -36,6 +36,11 @@ public class AdminController {
         return ApiResponse.ok(postService.adminListAll(page, size));
     }
 
+    @GetMapping("/posts/{id}")
+    public ApiResponse<PostDetailVO> adminPostById(@PathVariable Long id) {
+        return ApiResponse.ok(postService.adminGetById(id));
+    }
+
     @PostMapping("/posts")
     public ApiResponse<PostDetailVO> createPost(@Valid @RequestBody PostCreateRequest request) {
         return ApiResponse.ok(postService.create(request));

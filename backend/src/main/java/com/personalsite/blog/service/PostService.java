@@ -16,6 +16,8 @@ public interface PostService {
 
     PageResult<PostVO> adminListAll(int page, int size);
 
+    PostDetailVO adminGetById(Long id);
+
     PostDetailVO create(PostCreateRequest req);
 
     PostDetailVO update(Long id, PostUpdateRequest req);

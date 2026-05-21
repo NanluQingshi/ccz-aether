@@ -16,11 +16,13 @@ const BlogDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (!slug) return;
+    let cancelled = false;
     setLoading(true);
     getPostBySlug(slug)
-      .then((r) => setPost(r.data))
-      .catch(() => setNotFound(true))
-      .finally(() => setLoading(false));
+      .then((r) => { if (!cancelled) setPost(r.data); })
+      .catch(() => { if (!cancelled) setNotFound(true); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [slug]);
 
   if (loading) return <LoadingSpinner fullPage />;

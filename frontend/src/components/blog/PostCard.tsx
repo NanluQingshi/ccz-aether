@@ -9,11 +9,11 @@ interface PostCardProps {
   post: PostVO;
 }
 
-export const PostCard: React.FC<PostCardProps> = ({ post }) => (
+const PostCardInner: React.FC<PostCardProps> = ({ post }) => (
   <article className="post-card">
     {post.coverImage && (
       <div className="post-card-cover">
-        <img src={post.coverImage} alt={post.title} />
+        <img src={post.coverImage} alt={post.title} loading="lazy" />
       </div>
     )}
     <div className="post-card-body">
@@ -43,3 +43,5 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => (
     </div>
   </article>
 );
+
+export const PostCard = React.memo(PostCardInner);

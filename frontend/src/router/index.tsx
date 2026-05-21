@@ -5,6 +5,7 @@ import { Footer } from '../components/layout/Footer';
 import { AdminLayout } from '../components/layout/AdminLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 
 const HomePage = lazy(() => import('../pages/HomePage'));
 const BlogListPage = lazy(() => import('../pages/BlogListPage'));
@@ -23,13 +24,15 @@ const PostManagerPage = lazy(() => import('../pages/admin/PostManagerPage'));
 const PostEditorPage = lazy(() => import('../pages/admin/PostEditorPage'));
 
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="public-layout">
-    <Navbar />
-    <main className="main-content">
-      <Suspense fallback={<LoadingSpinner fullPage />}>{children}</Suspense>
-    </main>
-    <Footer />
-  </div>
+  <ErrorBoundary>
+    <div className="public-layout">
+      <Navbar />
+      <main className="main-content">
+        <Suspense fallback={<LoadingSpinner fullPage />}>{children}</Suspense>
+      </main>
+      <Footer />
+    </div>
+  </ErrorBoundary>
 );
 
 export const router = createBrowserRouter([
@@ -75,14 +78,16 @@ export const router = createBrowserRouter([
   },
   {
     path: '/admin/login',
-    element: <Suspense fallback={<LoadingSpinner fullPage />}><LoginPage /></Suspense>,
+    element: <ErrorBoundary><Suspense fallback={<LoadingSpinner fullPage />}><LoginPage /></Suspense></ErrorBoundary>,
   },
   {
     path: '/admin',
     element: (
-      <ProtectedRoute>
-        <AdminLayout />
-      </ProtectedRoute>
+      <ErrorBoundary>
+        <ProtectedRoute>
+          <AdminLayout />
+        </ProtectedRoute>
+      </ErrorBoundary>
     ),
     children: [
       { index: true, element: <Suspense fallback={<LoadingSpinner fullPage />}><DashboardPage /></Suspense> },
