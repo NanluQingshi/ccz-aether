@@ -19,7 +19,7 @@ const LoginPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await login({ username, password });
-      storeLogin(res.data.token, res.data.username);
+      storeLogin(res.data.username);
       navigate('/admin/dashboard');
     } catch (e: unknown) {
       const msg = getErrorMessage(e, '用户名或密码错误'); if (msg) addToast(msg, 'error');

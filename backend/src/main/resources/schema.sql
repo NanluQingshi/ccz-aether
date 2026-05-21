@@ -64,8 +64,6 @@ CREATE TABLE IF NOT EXISTS `post_tag` (
   FOREIGN KEY (`tag_id`)  REFERENCES `tag`(`id`)  ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Default admin user: admin / Admin@123456
--- Password BCrypt hash generated with strength 12
 INSERT IGNORE INTO `user` (`username`, `password`) VALUES (
   'admin',
   '$2a$12$8lpqXbN1qxT1rHmLd1eJmuEE2JCmJcuLpnSoxBaJKD0ikOihJcMAi'

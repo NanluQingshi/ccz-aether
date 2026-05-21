@@ -48,9 +48,9 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
 };
 
 const PracticePage: React.FC = () => {
-  const { token } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { addToast, showConfirm } = useUiStore();
-  const isAdmin = !!token;
+  const isAdmin = isAuthenticated;
 
   const { data: items, loading, setData: setItems, reload: load } = usePageData(getPractices);
   const [filter, setFilter] = useState<FilterStatus>('all');

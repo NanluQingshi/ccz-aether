@@ -5,14 +5,7 @@ import { useUiStore } from '../store/uiStore';
 const client = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 15000,
-});
-
-client.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+  withCredentials: true,
 });
 
 // 防止重复触发（如多个并发请求同时收到 401）

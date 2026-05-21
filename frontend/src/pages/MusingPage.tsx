@@ -45,9 +45,9 @@ const FILTER_OPTIONS: { key: FilterType; label: string; icon?: React.ReactNode }
 ];
 
 const MusingPage: React.FC = () => {
-  const { token } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { addToast, showConfirm } = useUiStore();
-  const isAdmin = !!token;
+  const isAdmin = isAuthenticated;
 
   const { data: musings, loading, setData: setMusings, reload: load } = usePageData(getMusings);
   const [filter, setFilter] = useState<FilterType>('all');

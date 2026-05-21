@@ -47,9 +47,9 @@ function sortItems(items: RoadmapItem[]): RoadmapItem[] {
 }
 
 const RoadmapPage: React.FC = () => {
-  const { token } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { addToast, showConfirm } = useUiStore();
-  const isAdmin = !!token;
+  const isAdmin = isAuthenticated;
 
   const { data: items, loading, setData: setItems, reload: load } = usePageData(getRoadmapItems);
   const [showForm, setShowForm] = useState(false);

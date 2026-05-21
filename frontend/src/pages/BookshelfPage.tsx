@@ -55,9 +55,9 @@ function BookCover({ book }: { book: Book }) {
 }
 
 const BookshelfPage: React.FC = () => {
-  const { token } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { addToast, showConfirm } = useUiStore();
-  const isAdmin = !!token;
+  const isAdmin = isAuthenticated;
 
   const { data: books, loading, setData: setBooks, reload: load } = usePageData(
     getBooks,

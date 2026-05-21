@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { logout as apiLogout } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
 
@@ -9,7 +10,12 @@ export const AdminLayout: React.FC = () => {
   const location = useLocation();
   const { addToast } = useUiStore();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await apiLogout();
+    } catch {
+      // ignore errors — clear local state regardless
+    }
     logout();
     addToast('已退出登录', 'info');
     navigate('/admin/login');

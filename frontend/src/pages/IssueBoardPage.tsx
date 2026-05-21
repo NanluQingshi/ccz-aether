@@ -33,9 +33,9 @@ interface FormState { title: string; description: string; priority: 0 | 1 | 2 }
 const EMPTY_FORM: FormState = { title: '', description: '', priority: 1 };
 
 const IssueBoardPage: React.FC = () => {
-  const { token } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { addToast, showConfirm } = useUiStore();
-  const isAdmin = !!token;
+  const isAdmin = isAuthenticated;
 
   const { data: issues, loading, setData: setIssues, reload: load } = usePageData(getIssues);
   const [showForm, setShowForm] = useState(false);
