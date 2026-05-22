@@ -1,100 +1,138 @@
-# Personal Site
+<div align="center">
 
-> 个人网站 · 技术博客 · 随想录 · 书架 · Issue Bin · Roadmap  
-> A personal website with a tech blog, AI timeline, bookshelf, musings, and more — built with a modern full-stack architecture.
+```
+ ██████╗ ███████╗██████╗ ███████╗ ██████╗ ███╗   ██╗ █████╗ ██╗
+ ██╔══██╗██╔════╝██╔══██╗██╔════╝██╔═══██╗████╗  ██║██╔══██╗██║
+ ██████╔╝█████╗  ██████╔╝███████╗██║   ██║██╔██╗ ██║███████║██║
+ ██╔═══╝ ██╔══╝  ██╔══██╗╚════██║██║   ██║██║╚██╗██║██╔══██║██║
+ ██║     ███████╗██║  ██║███████║╚██████╔╝██║ ╚████║██║  ██║███████╗
+ ╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
+```
 
-[中文](#中文) · [English](#english)
+**不只是博客 — 这是一个赛博朋克风格的个人知识操作系统**
+
+[![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3.4-6DB33F?style=flat-square&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docs.docker.com/compose)
+[![Java](https://img.shields.io/badge/Java-17-ED8B00?style=flat-square&logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/17/)
+
+*[中文](#-中文) · [English](#-english)*
+
+</div>
 
 ---
 
-## 中文
+## ✨ 这是什么？
 
-### 项目简介
+这是一个**持续进化的个人数字基地**，深色 neon 配色，赛博朋克美学。不是那种部署完就落灰的博客模板——每一个模块都在问你：*"你今天又积累了什么？"*
 
-一个持续成长的个人网站，前后端分离，部署灵活。目前包含技术博客、AI 大事纪、随想录、书页间、Issue Bin、Roadmap 等板块，后续会持续扩展。支持 Markdown 写作、标签与分类管理，以及统一的后台管理系统。
+> 博客 × AI时间轴 × 随想录 × 书架 × Issue看板 × 技能修炼手册 × 公开Roadmap
+
+前后端完全分离，Docker 一键部署，JWT 守护后台，Markdown 写作一气呵成。
+
+---
+
+## 🌐 中文
+
+### 功能地图
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         公开展示面                               │
+├──────────┬──────────┬──────────┬──────────┬──────────┬─────────┤
+│  🏠 主页  │  📝 博客  │  🤖 AI  │  💭 随想 │  📚 书架 │  ⚔️ 修炼 │
+│  Hero区  │ 标签/分类 │  时间轴  │  月份归档 │ 进度追踪 │ 技能清单 │
+│  技能展示 │ 分页浏览  │  年份分组 │ Todo管理 │ 评分书评 │  外链资源 │
+├──────────┴──────────┴──────────┴──────────┴──────────┴─────────┤
+│                                                                 │
+│            🗂️ Issue看板  ·  🗺️ Roadmap  ·  👤 关于我            │
+│          Todo/进行中/完成    进度条+分组      个人介绍              │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                     🔐 管理后台（JWT保护）                        │
+├──────────┬──────────┬──────────────────────────────────────────┤
+│  登录     │  仪表盘   │  文章/随想/书架/Issue/Roadmap/修炼 全CRUD │
+│  30天免登 │  图表统计 │  分栏Markdown编辑器 · 实时预览             │
+└──────────┴──────────┴──────────────────────────────────────────┘
+```
 
 ### 技术栈
 
-| 层级 | 技术选型 |
-|------|---------|
-| 前端 | React 18 · TypeScript · Vite · Zustand · React Router v6 |
-| 样式 | 纯 CSS 自定义属性（暗色科技感主题，无 UI 框架依赖） |
-| Markdown | react-markdown · rehype-highlight · @uiw/react-md-editor |
-| 后端 | Java 17 · Spring Boot 3 · Spring Security · MyBatis-Plus |
-| 数据库 | MySQL 8（支持全文检索） |
-| 认证 | JWT（单管理员模式，30 天有效期） |
-| 部署 | Docker Compose |
-
-### 功能特性
-
-**公开页面**
-- 首页：个人介绍、技能展示、最新文章；Hero 区双栏布局，右侧技术标签浮动装饰
-- 博客列表：分页浏览，按标签 / 分类筛选
-- 博客详情：Markdown 渲染，代码语法高亮，标题锚点
-- AI 大事纪：竖向时间轴，按年份分组，记录 AI 发展里程碑
-- 随想录：时间轴展示，支持随想 / Todo 两种类型，可按类型筛选，Todo 已完成自动置底
-- 书页间：书架展示，按在读 / 想读 / 已读分类，支持评分、读后感、阅读进度
-- Issue Bin：看板式三列布局（Todo / In Progress / Done），按优先级与创建时间排序，列内容超出可滚动
-- Roadmap：功能规划与进展追踪，进度条展示整体完成率
-- 关于页
-
-**后台管理**（需登录）
-- 文章管理：创建 / 编辑 / 删除 / 发布，支持普通博客与 AI 大事纪两种类型
-- Markdown 分栏编辑器，实时预览
-- 标签与分类管理
-- 仪表盘统计（文章数、阅读量等）
-- 随想录管理：新增 / 编辑 / 删除 / 标记完成
-- 书页间管理：新增 / 编辑 / 删除，更新阅读进度
-- Issue Bin 管理：新建 / 编辑 / 删除 / 状态流转
-- Roadmap 管理：新增 / 编辑 / 删除条目，动态维护规划内容
-- Token 过期自动登出并提示，无需手动清除本地存储
+```
+╔══════════════════════════════════════════════════════╗
+║  FRONTEND                                            ║
+║  React 18 · TypeScript · Vite · React Router v6      ║
+║  Zustand · Axios · Recharts · Radix UI               ║
+║  react-markdown · @uiw/react-md-editor · highlight.js ║
+║  纯 CSS 自定义属性（不跟 Tailwind 的风）                ║
+╠══════════════════════════════════════════════════════╣
+║  BACKEND                                             ║
+║  Spring Boot 3.3.4 · Java 17 · Spring Security       ║
+║  MyBatis-Plus · MySQL 8 · JWT(JJWT 0.12.6)           ║
+║  MapStruct · Lombok · SpringDoc OpenAPI               ║
+╠══════════════════════════════════════════════════════╣
+║  DEPLOYMENT                                          ║
+║  Docker Compose · dev/prod profile · 健康检查         ║
+╚══════════════════════════════════════════════════════╝
+```
 
 ### 项目结构
 
 ```
 full-stack-project/
-├── frontend/                  # React 前端
+├── frontend/                  # React 前端（Vite 构建）
 │   └── src/
-│       ├── api/               # Axios 封装（含响应拦截、错误提取）
-│       ├── components/        # 通用组件 & 布局
-│       ├── pages/             # 页面（含 admin/）
-│       ├── router/            # 路由 & 权限守卫
-│       ├── store/             # Zustand 全局状态（auth / ui）
-│       ├── types/             # TypeScript 类型
-│       └── styles/            # 主题 CSS 变量
-├── backend/                   # Spring Boot 后端
+│       ├── api/               # 10 个 Axios API 模块 + 拦截器
+│       ├── components/        # 可复用组件（blog/home/layout/ui）
+│       ├── pages/             # 11 公开页面 + 4 Admin 页面
+│       ├── router/            # 路由配置 + ProtectedRoute
+│       ├── store/             # Zustand（auth + ui/toast）
+│       ├── styles/            # theme / globals / components / markdown
+│       └── types/             # TypeScript 类型定义
+├── backend/                   # Spring Boot 后端（端口 9090）
 │   └── src/main/java/com/personalsite/blog/
-│       ├── controller/        # REST 接口
-│       ├── service/           # 业务逻辑
-│       ├── mapper/            # MyBatis-Plus Mapper
-│       ├── entity/            # 数据库实体
-│       ├── dto/               # 请求 / 响应 DTO
-│       ├── security/          # JWT 认证过滤器
-│       └── config/            # Spring 配置
-├── docs/
-│   └── troubleshooting/       # 问题排查文档
-├── docker-compose.yml
-└── README.md
+│       ├── controller/        # 10 个 REST 控制器
+│       ├── service/           # 9 个业务服务
+│       ├── entity/            # 10 个实体（含逻辑删除）
+│       ├── security/          # JWT 工具 + 过滤器
+│       ├── converter/         # MapStruct 对象转换
+│       └── config/            # Security / WebMvc / MyBatis-Plus
+│   └── src/main/resources/
+│       ├── application.yml        # 主配置（dev/prod 切换）
+│       ├── application-dev.yml    # 本地开发（SQL日志开）
+│       ├── application-prod.yml   # 生产（环境变量注入）
+│       └── schema.sql             # 数据库初始化 + 种子数据
+├── docs/troubleshooting/      # 按模块归档的故障排查文档（5个）
+└── docker-compose.yml         # MySQL + Backend 一键编排
 ```
 
-### 本地开发
+### 🚀 本地开发
 
 #### 前置要求
 
-- Node.js 18+ · pnpm
-- JDK 17+
-- Maven 3.8+
-- MySQL 8
-
-#### 1. 初始化数据库
-
-```bash
-mysql -u root -p < backend/src/main/resources/schema.sql
+```
+Node.js 18+  ·  pnpm  ·  JDK 17+  ·  Maven 3.8+  ·  Docker
 ```
 
-脚本会自动创建 `blog_db` 数据库、建表，并写入默认管理员账号和示例数据。
+#### 三步起飞
 
-#### 2. 配置数据库连接
+```bash
+# Step 1 — 启动数据库（会自动建表+写入种子数据）
+docker compose up mysql -d
+
+# Step 2 — 启动后端（⚠️ 必须在 backend/ 目录执行）
+cd backend && mvn spring-boot:run
+# → http://localhost:9090
+# → http://localhost:9090/swagger-ui.html  （Swagger UI）
+
+# Step 3 — 启动前端
+cd frontend && pnpm install && pnpm dev
+# → http://localhost:5173
+```
+
+#### 配置数据库连接
 
 编辑 `backend/src/main/resources/application-dev.yml`：
 
@@ -105,385 +143,294 @@ spring:
     password: your_password  # 你的 MySQL 密码
 ```
 
-#### 3. 启动后端
+#### 默认管理员账号
 
-```bash
-cd backend
-mvn spring-boot:run
-```
-
-- 后端地址：`http://localhost:9090`
-- Swagger UI：`http://localhost:9090/swagger-ui.html`
-
-#### 4. 启动前端
-
-```bash
-cd frontend
-pnpm install
-pnpm dev
-```
-
-- 前端地址：`http://localhost:5173`
-
-### 默认管理员账号
-
-| | |
-|--|--|
-| 登录入口 | `http://localhost:5173/admin/login` |
+| 字段 | 值 |
+|------|---|
+| 登录地址 | `http://localhost:5173/admin/login` |
 | 用户名 | `admin` |
 | 密码 | `Admin@123456` |
 
-> ⚠️ 首次部署后请立即修改密码。
+> ⚠️ **生产环境部署后请立即修改密码！**
 
-### 页面路由
+### 🗺️ 页面路由速查
 
-| 路径 | 说明 |
-|------|------|
-| `/` | 首页 |
-| `/blog` | 博客列表 |
-| `/blog/:slug` | 博客详情 |
-| `/ai` | AI 大事纪时间轴 |
-| `/musings` | 随想录 |
-| `/bookshelf` | 书页间 |
-| `/issues` | Issue Bin |
-| `/roadmap` | Roadmap |
-| `/about` | 关于 |
-| `/admin/login` | 管理员登录 |
-| `/admin/dashboard` | 仪表盘 |
-| `/admin/posts` | 文章管理 |
-| `/admin/posts/new` | 写新文章 |
+| 路径 | 模块 | 是否需要登录 |
+|------|------|:-----------:|
+| `/` | 主页 | — |
+| `/blog` | 博客列表（标签/分类过滤） | — |
+| `/blog/:slug` | 博客详情（Markdown渲染） | — |
+| `/ai-timeline` | AI 大事纪时间轴 | — |
+| `/musings` | 随想录（idea & todo） | — |
+| `/bookshelf` | 书架（三状态+评分） | — |
+| `/issues` | Issue 看板（三列） | — |
+| `/roadmap` | 功能 Roadmap | — |
+| `/practice` | 修炼手册 | — |
+| `/about` | 关于 | — |
+| `/admin/login` | 管理员登录 | — |
+| `/admin` | 仪表盘（图表统计） | ✅ |
+| `/admin/posts` | 文章管理 | ✅ |
+| `/admin/posts/new` | Markdown 编辑器 | ✅ |
 
-### API 概览
+### 📡 API 速查
 
-**公开接口**
+**公开接口**（无需认证）
 
 ```
-GET  /api/posts                 文章列表（分页 + 过滤）
-GET  /api/posts/:slug           文章详情
-GET  /api/posts/ai-timeline     AI 大事纪列表
+GET  /api/posts                 文章列表（分页 + 标签/分类过滤）
+GET  /api/posts/:slug           文章详情（自动记录浏览量）
+GET  /api/posts/ai-timeline     AI 时间轴文章列表
 GET  /api/tags                  标签列表
 GET  /api/categories            分类列表
-GET  /api/musings               随想录列表
-GET  /api/books                 书架列表
+GET  /api/musings               随想录
+GET  /api/books                 书架
 GET  /api/issues                Issue 列表
-GET  /api/roadmap               Roadmap 条目列表
-POST /api/auth/login            管理员登录
+GET  /api/roadmap               Roadmap 条目
+GET  /api/practice              修炼手册
+POST /api/auth/login            登录（返回 JWT）
 ```
 
 **管理接口**（需 `Authorization: Bearer <token>`）
 
 ```
-GET    /api/admin/posts              所有文章（含草稿）
-POST   /api/admin/posts              创建文章
-PUT    /api/admin/posts/:id          更新文章
-DELETE /api/admin/posts/:id          删除文章
-PATCH  /api/admin/posts/:id/publish  切换发布状态
-POST   /api/admin/tags               创建标签
-DELETE /api/admin/tags/:id           删除标签
-POST   /api/admin/categories         创建分类
-DELETE /api/admin/categories/:id     删除分类
-GET    /api/admin/stats              仪表盘统计
+# 文章
+GET/POST       /api/admin/posts
+PUT/DELETE     /api/admin/posts/:id
+PATCH          /api/admin/posts/:id/publish
+GET            /api/admin/stats              # 仪表盘数据
 
-POST   /api/musings                  新建随想
-PUT    /api/musings/:id              编辑随想
-PATCH  /api/musings/:id/toggle       切换 Todo 完成状态
-DELETE /api/musings/:id              删除随想
+# 标签 & 分类
+POST/DELETE    /api/admin/tags/:id
+POST/DELETE    /api/admin/categories/:id
 
-POST   /api/books                    新增书目
-PUT    /api/books/:id                更新书目
-DELETE /api/books/:id                删除书目
-
-POST   /api/issues                   新建 Issue
-PUT    /api/issues/:id               更新 Issue
-PATCH  /api/issues/:id/status        更新 Issue 状态
-DELETE /api/issues/:id               删除 Issue
-
-POST   /api/roadmap                  新增 Roadmap 条目
-PUT    /api/roadmap/:id              更新 Roadmap 条目
-DELETE /api/roadmap/:id              删除 Roadmap 条目
+# 随想录、书架、Issue、Roadmap、修炼手册
+# 均支持完整 CRUD，路径形如 /api/{resource}/:id
 ```
 
-### 生产部署
+### 📦 生产部署
 
-**Docker Compose（推荐）**
+**推荐：Docker Compose 一键部署**
 
 ```bash
-# 配置环境变量
-cp .env.example .env
-# 编辑 .env，填入数据库密码和 JWT 密钥
+# 1. 填写环境变量
+export DB_PASSWORD=your_strong_password
+export JWT_SECRET=your_256bit_random_secret
 
+# 2. 启动（MySQL + Backend）
 docker compose up -d
+
+# 3. 将前端 dist/ 部署到 Nginx 或任意 CDN
+cd frontend && pnpm build
 ```
 
 **手动部署**
 
 ```bash
 # 后端打包
-cd backend
-mvn package -DskipTests
+cd backend && mvn package -DskipTests
 java -jar target/blog-*.jar --spring.profiles.active=prod
 
 # 前端打包
-cd frontend
-pnpm build
-# 将 dist/ 部署到 Nginx 或任意静态托管服务
+cd frontend && pnpm build  # 产物在 dist/
 ```
 
-**后端生产环境变量**
+**关键环境变量**
+
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `DB_HOST` | MySQL 地址 | `mysql`（容器名）或云端地址 |
+| `DB_PASSWORD` | 数据库密码 | — |
+| `JWT_SECRET` | JWT 签名密钥（至少32字符）| — |
+| `JWT_EXPIRATION_MS` | Token 有效期（毫秒） | `2592000000`（30天） |
+
+**数据库迁移**
 
 ```bash
-SPRING_DATASOURCE_URL=jdbc:mysql://your-host:3306/blog_db?useSSL=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8mb4
-SPRING_DATASOURCE_USERNAME=your_user
-SPRING_DATASOURCE_PASSWORD=your_password
-JWT_SECRET=your-random-secret-at-least-32-chars
-JWT_EXPIRATION_MS=2592000000   # 30天，可按需调整
-```
-
-**迁移到云数据库**
-
-```bash
-# 1. 导出本地数据
+# 导出
 mysqldump -u root -p blog_db > backup.sql
-# 2. 导入到云端
+# 导入云端
 mysql -h cloud-host -u user -p blog_db < backup.sql
-# 3. 更新 SPRING_DATASOURCE_URL 指向云端地址
 ```
+
+### 🔧 故障排查
+
+遇到问题先查 `docs/troubleshooting/`，按模块归档，救过无数个深夜：
+
+| 文件 | 覆盖场景 |
+|------|---------|
+| `01-环境与构建.md` | Maven 命令、JDK 版本、构建报错 |
+| `02-数据库.md` | MySQL 连接失败、数据迁移 |
+| `03-后端开发.md` | Spring Security、JWT、业务逻辑 |
+| `04-前端开发.md` | React 组件、Zustand 状态 |
+| `05-网络与接口.md` | CORS、HTTP 状态码、接口联调 |
 
 ---
 
-## English
+## 🌍 English
 
-### Overview
+### What Is This?
 
-A growing personal website with a tech blog, AI milestone timeline, bookshelf, musings, issue tracker, and roadmap — built with a decoupled frontend/backend architecture and flexible deployment.
+A **personal knowledge operating system** dressed in cyberpunk aesthetics — dark neon theme, cyan & purple palette. Not a dead-on-deploy blog template. Every module is designed to keep growing with you.
+
+> Blog × AI Timeline × Musings × Bookshelf × Issue Board × Skill Tracker × Public Roadmap
+
+Full decoupled architecture, one-command Docker deployment, JWT-protected admin, pure Markdown writing flow.
 
 ### Tech Stack
 
 | Layer | Technologies |
 |-------|-------------|
 | Frontend | React 18 · TypeScript · Vite · Zustand · React Router v6 |
-| Styling | Pure CSS custom properties (dark tech theme, no UI framework) |
+| Styling | Pure CSS custom properties — dark tech theme, zero UI framework |
 | Markdown | react-markdown · rehype-highlight · @uiw/react-md-editor |
-| Backend | Java 17 · Spring Boot 3 · Spring Security · MyBatis-Plus |
-| Database | MySQL 8 (with full-text search support) |
-| Auth | JWT (single-admin model, 30-day expiry) |
+| Charts | Recharts |
+| Backend | Java 17 · Spring Boot 3.3.4 · Spring Security · MyBatis-Plus |
+| Database | MySQL 8 |
+| Auth | JWT / JJWT 0.12.6 (single-admin, 30-day tokens) |
+| Mapping | MapStruct |
 | Deployment | Docker Compose |
 
 ### Features
 
 **Public Pages**
-- Home: personal intro, skills, recent posts; two-column Hero layout with floating tech-tag decoration
-- Blog list: paginated, filterable by tag / category
-- Blog detail: Markdown rendering, syntax highlighting, heading anchors
-- AI Timeline: vertical timeline grouped by year, tracking AI milestones
-- Musings: timeline view with idea / todo types, filterable by type, completed todos sink to the bottom
-- Bookshelf: categorized by reading status, with rating, review, and progress tracking
-- Issue Bin: kanban board (Todo / In Progress / Done), sorted by priority and creation time, columns scroll independently
-- Roadmap: feature planning with overall progress bar, dynamically managed from the admin panel
-- About page
 
-**Admin Panel** (login required)
-- Post management: create / edit / delete / publish (blog posts & AI timeline entries)
+| Module | Route | What it does |
+|--------|-------|-------------|
+| 🏠 Home | `/` | Hero section · skills showcase · recent posts |
+| 📝 Blog | `/blog` | Paginated posts · tag & category filters |
+| 🤖 AI Timeline | `/ai-timeline` | Vertical timeline of AI milestones, grouped by year |
+| 💭 Musings | `/musings` | Ideas & todos, grouped by month · filterable |
+| 📚 Bookshelf | `/bookshelf` | Reading/Want/Done tabs · ratings · progress bars |
+| 🗂️ Issue Bin | `/issues` | Kanban board · priority sorting · independent scroll |
+| 🗺️ Roadmap | `/roadmap` | Public feature roadmap · overall progress bar |
+| ⚔️ Practice | `/practice` | Skill tracker · categories · status · linked resources |
+| 👤 About | `/about` | About me |
+
+**Admin Panel** (JWT protected)
+
+- Full CRUD for posts, musings, books, issues, roadmap items, and practice entries
 - Split-pane Markdown editor with live preview
+- Dashboard with post stats & view count trends (Recharts)
 - Tag & category management
-- Dashboard stats (post count, total views, etc.)
-- Full CRUD for musings, books, issues, and roadmap items
-- Token expiry: auto logout with toast notification, no manual localStorage cleanup needed
-
-### Project Structure
-
-```
-full-stack-project/
-├── frontend/                  # React frontend
-│   └── src/
-│       ├── api/               # Axios wrappers (with interceptors & error extraction)
-│       ├── components/        # Shared components & layouts
-│       ├── pages/             # Pages (including admin/)
-│       ├── router/            # Routes & auth guard
-│       ├── store/             # Zustand global state (auth / ui)
-│       ├── types/             # TypeScript types
-│       └── styles/            # CSS theme variables
-├── backend/                   # Spring Boot backend
-│   └── src/main/java/com/personalsite/blog/
-│       ├── controller/        # REST controllers
-│       ├── service/           # Business logic
-│       ├── mapper/            # MyBatis-Plus mappers
-│       ├── entity/            # Database entities
-│       ├── dto/               # Request / response DTOs
-│       ├── security/          # JWT auth filter
-│       └── config/            # Spring configuration
-├── docs/
-│   └── troubleshooting/       # Troubleshooting guides
-├── docker-compose.yml
-└── README.md
-```
+- Auto logout on token expiry with toast notification
 
 ### Local Development
 
 #### Prerequisites
 
-- Node.js 18+ · pnpm
-- JDK 17+
-- Maven 3.8+
-- MySQL 8
-
-#### 1. Initialize the Database
-
-```bash
-mysql -u root -p < backend/src/main/resources/schema.sql
+```
+Node.js 18+  ·  pnpm  ·  JDK 17+  ·  Maven 3.8+  ·  Docker
 ```
 
-This creates the `blog_db` database, all tables, the default admin account, and seed data.
+#### Quickstart
 
-#### 2. Configure the Database Connection
+```bash
+# Step 1 — Start the database
+docker compose up mysql -d
 
-Edit `backend/src/main/resources/application-dev.yml`:
+# Step 2 — Start the backend (⚠️ must run from backend/ directory)
+cd backend && mvn spring-boot:run
+# → http://localhost:9090
+# → http://localhost:9090/swagger-ui.html
+
+# Step 3 — Start the frontend
+cd frontend && pnpm install && pnpm dev
+# → http://localhost:5173
+```
+
+Edit `backend/src/main/resources/application-dev.yml` to set your MySQL credentials:
 
 ```yaml
 spring:
   datasource:
-    username: root           # your MySQL username
-    password: your_password  # your MySQL password
+    username: root
+    password: your_password
 ```
 
-#### 3. Start the Backend
+#### Default Admin Credentials
 
-```bash
-cd backend
-mvn spring-boot:run
-```
-
-- Backend: `http://localhost:9090`
-- Swagger UI: `http://localhost:9090/swagger-ui.html`
-
-#### 4. Start the Frontend
-
-```bash
-cd frontend
-pnpm install
-pnpm dev
-```
-
-- Frontend: `http://localhost:5173`
-
-### Default Admin Credentials
-
-| | |
-|--|--|
+| Field | Value |
+|-------|-------|
 | Login URL | `http://localhost:5173/admin/login` |
 | Username | `admin` |
 | Password | `Admin@123456` |
 
-> ⚠️ Change the password immediately after your first deployment.
+> ⚠️ **Change the password immediately after first deployment!**
 
 ### Routes
 
-| Path | Description |
-|------|-------------|
-| `/` | Home |
-| `/blog` | Blog list |
-| `/blog/:slug` | Blog post detail |
-| `/ai` | AI timeline |
-| `/musings` | Musings |
-| `/bookshelf` | Bookshelf |
-| `/issues` | Issue Bin |
-| `/roadmap` | Roadmap |
-| `/about` | About |
-| `/admin/login` | Admin login |
-| `/admin/dashboard` | Dashboard |
-| `/admin/posts` | Post management |
-| `/admin/posts/new` | Create new post |
-
-### API Overview
-
-**Public Endpoints**
-
-```
-GET  /api/posts                 Paginated & filtered post list
-GET  /api/posts/:slug           Post detail
-GET  /api/posts/ai-timeline     AI timeline entries
-GET  /api/tags                  All tags
-GET  /api/categories            All categories
-GET  /api/musings               Musings list
-GET  /api/books                 Bookshelf list
-GET  /api/issues                Issue list
-GET  /api/roadmap               Roadmap items
-POST /api/auth/login            Admin login
-```
-
-**Admin Endpoints** (require `Authorization: Bearer <token>`)
-
-```
-GET    /api/admin/posts              All posts (including drafts)
-POST   /api/admin/posts              Create post
-PUT    /api/admin/posts/:id          Update post
-DELETE /api/admin/posts/:id          Delete post
-PATCH  /api/admin/posts/:id/publish  Toggle publish status
-POST   /api/admin/tags               Create tag
-DELETE /api/admin/tags/:id           Delete tag
-POST   /api/admin/categories         Create category
-DELETE /api/admin/categories/:id     Delete category
-GET    /api/admin/stats              Dashboard stats
-
-POST   /api/musings                  Create musing
-PUT    /api/musings/:id              Update musing
-PATCH  /api/musings/:id/toggle       Toggle todo done state
-DELETE /api/musings/:id              Delete musing
-
-POST   /api/books                    Add book
-PUT    /api/books/:id                Update book
-DELETE /api/books/:id                Delete book
-
-POST   /api/issues                   Create issue
-PUT    /api/issues/:id               Update issue
-PATCH  /api/issues/:id/status        Update issue status
-DELETE /api/issues/:id               Delete issue
-
-POST   /api/roadmap                  Create roadmap item
-PUT    /api/roadmap/:id              Update roadmap item
-DELETE /api/roadmap/:id              Delete roadmap item
-```
+| Path | Description | Auth |
+|------|-------------|:----:|
+| `/` | Home | — |
+| `/blog` | Blog list (tag/category filter) | — |
+| `/blog/:slug` | Blog post detail | — |
+| `/ai-timeline` | AI milestone timeline | — |
+| `/musings` | Musings (ideas & todos) | — |
+| `/bookshelf` | Bookshelf (3 status tabs) | — |
+| `/issues` | Issue Kanban board | — |
+| `/roadmap` | Feature roadmap | — |
+| `/practice` | Skill practice tracker | — |
+| `/about` | About | — |
+| `/admin` | Dashboard | ✅ |
+| `/admin/posts` | Post management | ✅ |
+| `/admin/posts/new` | Markdown editor | ✅ |
 
 ### Production Deployment
 
 **Docker Compose (recommended)**
 
 ```bash
-cp .env.example .env
-# Fill in DB password and JWT secret in .env
+export DB_PASSWORD=your_strong_password
+export JWT_SECRET=your_256bit_secret
+
 docker compose up -d
+
+# Build and deploy frontend separately
+cd frontend && pnpm build
+# → deploy dist/ to Nginx / CDN
 ```
 
 **Manual**
 
 ```bash
-# Build backend
-cd backend
-mvn package -DskipTests
+cd backend && mvn package -DskipTests
 java -jar target/blog-*.jar --spring.profiles.active=prod
 
-# Build frontend
-cd frontend
-pnpm build
-# Deploy dist/ to Nginx or any static host
+cd frontend && pnpm build
 ```
 
-**Backend environment variables**
+**Key Environment Variables**
 
-```bash
-SPRING_DATASOURCE_URL=jdbc:mysql://your-host:3306/blog_db?useSSL=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8mb4
-SPRING_DATASOURCE_USERNAME=your_user
-SPRING_DATASOURCE_PASSWORD=your_password
-JWT_SECRET=your-random-secret-at-least-32-chars
-JWT_EXPIRATION_MS=2592000000   # 30 days, adjust as needed
+| Variable | Description |
+|----------|-------------|
+| `DB_HOST` | MySQL host (`mysql` in Docker, or cloud address) |
+| `DB_PASSWORD` | Database password |
+| `JWT_SECRET` | JWT signing key (32+ chars) |
+| `JWT_EXPIRATION_MS` | Token TTL in ms (default: `2592000000` = 30 days) |
+
+---
+
+<div align="center">
+
+**数据库实体关系速览**
+
+```
+User ──── 单管理员 JWT 认证
+Post ──── 博客文章 (slug · Markdown · 分类 · 标签 · 阅读量 · 软删除)
+  └── type=ai_timeline → AI时间轴（带 event_date）
+Tag ──── 多对多 ──── PostTag
+Category ──── Post
+Issue ──── 看板任务 (priority × status)
+Musing ──── 随想 / Todo（月份时间轴）
+Book ──── 书架（状态 · 评分 · 进度 · 书评）
+RoadmapItem ──── 分组 · 排序 · 状态 · 优先级
+Practice ──── 技能条目（分类 · 状态 · links JSON）
 ```
 
-**Migrate to a cloud database**
+---
 
-```bash
-# Export local data
-mysqldump -u root -p blog_db > backup.sql
-# Import to cloud
-mysql -h cloud-host -u user -p blog_db < backup.sql
-# Update SPRING_DATASOURCE_URL to point to the cloud host
-```
+*「写代码是写给人看的，顺便让机器执行。」*
+
+Made with ☕ + 🎧 + way too many late nights.
+
+</div>
