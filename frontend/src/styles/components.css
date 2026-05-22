@@ -13,7 +13,7 @@
 
 .main-content {
   flex: 1;
-  padding-bottom: 4rem;
+  padding-bottom: 5rem;
 }
 
 .page-content {
@@ -530,6 +530,25 @@
 .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .pagination-info { font-size: 0.875rem; color: var(--color-text-muted); }
 
+.pagination-jump { display: inline-flex; align-items: center; }
+.pagination-jump-input {
+  width: 3.5rem;
+  padding: 0.35rem 0.5rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: 0.8rem;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.pagination-jump-input::-webkit-outer-spin-button,
+.pagination-jump-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.pagination-jump-input:focus {
+  outline: none;
+  border-color: var(--color-neon-cyan);
+}
+
 /* ─── Toast ───────────────────────────────────── */
 .toast {
   display: flex;
@@ -842,7 +861,7 @@
 /* ─── Admin Table ─────────────────────────────── */
 .admin-table-wrap { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
 
-.admin-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.admin-table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 0.875rem; }
 
 .admin-table th {
   background: var(--color-bg-tertiary);
@@ -891,6 +910,8 @@
 }
 .status-badge.published { background: rgba(34, 197, 94, 0.12); color: #16a34a; }
 .status-badge.draft     { background: rgba(100, 116, 139, 0.12); color: var(--color-text-muted); }
+.status-badge.published::before { content: "● "; }
+.status-badge.draft::before     { content: "○ "; }
 
 /* ─── Editor ──────────────────────────────────── */
 .editor-page { max-width: 100%; padding: 1.5rem 2rem; }
@@ -1147,6 +1168,9 @@
 .priority-high   { background: rgba(255, 45, 120, 0.15); color: var(--color-neon-pink); }
 .priority-medium { background: rgba(168, 85, 247, 0.15); color: var(--color-neon-purple); }
 .priority-low    { background: rgba(100, 116, 139, 0.12); color: var(--color-text-muted); }
+.priority-high::before   { content: "↑ "; }
+.priority-medium::before { content: "– "; }
+.priority-low::before    { content: "↓ "; }
 
 .roadmap-priority-note {
   font-size: 0.8rem;
@@ -1346,18 +1370,21 @@
   color: var(--color-text-muted);
   border-color: var(--color-border);
 }
+.practice-status-badge.status-todo::before { content: "○ "; }
 
 .practice-status-badge.status-in-progress {
   color: var(--color-neon-purple);
   background: rgba(168, 85, 247, 0.1);
   border-color: rgba(168, 85, 247, 0.3);
 }
+.practice-status-badge.status-in-progress::before { content: "◑ "; }
 
 .practice-status-badge.status-mastered {
   color: var(--color-neon-cyan);
   background: rgba(0, 212, 255, 0.08);
   border-color: rgba(0, 212, 255, 0.3);
 }
+.practice-status-badge.status-mastered::before { content: "● "; }
 
 @media (max-width: 640px) {
   .practice-grid {
@@ -1545,7 +1572,8 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
   /* navbar 64px + footer 48px + page header ~110px + 上下 padding 80px */
-  height: calc(100vh - 302px);
+  min-height: 400px;
+  max-height: calc(100vh - 302px);
   align-items: stretch;
 }
 
@@ -1631,6 +1659,9 @@
 .issue-priority-low    { background: rgba(100,116,139,0.12); color: var(--color-text-muted); }
 .issue-priority-medium { background: rgba(234,179,8,0.12);   color: #b45309; }
 .issue-priority-high   { background: rgba(239,68,68,0.12);   color: #ef4444; }
+.issue-priority-low::before    { content: "↓ "; }
+.issue-priority-medium::before { content: "– "; }
+.issue-priority-high::before   { content: "↑ "; }
 
 .issue-card-actions { display: flex; gap: 0.4rem; }
 

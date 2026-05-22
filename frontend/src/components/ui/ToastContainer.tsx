@@ -13,7 +13,7 @@ export const ToastContainer: React.FC = () => {
   const { toasts, removeToast } = useUiStore();
   if (!toasts.length) return null;
   return (
-    <div className="toast-container">
+    <div role="status" aria-live="polite" aria-atomic="false" className="toast-container">
       {toasts.map((t) => (
         <div key={t.id} className={`toast toast-${t.type}`}>
           <span className="toast-icon">{ICONS[t.type]}</span>

@@ -5,6 +5,7 @@ import com.personalsite.blog.dto.response.PageResult;
 import com.personalsite.blog.dto.response.PostDetailVO;
 import com.personalsite.blog.dto.response.PostVO;
 import com.personalsite.blog.service.PostService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,8 @@ public class PostController {
     }
 
     @GetMapping("/{slug}")
-    public ApiResponse<PostDetailVO> detail(@PathVariable String slug) {
+    public ApiResponse<PostDetailVO> detail(@PathVariable String slug, HttpServletResponse response) {
+        response.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
         return ApiResponse.ok(postService.getBySlug(slug));
     }
 }

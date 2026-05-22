@@ -27,8 +27,13 @@ interface UiState {
 export const useUiStore = create<UiState>((set, get) => ({
   toasts: [],
   addToast: (message, type = 'info') => {
+    const { toasts } = get();
+    if (toasts.some((t) => t.message === message && t.type === type)) return;
     const id = Date.now().toString();
-    set((state) => ({ toasts: [...state.toasts, { id, message, type }] }));
+    set((state) => {
+      const next = [...state.toasts, { id, message, type }];
+      return { toasts: next.length > 5 ? next.slice(next.length - 5) : next };
+    });
     setTimeout(() => {
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
     }, 3500);
