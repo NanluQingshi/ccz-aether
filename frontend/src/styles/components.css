@@ -2637,3 +2637,180 @@
   border-left-color: rgba(255, 45, 120, 0.4);
   margin-top: 0.5rem;
 }
+
+/* ─── About — Terminal window ─────────────────── */
+.about-page {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1.25rem 5rem;
+  min-height: calc(100vh - 128px);
+}
+
+.terminal-window {
+  position: relative;  /* keeps terminal above the canvas (z-index: 0) */
+  z-index: 1;
+  width: 100%;
+  max-width: 860px;
+  background: #0d1117;
+  border: 1px solid rgba(0, 245, 255, 0.18);
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 1px rgba(0, 245, 255, 0.05),
+    0 0 40px rgba(0, 245, 255, 0.07),
+    0 24px 64px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  font-family: var(--font-mono);
+}
+
+.terminal-titlebar {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: #161b22;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 0.75rem;
+  user-select: none;
+}
+
+.terminal-dots {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.dot-red    { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green  { background: #28c840; }
+
+.terminal-title {
+  font-size: 0.72rem;
+  color: #6e7681;
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-mono);
+}
+
+.terminal-hint {
+  font-size: 0.65rem;
+  color: rgba(0, 245, 255, 0.4);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.terminal-body {
+  padding: 1.5rem 1.75rem 2rem;
+  min-height: 400px;
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 245, 255, 0.2) transparent;
+}
+
+.terminal-body::-webkit-scrollbar       { width: 4px; }
+.terminal-body::-webkit-scrollbar-track { background: transparent; }
+.terminal-body::-webkit-scrollbar-thumb { background: rgba(0, 245, 255, 0.2); border-radius: 2px; }
+
+.terminal-blank {
+  height: 0.5rem;
+}
+
+.terminal-line {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.8;
+  white-space: pre;
+}
+
+.terminal-cmd {
+  display: flex;
+  align-items: baseline;
+  color: #c9d1d9;
+}
+
+.terminal-prompt {
+  color: var(--color-neon-cyan);
+  flex-shrink: 0;
+}
+
+/* @property lets the browser treat --final-w as a <length>,
+   enabling correct interpolation in the steps() animation */
+@property --final-w {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0ch;
+}
+
+.terminal-typing {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  /* animation + --final-w are set via inline style in React
+     so step count matches the exact character count */
+}
+
+@keyframes term-type {
+  to { width: var(--final-w); }
+}
+
+.terminal-out {
+  color: #7ee787;
+  padding-left: 1.5rem;
+}
+
+.terminal-bright {
+  color: #58d68d;
+  font-weight: 500;
+}
+
+.terminal-err {
+  color: var(--color-neon-pink);
+  padding-left: 1.5rem;
+}
+
+.terminal-input-text {
+  color: #c9d1d9;
+}
+
+.terminal-link {
+  color: var(--color-neon-cyan) !important;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 245, 255, 0.3);
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.terminal-link:hover {
+  color: #ffffff !important;
+  border-bottom-color: var(--color-neon-cyan);
+}
+
+.terminal-quest {
+  color: var(--color-neon-purple) !important;
+  border-bottom-color: rgba(168, 85, 247, 0.3);
+}
+
+.terminal-quest:hover {
+  color: #ffffff !important;
+  border-bottom-color: var(--color-neon-purple);
+}
+
+.terminal-cursor-blink {
+  color: var(--color-neon-cyan);
+  animation: term-blink 1s step-end infinite;
+}
+
+@keyframes term-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@media (max-width: 600px) {
+  .terminal-window { max-width: 100%; }
+  .terminal-body   { padding: 1.25rem 1rem 1.75rem; }
+  .terminal-line   { font-size: 0.78rem; }
+}
