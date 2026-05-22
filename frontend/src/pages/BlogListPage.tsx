@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getPosts } from '../api/posts';
 import { getTags } from '../api/tags';
@@ -25,26 +25,33 @@ const BlogListPage: React.FC = () => {
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const { addToast } = useUiStore();
+  const metaLoadedRef = useRef(false);
 
   useEffect(() => {
-    Promise.all([getTags(), getCategories()])
-      .then(([tagsRes, catsRes]) => {
-        setTags(tagsRes.data);
-        setCategories(catsRes.data);
-      })
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
+    const controller = new AbortController();
     setLoading(true);
-    getPosts({ page, size: 10, tagSlug, categorySlug })
-      .then((r) => {
-        setPosts(r.data.records);
-        setTotal(r.data.total);
-        setPages(r.data.pages);
+
+    const fetchPosts = getPosts({ page, size: 10, tagSlug, categorySlug });
+    const fetchMeta = metaLoadedRef.current
+      ? Promise.resolve(null)
+      : Promise.all([getTags(), getCategories()]);
+
+    Promise.all([fetchPosts, fetchMeta])
+      .then(([postsRes, metaRes]) => {
+        if (controller.signal.aborted) return;
+        setPosts(postsRes.data.records);
+        setTotal(postsRes.data.total);
+        setPages(postsRes.data.pages);
+        if (metaRes) {
+          setTags(metaRes[0].data);
+          setCategories(metaRes[1].data);
+          metaLoadedRef.current = true;
+        }
       })
-      .catch(() => addToast('文章加载失败，请刷新重试', 'error'))
-      .finally(() => setLoading(false));
+      .catch(() => { if (!controller.signal.aborted) addToast('文章加载失败，请刷新重试', 'error'); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+
+    return () => { controller.abort(); };
   }, [page, tagSlug, categorySlug]);
 
   const setParam = (key: string, value?: string) => {

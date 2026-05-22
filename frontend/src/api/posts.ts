@@ -1,4 +1,5 @@
 import client from './client';
+import type { AxiosRequestConfig } from 'axios';
 import type { ApiResponse, PageResult } from '../types/api';
 import type { PostVO, PostDetailVO, PostCreateRequest, PostUpdateRequest } from '../types/post';
 
@@ -10,8 +11,8 @@ export const getPosts = (params: {
   keyword?: string;
 }) => client.get<never, ApiResponse<PageResult<PostVO>>>('/api/posts', { params });
 
-export const getPostBySlug = (slug: string) =>
-  client.get<never, ApiResponse<PostDetailVO>>(`/api/posts/${slug}`);
+export const getPostBySlug = (slug: string, config?: AxiosRequestConfig) =>
+  client.get<never, ApiResponse<PostDetailVO>>(`/api/posts/${slug}`, config);
 
 export const getAiTimeline = () =>
   client.get<never, ApiResponse<PostVO[]>>('/api/posts/ai-timeline');

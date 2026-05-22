@@ -17,13 +17,13 @@ const BlogDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (!slug) return;
-    let cancelled = false;
+    const controller = new AbortController();
     setLoading(true);
-    getPostBySlug(slug)
-      .then((r) => { if (!cancelled) setPost(r.data); })
-      .catch(() => { if (!cancelled) setNotFound(true); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+    getPostBySlug(slug, { signal: controller.signal })
+      .then((r) => { setPost(r.data); })
+      .catch((err) => { if (!controller.signal.aborted) setNotFound(true); void err; })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => { controller.abort(); };
   }, [slug]);
 
   if (loading) return <LoadingSpinner fullPage />;

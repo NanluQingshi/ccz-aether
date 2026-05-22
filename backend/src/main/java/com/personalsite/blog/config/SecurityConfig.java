@@ -30,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${cors.allowed-origins:http://localhost:5173,http://localhost:4173}")
+    @Value("${cors.allowed-origins}")
     private String[] allowedOrigins;
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -87,6 +87,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(Arrays.asList(allowedOrigins));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("X-Request-Id"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
