@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import MDEditor from '@uiw/react-md-editor';
-import { adminCreatePost, adminUpdatePost, adminGetPosts } from '../../api/posts';
+import { adminCreatePost, adminUpdatePost, adminGetPost } from '../../api/posts';
+
+const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 import { getErrorMessage } from '../../api/client';
 import { getTags } from '../../api/tags';
 import { getCategories } from '../../api/categories';
@@ -25,7 +26,7 @@ const PostEditorPage: React.FC = () => {
   const [coverImage, setCoverImage] = useState('');
   const [type, setType] = useState<PostType>('blog');
   const [eventDate, setEventDate] = useState('');
-  const [categoryId, setCategoryId] = useState<number | ''>('');
+  const [categoryId, setCategoryId] = useState<number | null>(null);
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
 
   const [tags, setTags] = useState<TagVO[]>([]);
@@ -33,29 +34,75 @@ const PostEditorPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEdit);
 
+  const draftKey = `post-draft-${id ?? 'new'}`;
+  const hasCheckedDraftRef = useRef(false);
+
+  // Auto-save draft every 30s
   useEffect(() => {
-    getTags().then((r) => setTags(r.data)).catch(() => {});
-    getCategories().then((r) => setCategories(r.data)).catch(() => {});
+    const timer = setInterval(() => {
+      if (!title && !content) return;
+      localStorage.setItem(draftKey, JSON.stringify({
+        title, slug, summary, content, coverImage, categoryId, selectedTagIds, type, eventDate,
+      }));
+    }, 30000);
+    return () => clearInterval(timer);
+  }, [title, slug, summary, content, coverImage, categoryId, selectedTagIds, type, eventDate, draftKey]);
+
+  // Restore draft once after initial load
+  useEffect(() => {
+    if (initialLoading || hasCheckedDraftRef.current) return;
+    hasCheckedDraftRef.current = true;
+    const saved = localStorage.getItem(draftKey);
+    if (!saved) return;
+    try {
+      const draft = JSON.parse(saved) as Record<string, unknown>;
+      if (window.confirm('检测到未保存的草稿，是否恢复？')) {
+        if (draft.title !== undefined) setTitle(draft.title as string);
+        if (draft.slug !== undefined) setSlug(draft.slug as string);
+        if (draft.summary !== undefined) setSummary(draft.summary as string);
+        if (draft.content !== undefined) setContent(draft.content as string);
+        if (draft.coverImage !== undefined) setCoverImage(draft.coverImage as string);
+        if (draft.categoryId !== undefined) setCategoryId(draft.categoryId as number | null);
+        if (draft.selectedTagIds !== undefined) setSelectedTagIds(draft.selectedTagIds as number[]);
+        if (draft.type !== undefined) setType(draft.type as PostType);
+        if (draft.eventDate !== undefined) setEventDate(draft.eventDate as string);
+      }
+      localStorage.removeItem(draftKey);
+    } catch { /* malformed draft, ignore */ }
+  }, [initialLoading, draftKey]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    Promise.all([getTags(), getCategories()])
+      .then(([tagsRes, catsRes]) => {
+        if (!cancelled) {
+          setTags(tagsRes.data);
+          setCategories(catsRes.data);
+        }
+      })
+      .catch(() => {});
 
     if (isEdit && id) {
-      adminGetPosts(1, 999)
+      adminGetPost(Number(id))
         .then((r) => {
-          const post = r.data.records.find((p) => p.id === Number(id));
-          if (post) {
-            setTitle(post.title);
-            setSlug(post.slug);
-            setSummary(post.summary ?? '');
-            setCoverImage(post.coverImage ?? '');
-            setType(post.type ?? 'blog');
-            setEventDate(post.eventDate ?? '');
-            setCategoryId(post.category?.id ?? '');
-            setSelectedTagIds(post.tags.map((t) => t.id));
-          }
+          if (cancelled) return;
+          const post = r.data;
+          setTitle(post.title);
+          setSlug(post.slug);
+          setSummary(post.summary ?? '');
+          setContent(post.content ?? '');
+          setCoverImage(post.coverImage ?? '');
+          setType((post.type as import('../../types/post').PostType) ?? 'blog');
+          setEventDate(post.eventDate ? String(post.eventDate) : '');
+          setCategoryId(post.category?.id ?? null);
+          setSelectedTagIds(post.tags.map((t) => t.id));
         })
-        .catch(() => addToast('文章加载失败', 'error'))
-        .finally(() => setInitialLoading(false));
-
+        .catch(() => { if (!cancelled) addToast('文章加载失败', 'error'); })
+        .finally(() => { if (!cancelled) setInitialLoading(false); });
     }
+
+    return () => { cancelled = true; };
   }, [id, isEdit]);
 
   const toSlug = (t: string) =>
@@ -87,15 +134,17 @@ const PostEditorPage: React.FC = () => {
         coverImage: coverImage || undefined,
         type,
         eventDate: type === 'ai_timeline' && eventDate ? eventDate : undefined,
-        categoryId: categoryId !== '' ? Number(categoryId) : undefined,
+        categoryId: categoryId !== null ? categoryId : undefined,
         tagIds: selectedTagIds,
         status: saveStatus,
       };
       if (isEdit && id) {
         await adminUpdatePost(Number(id), payload);
+        localStorage.removeItem(draftKey);
         addToast('已保存', 'success');
       } else {
         await adminCreatePost(payload);
+        localStorage.removeItem(draftKey);
         addToast('创建成功', 'success');
         navigate('/admin/posts');
       }
@@ -131,13 +180,15 @@ const PostEditorPage: React.FC = () => {
             onChange={(e) => handleTitleChange(e.target.value)}
           />
           <div className="editor-md">
-            <MDEditor
-              value={content}
-              onChange={(v) => setContent(v ?? '')}
-              height={520}
-              preview="live"
-              data-color-mode="light"
-            />
+            <Suspense fallback={<div style={{ height: 520, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>编辑器加载中...</div>}>
+              <MDEditor
+                value={content}
+                onChange={(v) => setContent(v ?? '')}
+                height={520}
+                preview="live"
+                data-color-mode="light"
+              />
+            </Suspense>
           </div>
         </div>
 
@@ -185,7 +236,7 @@ const PostEditorPage: React.FC = () => {
           </div>
           <div className="editor-field">
             <label className="form-label">分类</label>
-            <Select value={String(categoryId)} onValueChange={(v) => setCategoryId(v === '' ? '' : Number(v))}>
+            <Select value={String(categoryId ?? '')} onValueChange={(v) => setCategoryId(v === '' ? null : Number(v))}>
               <SelectTrigger><SelectValue placeholder="— 无分类 —" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="">— 无分类 —</SelectItem>

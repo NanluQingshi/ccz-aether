@@ -12,6 +12,7 @@ client.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  config.headers['X-Request-Id'] = crypto.randomUUID();
   return config;
 });
 
@@ -25,6 +26,12 @@ client.interceptors.response.use(
     const backendMessage: string | undefined = error.response?.data?.message;
     if (backendMessage) {
       error.message = backendMessage;
+    }
+
+    // 从响应头取回请求 ID，便于问题定位
+    const requestId: string | undefined = error.response?.headers?.['x-request-id'];
+    if (requestId) {
+      error.requestId = requestId;
     }
 
     if (error.response?.status === 401 && !isHandling401) {
@@ -46,7 +53,10 @@ export function getErrorMessage(e: unknown, fallback: string): string | null {
   if (e && typeof e === 'object' && 'handled' in e && (e as Record<string, unknown>).handled) {
     return null;
   }
-  return (e instanceof Error ? e.message : null) || fallback;
+  const err = e as Record<string, unknown> | null;
+  const message = (e instanceof Error ? e.message : null) || fallback;
+  const requestId = err && typeof err.requestId === 'string' ? err.requestId : null;
+  return requestId ? `${message}（ID: ${requestId.slice(0, 8)}）` : message;
 }
 
 export default client;

@@ -5,6 +5,9 @@ spring:
     password: 123456 # 改成你本机 MySQL 的密码
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+cors:
+  allowed-origins: http://localhost:5173,http://localhost:4173
+
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

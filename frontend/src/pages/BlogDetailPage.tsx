@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { ArrowLeft, Calendar, Eye } from 'lucide-react';
@@ -16,11 +17,13 @@ const BlogDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (!slug) return;
+    const controller = new AbortController();
     setLoading(true);
-    getPostBySlug(slug)
-      .then((r) => setPost(r.data))
-      .catch(() => setNotFound(true))
-      .finally(() => setLoading(false));
+    getPostBySlug(slug, { signal: controller.signal })
+      .then((r) => { setPost(r.data); })
+      .catch((err) => { if (!controller.signal.aborted) setNotFound(true); void err; })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => { controller.abort(); };
   }, [slug]);
 
   if (loading) return <LoadingSpinner fullPage />;
@@ -33,8 +36,21 @@ const BlogDetailPage: React.FC = () => {
     );
   }
 
+  const description = post.summary ?? post.content.slice(0, 160).replace(/[#*`>\[\]]/g, '');
+  const ogImage = post.coverImage ?? '';
+
   return (
     <div className="container page-content">
+      <Helmet>
+        <title>{post.title}</title>
+        <meta name="description" content={description} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="article" />
+        {ogImage && <meta property="og:image" content={ogImage} />}
+        {post.publishedAt && <meta property="article:published_time" content={new Date(post.publishedAt).toISOString()} />}
+      </Helmet>
+
       <Link to="/blog" className="back-link"><ArrowLeft size={15} /> 返回博客</Link>
 
       <article className="post-detail">
