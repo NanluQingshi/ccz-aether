@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS `post_tag` (
   `post_id` BIGINT NOT NULL,
   `tag_id`  BIGINT NOT NULL,
   PRIMARY KEY (`post_id`, `tag_id`),
+  INDEX `idx_tag_id` (`tag_id`),
   FOREIGN KEY (`post_id`) REFERENCES `post`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`tag_id`)  REFERENCES `tag`(`id`)  ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -190,3 +191,8 @@ ALTER TABLE `post`
 
 ALTER TABLE `post`
   ADD INDEX `idx_type_event_date` (`type`, `event_date` DESC);
+
+-- Migration: add idx_tag_id on post_tag for tag-side join queries
+-- NOTE: run only once on an existing DB; skip if index already exists
+ALTER TABLE `post_tag`
+  ADD INDEX `idx_tag_id` (`tag_id`);

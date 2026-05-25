@@ -199,7 +199,10 @@ public class PostServiceImpl implements PostService {
 
     private void savePostTags(Long postId, List<Long> tagIds) {
         if (tagIds == null || tagIds.isEmpty()) return;
-        tagIds.forEach(tagId -> postTagMapper.insert(new PostTag(postId, tagId)));
+        List<PostTag> rows = tagIds.stream()
+                .map(tagId -> new PostTag(postId, tagId))
+                .collect(Collectors.toList());
+        postTagMapper.insertBatch(rows);
     }
 
     private Map<Long, List<TagVO>> tagsByPostId(List<Long> postIds) {
