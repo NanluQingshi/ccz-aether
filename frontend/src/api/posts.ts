@@ -3,13 +3,10 @@ import type { AxiosRequestConfig } from 'axios';
 import type { ApiResponse, PageResult } from '../types/api';
 import type { PostVO, PostDetailVO, PostCreateRequest, PostUpdateRequest } from '../types/post';
 
-export const getPosts = (params: {
-  page?: number;
-  size?: number;
-  tagSlug?: string;
-  categorySlug?: string;
-  keyword?: string;
-}) => client.get<never, ApiResponse<PageResult<PostVO>>>('/api/posts', { params });
+export const getPosts = (
+  params: { page?: number; size?: number; tagSlug?: string; categorySlug?: string; keyword?: string },
+  config?: AxiosRequestConfig,
+) => client.get<never, ApiResponse<PageResult<PostVO>>>('/api/posts', { params, ...config });
 
 export const getPostBySlug = (slug: string, config?: AxiosRequestConfig) =>
   client.get<never, ApiResponse<PostDetailVO>>(`/api/posts/${slug}`, config);
