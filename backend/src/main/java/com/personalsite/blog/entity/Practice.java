@@ -1,21 +1,17 @@
 package com.personalsite.blog.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName(value = "practice", autoResultMap = true)
-public class Practice {
-    @TableId(type = IdType.AUTO)
-    private Long id;
+public class Practice extends BaseEntity {
     private String category;
     private String categoryIcon;
     private String name;
@@ -25,8 +21,4 @@ public class Practice {
     // todo | in_progress | mastered
     private String status;
     private Integer sortOrder;
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createdAt;
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updatedAt;
 }

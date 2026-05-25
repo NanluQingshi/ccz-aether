@@ -1,19 +1,8 @@
 import client from './client';
 import type { ApiResponse } from '../types/api';
+import type { Musing, MusingRequest } from '../types/musing';
 
-export interface Musing {
-  id: number;
-  content: string;
-  type: 'idea' | 'todo';
-  done: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MusingRequest {
-  content: string;
-  type: 'idea' | 'todo';
-}
+export type { Musing, MusingRequest };
 
 export const getMusings = () =>
   client.get<never, ApiResponse<Musing[]>>('/api/musings');

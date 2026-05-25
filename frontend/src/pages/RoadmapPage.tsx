@@ -1,12 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   getRoadmapItems, createRoadmapItem, updateRoadmapItem, deleteRoadmapItem,
   type RoadmapItem, type RoadmapItemRequest,
 } from '../api/roadmap';
-import { getErrorMessage } from '../api/client';
 import { useAuthStore } from '../store/authStore';
-import { useUiStore } from '../store/uiStore';
 import { usePageData } from '../hooks/usePageData';
+import { useCRUDPage } from '../hooks/useCRUDPage';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -16,7 +15,6 @@ const PRIORITY_MAP: Record<string, { label: string; className: string }> = {
   medium: { label: '中', className: 'priority-medium' },
   low:    { label: '低', className: 'priority-low' },
 };
-
 
 const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
@@ -48,24 +46,16 @@ function sortItems(items: RoadmapItem[]): RoadmapItem[] {
 
 const RoadmapPage: React.FC = () => {
   const { token } = useAuthStore();
-  const { addToast, showConfirm } = useUiStore();
   const isAdmin = !!token;
 
   const { data: items, loading, setData: setItems, reload: load } = usePageData(getRoadmapItems);
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [form, setForm] = useState<RoadmapItemRequest>(EMPTY_FORM);
-  const [submitting, setSubmitting] = useState(false);
-
-  const openCreate = () => {
-    setEditingId(null);
-    setForm(EMPTY_FORM);
-    setShowForm(true);
-  };
-
-  const openEdit = (item: RoadmapItem) => {
-    setEditingId(item.id);
-    setForm({
+  const {
+    showForm, editingId, form, submitting,
+    setForm, openCreate, openEdit, closeForm,
+    handleSubmit, handleDelete, addToast,
+  } = useCRUDPage<RoadmapItem, RoadmapItemRequest>({
+    emptyForm: EMPTY_FORM,
+    toForm: (item) => ({
       groupLabel: item.groupLabel,
       groupIcon: item.groupIcon ?? '',
       name: item.name,
@@ -73,19 +63,17 @@ const RoadmapPage: React.FC = () => {
       status: item.status,
       priority: item.priority ?? '',
       sortOrder: item.sortOrder,
-    });
-    setShowForm(true);
-  };
+    }),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.groupLabel.trim() || !form.name.trim()) return;
-    setSubmitting(true);
     const payload: RoadmapItemRequest = {
       ...form,
       priority: form.status === 'done' ? undefined : (form.priority || undefined),
     };
-    try {
+    await handleSubmit(async () => {
       if (editingId !== null) {
         await updateRoadmapItem(editingId, payload);
         addToast('已更新', 'success');
@@ -93,25 +81,16 @@ const RoadmapPage: React.FC = () => {
         await createRoadmapItem(payload);
         addToast('已创建', 'success');
       }
-      setShowForm(false);
+      closeForm();
       load();
-    } catch (e: unknown) {
-      const msg = getErrorMessage(e, '操作失败'); if (msg) addToast(msg, 'error');
-    } finally {
-      setSubmitting(false);
-    }
+    });
   };
 
-  const handleDelete = async (id: number) => {
-    if (!await showConfirm('确认删除这条 Roadmap 条目？')) return;
-    try {
-      await deleteRoadmapItem(id);
-      setItems((prev) => prev.filter((i) => i.id !== id));
-      addToast('已删除', 'success');
-    } catch (e: unknown) {
-      const msg = getErrorMessage(e, '删除失败'); if (msg) addToast(msg, 'error');
-    }
-  };
+  const onDelete = (id: number) => handleDelete(
+    id, deleteRoadmapItem,
+    () => setItems((prev) => prev.filter((i) => i.id !== id)),
+    '确认删除这条 Roadmap 条目？',
+  );
 
   const doneCount = useMemo(() => items.filter((i) => i.status === 'done').length, [items]);
   const totalCount = items.length;
@@ -177,7 +156,7 @@ const RoadmapPage: React.FC = () => {
                   {isAdmin && (
                     <div className="roadmap-card-admin">
                       <button className="issue-action-btn" onClick={() => openEdit(item)} title="编辑"><Pencil size={13} /></button>
-                      <button className="issue-action-btn danger" onClick={() => handleDelete(item.id)} title="删除"><Trash2 size={13} /></button>
+                      <button className="issue-action-btn danger" onClick={() => onDelete(item.id)} title="删除"><Trash2 size={13} /></button>
                     </div>
                   )}
                 </div>
@@ -190,10 +169,10 @@ const RoadmapPage: React.FC = () => {
       ))}
 
       {showForm && (
-        <div className="issue-modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="issue-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 className="issue-modal-title">{editingId !== null ? '编辑条目' : '新增条目'}</h3>
-            <form onSubmit={handleSubmit} className="issue-form">
+        <div className="modal-overlay" onClick={closeForm}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title">{editingId !== null ? '编辑条目' : '新增条目'}</h3>
+            <form onSubmit={onSubmit} className="modal-form">
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px', gap: '0.75rem' }}>
                 <div className="form-group">
                   <label className="form-label">分组名称</label>
@@ -264,8 +243,8 @@ const RoadmapPage: React.FC = () => {
                   onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))}
                 />
               </div>
-              <div className="issue-form-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>取消</button>
+              <div className="modal-form-actions">
+                <button type="button" className="btn btn-secondary" onClick={closeForm}>取消</button>
                 <button type="submit" className="btn btn-primary" disabled={submitting}>
                   {submitting ? '保存中...' : '保存'}
                 </button>

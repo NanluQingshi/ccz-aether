@@ -203,7 +203,7 @@ const BookshelfPage: React.FC = () => {
 
   // 表单 JSX（detail 和 create 共用）
   const renderForm = () => (
-    <form onSubmit={handleSubmit} className="issue-form book-drawer-form">
+    <form onSubmit={handleSubmit} className="modal-form book-drawer-form">
       <div className="book-form-row">
         <div className="form-group">
           <label className="form-label">书名 *</label>

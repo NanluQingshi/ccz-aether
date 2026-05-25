@@ -1,36 +1,8 @@
 import client from './client';
 import type { ApiResponse } from '../types/api';
+import type { Book, BookRequest } from '../types/book';
 
-export interface Book {
-  id: number;
-  title: string;
-  author: string;
-  cover?: string;
-  status: 'want' | 'reading' | 'done';
-  rating?: number;
-  review?: string;
-  category?: string;
-  totalPages?: number;
-  readPages?: number;
-  startedAt?: string;
-  finishedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface BookRequest {
-  title: string;
-  author: string;
-  cover?: string;
-  status: 'want' | 'reading' | 'done';
-  rating?: number;
-  review?: string;
-  category?: string;
-  totalPages?: number;
-  readPages?: number;
-  startedAt?: string;
-  finishedAt?: string;
-}
+export type { Book, BookRequest };
 
 export const getBooks = () =>
   client.get<never, ApiResponse<Book[]>>('/api/books');

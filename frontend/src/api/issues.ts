@@ -1,21 +1,8 @@
 import client from './client';
 import type { ApiResponse } from '../types/api';
+import type { Issue, IssueRequest } from '../types/issue';
 
-export interface Issue {
-  id: number;
-  title: string;
-  description?: string;
-  status: 0 | 1 | 2;
-  priority: 0 | 1 | 2;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface IssueRequest {
-  title: string;
-  description?: string;
-  priority: 0 | 1 | 2;
-}
+export type { Issue, IssueRequest };
 
 export const getIssues = () =>
   client.get<never, ApiResponse<Issue[]>>('/api/issues');

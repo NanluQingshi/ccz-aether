@@ -1,20 +1,15 @@
 package com.personalsite.blog.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("book")
-public class Book {
-    @TableId(type = IdType.AUTO)
-    private Long id;
+public class Book extends BaseEntity {
     private String title;
     private String author;
     private String cover;
@@ -28,8 +23,4 @@ public class Book {
     private Integer readPages;
     private LocalDate startedAt;
     private LocalDate finishedAt;
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createdAt;
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updatedAt;
 }

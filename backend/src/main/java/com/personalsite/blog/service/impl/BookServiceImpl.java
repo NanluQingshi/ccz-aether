@@ -1,10 +1,9 @@
 package com.personalsite.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.personalsite.blog.dto.request.BookRequest;
 import com.personalsite.blog.entity.Book;
-import com.personalsite.blog.exception.BizException;
-import com.personalsite.blog.exception.ErrorCode;
 import com.personalsite.blog.mapper.BookMapper;
 import com.personalsite.blog.service.BookService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class BookServiceImpl implements BookService {
+public class BookServiceImpl extends BaseCrudService<Book, BookRequest> implements BookService {
 
     private final BookMapper bookMapper;
 
@@ -35,29 +34,17 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book create(BookRequest req) {
-        Book book = new Book();
-        applyRequest(book, req);
-        bookMapper.insert(book);
-        return book;
+    protected BaseMapper<Book> getMapper() {
+        return bookMapper;
     }
 
     @Override
-    public Book update(Long id, BookRequest req) {
-        Book book = bookMapper.selectById(id);
-        if (book == null) throw new BizException(ErrorCode.NOT_FOUND);
-        applyRequest(book, req);
-        bookMapper.updateById(book);
-        return book;
+    protected Book newEntity() {
+        return new Book();
     }
 
     @Override
-    public void delete(Long id) {
-        if (bookMapper.selectById(id) == null) throw new BizException(ErrorCode.NOT_FOUND);
-        bookMapper.deleteById(id);
-    }
-
-    private void applyRequest(Book book, BookRequest req) {
+    protected void applyRequest(Book book, BookRequest req) {
         book.setTitle(req.getTitle());
         book.setAuthor(req.getAuthor());
         book.setCover(req.getCover());

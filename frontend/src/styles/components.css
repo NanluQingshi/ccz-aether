@@ -1715,7 +1715,7 @@
 }
 
 /* Modal */
-.issue-modal-overlay {
+.modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.45);
@@ -1725,7 +1725,7 @@
   z-index: 1000;
 }
 
-.issue-modal {
+.modal {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
@@ -1737,16 +1737,16 @@
   box-shadow: var(--shadow-card);
 }
 
-.issue-modal-title {
+.modal-title {
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--color-text-primary);
   margin-bottom: 1.25rem;
 }
 
-.issue-form { display: flex; flex-direction: column; gap: 1rem; }
+.modal-form { display: flex; flex-direction: column; gap: 1rem; }
 
-.issue-form-actions {
+.modal-form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;

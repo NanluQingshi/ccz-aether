@@ -1,6 +1,7 @@
 package com.personalsite.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.personalsite.blog.dto.request.MusingRequest;
 import com.personalsite.blog.entity.Musing;
 import com.personalsite.blog.exception.BizException;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class MusingServiceImpl implements MusingService {
+public class MusingServiceImpl extends BaseCrudService<Musing, MusingRequest> implements MusingService {
 
     private final MusingMapper musingMapper;
 
@@ -25,23 +26,25 @@ public class MusingServiceImpl implements MusingService {
     }
 
     @Override
-    public Musing create(MusingRequest req) {
-        Musing musing = new Musing();
-        musing.setContent(req.getContent());
-        musing.setType(req.getType() != null ? req.getType() : "idea");
-        musing.setDone(0);
-        musingMapper.insert(musing);
-        return musing;
+    protected BaseMapper<Musing> getMapper() {
+        return musingMapper;
     }
 
     @Override
-    public Musing update(Long id, MusingRequest req) {
-        Musing musing = musingMapper.selectById(id);
-        if (musing == null) throw new BizException(ErrorCode.NOT_FOUND);
+    protected Musing newEntity() {
+        return new Musing();
+    }
+
+    @Override
+    protected void applyRequest(Musing musing, MusingRequest req) {
         musing.setContent(req.getContent());
         if (req.getType() != null) musing.setType(req.getType());
-        musingMapper.updateById(musing);
-        return musing;
+    }
+
+    @Override
+    protected void initEntity(Musing musing, MusingRequest req) {
+        if (musing.getType() == null) musing.setType("idea");
+        musing.setDone(0);
     }
 
     @Override
@@ -51,11 +54,5 @@ public class MusingServiceImpl implements MusingService {
         musing.setDone(musing.getDone() == 1 ? 0 : 1);
         musingMapper.updateById(musing);
         return musing;
-    }
-
-    @Override
-    public void delete(Long id) {
-        if (musingMapper.selectById(id) == null) throw new BizException(ErrorCode.NOT_FOUND);
-        musingMapper.deleteById(id);
     }
 }

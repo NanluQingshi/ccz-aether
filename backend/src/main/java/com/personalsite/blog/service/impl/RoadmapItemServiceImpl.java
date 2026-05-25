@@ -1,10 +1,9 @@
 package com.personalsite.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.personalsite.blog.dto.request.RoadmapItemRequest;
 import com.personalsite.blog.entity.RoadmapItem;
-import com.personalsite.blog.exception.BizException;
-import com.personalsite.blog.exception.ErrorCode;
 import com.personalsite.blog.mapper.RoadmapItemMapper;
 import com.personalsite.blog.service.RoadmapItemService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RoadmapItemServiceImpl implements RoadmapItemService {
+public class RoadmapItemServiceImpl extends BaseCrudService<RoadmapItem, RoadmapItemRequest> implements RoadmapItemService {
 
     private final RoadmapItemMapper roadmapItemMapper;
 
@@ -28,28 +27,17 @@ public class RoadmapItemServiceImpl implements RoadmapItemService {
     }
 
     @Override
-    public RoadmapItem create(RoadmapItemRequest req) {
-        RoadmapItem item = new RoadmapItem();
-        copyFields(item, req);
-        roadmapItemMapper.insert(item);
-        return item;
+    protected BaseMapper<RoadmapItem> getMapper() {
+        return roadmapItemMapper;
     }
 
     @Override
-    public RoadmapItem update(Long id, RoadmapItemRequest req) {
-        RoadmapItem item = roadmapItemMapper.selectById(id);
-        if (item == null) throw new BizException(ErrorCode.NOT_FOUND);
-        copyFields(item, req);
-        roadmapItemMapper.updateById(item);
-        return item;
+    protected RoadmapItem newEntity() {
+        return new RoadmapItem();
     }
 
     @Override
-    public void delete(Long id) {
-        roadmapItemMapper.deleteById(id);
-    }
-
-    private void copyFields(RoadmapItem item, RoadmapItemRequest req) {
+    protected void applyRequest(RoadmapItem item, RoadmapItemRequest req) {
         item.setGroupLabel(req.getGroupLabel());
         item.setGroupIcon(req.getGroupIcon());
         item.setName(req.getName());

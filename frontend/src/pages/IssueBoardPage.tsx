@@ -5,8 +5,8 @@ import {
 } from '../api/issues';
 import { getErrorMessage } from '../api/client';
 import { useAuthStore } from '../store/authStore';
-import { useUiStore } from '../store/uiStore';
 import { usePageData } from '../hooks/usePageData';
+import { useCRUDPage } from '../hooks/useCRUDPage';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 import { ArrowDown, ArrowRight, ArrowUp, Pencil, Trash2 } from 'lucide-react';
@@ -34,32 +34,26 @@ const EMPTY_FORM: FormState = { title: '', description: '', priority: 1 };
 
 const IssueBoardPage: React.FC = () => {
   const { token } = useAuthStore();
-  const { addToast, showConfirm } = useUiStore();
   const isAdmin = !!token;
 
   const { data: issues, loading, setData: setIssues, reload: load } = usePageData(getIssues);
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [submitting, setSubmitting] = useState(false);
+  const {
+    showForm, editingId, form, submitting,
+    setForm, openCreate, openEdit, closeForm,
+    handleSubmit, handleDelete, addToast,
+  } = useCRUDPage<Issue, FormState>({
+    emptyForm: EMPTY_FORM,
+    toForm: (issue) => ({
+      title: issue.title,
+      description: issue.description ?? '',
+      priority: issue.priority,
+    }),
+  });
 
-  const openCreate = () => {
-    setEditingId(null);
-    setForm(EMPTY_FORM);
-    setShowForm(true);
-  };
-
-  const openEdit = (issue: Issue) => {
-    setEditingId(issue.id);
-    setForm({ title: issue.title, description: issue.description ?? '', priority: issue.priority });
-    setShowForm(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) return;
-    setSubmitting(true);
-    try {
+    await handleSubmit(async () => {
       const payload: IssueRequest = { title: form.title, description: form.description, priority: form.priority };
       if (editingId !== null) {
         await updateIssue(editingId, payload);
@@ -68,14 +62,16 @@ const IssueBoardPage: React.FC = () => {
         await createIssue(payload);
         addToast('已创建', 'success');
       }
-      setShowForm(false);
+      closeForm();
       load();
-    } catch (e: unknown) {
-      const msg = getErrorMessage(e, '操作失败'); if (msg) addToast(msg, 'error');
-    } finally {
-      setSubmitting(false);
-    }
+    });
   };
+
+  const onDelete = (id: number) => handleDelete(
+    id, deleteIssue,
+    () => setIssues((prev) => prev.filter((i) => i.id !== id)),
+    '确认删除这条 Issue？',
+  );
 
   const handleStatusChange = async (id: number, status: 0 | 1 | 2) => {
     try {
@@ -83,17 +79,6 @@ const IssueBoardPage: React.FC = () => {
       setIssues((prev) => prev.map((i) => i.id === id ? { ...i, status } : i));
     } catch (e: unknown) {
       const msg = getErrorMessage(e, '更新失败'); if (msg) addToast(msg, 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    if (!await showConfirm('确认删除这条 Issue？')) return;
-    try {
-      await deleteIssue(id);
-      setIssues((prev) => prev.filter((i) => i.id !== id));
-      addToast('已删除', 'success');
-    } catch (e: unknown) {
-      const msg = getErrorMessage(e, '删除失败'); if (msg) addToast(msg, 'error');
     }
   };
 
@@ -137,7 +122,7 @@ const IssueBoardPage: React.FC = () => {
                       {isAdmin && (
                         <div className="issue-card-actions">
                           <button className="issue-action-btn" onClick={() => openEdit(issue)} title="编辑"><Pencil size={13} /></button>
-                          <button className="issue-action-btn danger" onClick={() => handleDelete(issue.id)} title="删除"><Trash2 size={13} /></button>
+                          <button className="issue-action-btn danger" onClick={() => onDelete(issue.id)} title="删除"><Trash2 size={13} /></button>
                         </div>
                       )}
                     </div>
@@ -168,10 +153,10 @@ const IssueBoardPage: React.FC = () => {
 
       {/* 新建/编辑弹窗 */}
       {showForm && (
-        <div className="issue-modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="issue-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 className="issue-modal-title">{editingId !== null ? '编辑 Issue' : '新建 Issue'}</h3>
-            <form onSubmit={handleSubmit} className="issue-form">
+        <div className="modal-overlay" onClick={closeForm}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title">{editingId !== null ? '编辑 Issue' : '新建 Issue'}</h3>
+            <form onSubmit={onSubmit} className="modal-form">
               <div className="form-group">
                 <label className="form-label">标题</label>
                 <input
@@ -201,8 +186,8 @@ const IssueBoardPage: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="issue-form-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>取消</button>
+              <div className="modal-form-actions">
+                <button type="button" className="btn btn-secondary" onClick={closeForm}>取消</button>
                 <button type="submit" className="btn btn-primary" disabled={submitting}>
                   {submitting ? '保存中...' : '保存'}
                 </button>

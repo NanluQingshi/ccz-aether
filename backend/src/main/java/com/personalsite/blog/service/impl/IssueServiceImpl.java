@@ -1,5 +1,6 @@
 package com.personalsite.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.personalsite.blog.dto.request.IssueRequest;
 import com.personalsite.blog.entity.Issue;
 import com.personalsite.blog.exception.BizException;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class IssueServiceImpl implements IssueService {
+public class IssueServiceImpl extends BaseCrudService<Issue, IssueRequest> implements IssueService {
 
     private final IssueMapper issueMapper;
 
@@ -23,25 +24,25 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public Issue create(IssueRequest req) {
-        Issue issue = new Issue();
-        issue.setTitle(req.getTitle());
-        issue.setDescription(req.getDescription());
-        issue.setPriority(req.getPriority());
-        issue.setStatus(0);
-        issueMapper.insert(issue);
-        return issue;
+    protected BaseMapper<Issue> getMapper() {
+        return issueMapper;
     }
 
     @Override
-    public Issue update(Long id, IssueRequest req) {
-        Issue issue = issueMapper.selectById(id);
-        if (issue == null) throw new BizException(ErrorCode.NOT_FOUND);
+    protected Issue newEntity() {
+        return new Issue();
+    }
+
+    @Override
+    protected void applyRequest(Issue issue, IssueRequest req) {
         issue.setTitle(req.getTitle());
         issue.setDescription(req.getDescription());
         issue.setPriority(req.getPriority());
-        issueMapper.updateById(issue);
-        return issue;
+    }
+
+    @Override
+    protected void initEntity(Issue issue, IssueRequest req) {
+        issue.setStatus(0);
     }
 
     @Override
@@ -51,10 +52,5 @@ public class IssueServiceImpl implements IssueService {
         issue.setStatus(status);
         issueMapper.updateById(issue);
         return issue;
-    }
-
-    @Override
-    public void delete(Long id) {
-        issueMapper.deleteById(id);
     }
 }
