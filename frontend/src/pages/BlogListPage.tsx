@@ -31,7 +31,7 @@ const BlogListPage: React.FC = () => {
     const controller = new AbortController();
     setLoading(true);
 
-    const fetchPosts = getPosts({ page, size: 10, tagSlug, categorySlug });
+    const fetchPosts = getPosts({ page, size: 10, tagSlug, categorySlug }, { signal: controller.signal });
     const fetchMeta = metaLoadedRef.current
       ? Promise.resolve(null)
       : Promise.all([getTags(), getCategories()]);

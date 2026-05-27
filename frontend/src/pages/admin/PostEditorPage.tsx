@@ -186,7 +186,7 @@ const PostEditorPage: React.FC = () => {
                 onChange={(v) => setContent(v ?? '')}
                 height={520}
                 preview="live"
-                data-color-mode="light"
+                data-color-mode="dark"
               />
             </Suspense>
           </div>
