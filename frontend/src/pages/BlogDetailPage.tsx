@@ -6,6 +6,7 @@ import { zhCN } from 'date-fns/locale';
 import { ArrowLeft, Calendar, Eye } from 'lucide-react';
 import { getPostBySlug } from '../api/posts';
 import { MarkdownRenderer } from '../components/blog/MarkdownRenderer';
+import { TableOfContents } from '../components/blog/TableOfContents';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import type { PostDetailVO } from '../types/post';
 
@@ -40,7 +41,7 @@ const BlogDetailPage: React.FC = () => {
   const ogImage = post.coverImage ?? '';
 
   return (
-    <div className="container page-content">
+    <div className="page-content page-content--article">
       <Helmet>
         <title>{post.title}</title>
         <meta name="description" content={description} />
@@ -53,29 +54,35 @@ const BlogDetailPage: React.FC = () => {
 
       <Link to="/blog" className="back-link"><ArrowLeft size={15} /> 返回博客</Link>
 
-      <article className="post-detail">
-        {post.category && (
-          <div className="post-detail-category">{post.category.name}</div>
-        )}
-        <h1 className="post-detail-title">{post.title}</h1>
-        <div className="post-detail-meta">
-          <span><Calendar size={13} />{post.publishedAt ? format(new Date(post.publishedAt), 'yyyy年MM月dd日', { locale: zhCN }) : ''}</span>
-          <span><Eye size={13} />{post.viewCount} 阅读</span>
-          {post.tags.length > 0 && (
-            <div className="post-detail-tags">
-              {post.tags.map((t) => (
-                <span key={t.id} className="tag">{t.name}</span>
-              ))}
-            </div>
+      <div className="post-detail-layout">
+        <article className="post-detail">
+          {post.category && (
+            <div className="post-detail-category">{post.category.name}</div>
           )}
-        </div>
+          <h1 className="post-detail-title">{post.title}</h1>
+          <div className="post-detail-meta">
+            <span><Calendar size={13} />{post.publishedAt ? format(new Date(post.publishedAt), 'yyyy年MM月dd日', { locale: zhCN }) : ''}</span>
+            <span><Eye size={13} />{post.viewCount} 阅读</span>
+            {post.tags.length > 0 && (
+              <div className="post-detail-tags">
+                {post.tags.map((t) => (
+                  <span key={t.id} className="tag">{t.name}</span>
+                ))}
+              </div>
+            )}
+          </div>
 
-        {post.coverImage && (
-          <img className="post-detail-cover" src={post.coverImage} alt={post.title} />
-        )}
+          {post.coverImage && (
+            <img className="post-detail-cover" src={post.coverImage} alt={post.title} />
+          )}
 
-        <MarkdownRenderer content={post.content} />
-      </article>
+          <MarkdownRenderer content={post.content} />
+        </article>
+
+        <aside className="post-detail-toc-aside">
+          <TableOfContents content={post.content} />
+        </aside>
+      </div>
     </div>
   );
 };

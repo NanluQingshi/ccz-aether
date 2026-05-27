@@ -10,7 +10,6 @@ import { usePageData } from '../hooks/usePageData';
 import type { PostVO } from '../types/post';
 
 function formatEventDate(dateStr: string): string {
-  // yyyy-MM-dd → 精确日期；yyyy-MM → 年月
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     return format(parseISO(dateStr), 'yyyy年MM月dd日', { locale: zhCN });
   }
@@ -43,9 +42,13 @@ const AiTimelinePage: React.FC = () => {
     <div className="container page-content">
       <div className="ai-page-header">
         <h1 className="page-title">AI 大事纪</h1>
-        <p className="ai-page-desc">
-          记录人工智能发展历程中的关键时刻与里程碑事件
-        </p>
+        <p className="ai-page-desc">记录人工智能发展历程中的关键时刻与里程碑事件</p>
+        {posts.length > 0 && (
+          <div className="ai-page-stats">
+            <span className="ai-stat">{posts.length} 个里程碑</span>
+            <span className="ai-stat">{years.length} 个年份</span>
+          </div>
+        )}
       </div>
 
       {loading ? (

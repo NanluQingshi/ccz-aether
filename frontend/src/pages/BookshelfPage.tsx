@@ -190,11 +190,12 @@ const BookshelfPage: React.FC = () => {
     return c;
   }, [books]);
 
+  const thisYear = new Date().getFullYear().toString();
   const totalBooks = useMemo(() => books.filter((b) => b.status !== 'want').length, [books]);
-  const doneThisYear = useMemo(() => {
-    const thisYear = new Date().getFullYear().toString();
-    return books.filter((b) => b.status === 'done' && b.finishedAt?.startsWith(thisYear)).length;
-  }, [books]);
+  const doneThisYear = useMemo(
+    () => books.filter((b) => b.status === 'done' && b.finishedAt?.startsWith(thisYear)).length,
+    [books, thisYear],
+  );
   const totalPages = useMemo(() => books.reduce((sum, b) => sum + (b.readPages ?? 0), 0), [books]);
 
   if (loading) return <LoadingSpinner fullPage />;
