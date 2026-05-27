@@ -1,19 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const TECH_TAGS = [
-  { label: 'Java',        color: 'cyan'   },
-  { label: 'Spring Boot', color: 'purple' },
-  { label: 'React',       color: 'cyan'   },
-  { label: 'TypeScript',  color: 'purple' },
-  { label: 'MySQL',       color: 'cyan'   },
-  { label: 'Docker',      color: 'purple' },
-  { label: 'MyBatis',     color: 'cyan'   },
-  { label: 'Redis',       color: 'purple' },
-  { label: 'Maven',       color: 'cyan'   },
-  { label: 'Git',         color: 'purple' },
-  { label: 'Linux',       color: 'cyan'   },
-  { label: 'REST API',    color: 'purple' },
+const FOCUS_TAGS = ['Spring Boot', 'React', 'Claude API', '系统设计'];
+
+const MODULE_SHORTCUTS = [
+  { label: '博客',      to: '/blog'      },
+  { label: 'Roadmap',  to: '/roadmap'   },
+  { label: '修炼手册',  to: '/practice'  },
+  { label: 'Issue Bin', to: '/issues'    },
 ];
 
 export const HeroSection: React.FC = () => (
@@ -35,15 +29,32 @@ export const HeroSection: React.FC = () => (
         </div>
       </div>
 
-      {/* 右侧：技术标签装饰 */}
-      <div className="hero-decoration" aria-hidden="true">
+      {/* 右侧：结构化信息面板 */}
+      <div className="hero-decoration">
         <div className="hero-glow" />
-        <div className="hero-tags">
-          {TECH_TAGS.map((tag) => (
-            <span key={tag.label} className={`hero-tag hero-tag-${tag.color}`}>
-              {tag.label}
-            </span>
-          ))}
+        <div className="hero-info-panel">
+          <div className="hero-info-card">
+            <span className="hero-info-label">当前身份</span>
+            <p className="hero-info-value">全栈工程师 · AI 应用开发</p>
+          </div>
+          <div className="hero-info-card">
+            <span className="hero-info-label">当前关注</span>
+            <div className="hero-focus-tags">
+              {FOCUS_TAGS.map((tag) => (
+                <span key={tag} className="hero-focus-tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+          <div className="hero-info-card">
+            <span className="hero-info-label">站点模块</span>
+            <div className="hero-modules">
+              {MODULE_SHORTCUTS.map((m) => (
+                <Link key={m.label} to={m.to} className="hero-module-btn">
+                  {m.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

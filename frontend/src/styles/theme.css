@@ -39,6 +39,10 @@
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
   --transition-slow: 400ms ease;
+
+  /* Layout */
+  --section-gap: 3rem;
+  --overview-card-min: 160px;
 }
 
 /* ─── Admin light theme ───────────────────────── */

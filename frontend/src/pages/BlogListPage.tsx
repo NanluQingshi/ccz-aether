@@ -65,6 +65,21 @@ const BlogListPage: React.FC = () => {
     <div className="container page-content">
       <h1 className="page-title">博客</h1>
 
+      <div className="overview-grid" style={{ marginBottom: '2rem' }}>
+        <div className="overview-card">
+          <div className="overview-card-value">{loading && total === 0 ? '--' : total}</div>
+          <div className="overview-card-label">篇文章</div>
+        </div>
+        <div className="overview-card">
+          <div className="overview-card-value">{categories.length || (loading ? '--' : 0)}</div>
+          <div className="overview-card-label">个分类</div>
+        </div>
+        <div className="overview-card">
+          <div className="overview-card-value">{tags.length || (loading ? '--' : 0)}</div>
+          <div className="overview-card-label">个标签</div>
+        </div>
+      </div>
+
       <div className="blog-layout">
         <aside className="blog-sidebar">
           <TagFilter
