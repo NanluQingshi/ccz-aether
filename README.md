@@ -209,21 +209,341 @@ POST/DELETE    /api/admin/categories/:id
 
 ### 📦 生产部署
 
-**推荐：Docker Compose 一键部署**
+下面这份流程适合把项目部署到一台 Linux 云服务器。文档里统一使用占位符，不包含任何真实服务器地址。
+
+**先记住当前项目的部署形态**
+
+- `docker-compose.yml` 目前只启动 `mysql` 和 `backend`
+- 前端需要单独执行 `pnpm build`，再交给 Nginx 或其他静态资源服务托管
+- `backend/src/main/resources/schema.sql` 会在 **MySQL 数据目录为空时** 自动建表并写入初始数据
+- 如果你要迁移本地已有数据，建议先启动 MySQL，再导入备份，最后启动后端
+
+**占位符说明**
+
+| 占位符 | 含义 |
+|------|------|
+| `<SERVER_HOST>` | 云服务器公网 IP 或域名 |
+| `<SSH_PORT>` | SSH 端口，默认 `22` |
+| `<YOUR_REPO_URL>` | 代码仓库地址 |
+| `<YOUR_DOMAIN>` | 前端对外访问域名，没有域名可先用服务器 IP |
+
+#### 1. 连接云服务器
+
+先确保云服务器安全组 / 防火墙已经放行至少这些端口：`22`、`80`、`443`、`9090`。
 
 ```bash
-# 1. 填写环境变量
-export DB_PASSWORD=your_strong_password
-export JWT_SECRET=your_256bit_random_secret
+# 默认 22 端口
+ssh root@<SERVER_HOST>
 
-# 2. 启动（MySQL + Backend）
-docker compose up -d
+# 如果 SSH 端口不是 22
+ssh -p <SSH_PORT> root@<SERVER_HOST>
 
-# 3. 将前端 dist/ 部署到 Nginx 或任意 CDN
-cd frontend && pnpm build
+# 如果使用密钥登录
+ssh -i /path/to/private-key root@<SERVER_HOST>
 ```
 
-**手动部署**
+#### 2. 安装 Docker 和 Compose
+
+建议优先使用 **Docker 官方安装方式**。如果因为网络、系统源或环境原因失败，再使用 Ubuntu 自带包作为兜底方案。
+
+**方案 A：官方安装方式（推荐）**
+
+```bash
+apt-get update
+apt-get install -y ca-certificates curl gnupg
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list
+apt-get update
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+systemctl enable --now docker
+docker --version
+docker compose version
+systemctl status docker --no-pager | cat
+```
+
+**方案 B：Ubuntu 自带包（兜底方案）**
+
+如果方案 A 失败，可以直接安装系统仓库版本：
+
+```bash
+apt-get update
+apt-get install -y docker.io docker-compose
+systemctl enable --now docker
+docker --version
+docker-compose --version
+systemctl status docker --no-pager | cat
+```
+
+**如果你遇到这类报错**
+
+- `Could not handshake`：服务器连 Docker 官方源失败，常见于国内云服务器网络环境
+- `docker-ce has no installation candidate`：因为官方源索引没拉下来，`docker-ce` 包自然找不到
+- `Unit docker.service not found` / `docker: command not found`：说明 Docker 根本还没安装成功
+
+这时先移除失败的官方源配置，再走 Ubuntu 自带包安装：
+
+```bash
+rm -f /etc/apt/sources.list.d/docker.list
+apt-get update
+apt-get install -y docker.io docker-compose
+systemctl enable --now docker
+docker --version
+docker-compose --version
+systemctl status docker --no-pager | cat
+```
+
+**怎么判断装好了**
+
+- 能看到 `Docker version ...`
+- 能看到 `Docker Compose version ...` 或 `docker-compose version ...`
+- `systemctl status docker` 显示 `active (running)`
+
+**`docker compose` 和 `docker-compose` 的区别**
+
+- 官方安装方式通常使用 `docker compose`
+- Ubuntu 自带包常见的是 `docker-compose`
+- 如果你输入 `docker compose version` 报错，但 `docker-compose --version` 正常，就把后面文档里的命令替换成 `docker-compose`
+
+**Docker 安装完成后先做这一步**
+
+```bash
+docker compose version || docker-compose --version
+```
+
+- 如果前半句成功，下面的 `<COMPOSE_CMD>` 就替换成 `docker compose`
+- 如果后半句成功，下面的 `<COMPOSE_CMD>` 就替换成 `docker-compose`
+
+**安装完成后的最短路径**
+
+```text
+确认 <COMPOSE_CMD> → 上传代码 → 创建 .env → 启动 MySQL → 导入本地数据（可选） → 启动 backend → 构建前端 → Nginx 托管 dist
+```
+
+#### 3. 上传项目代码到服务器
+
+如果 Docker 已经安装完成，就从这里继续。
+
+**方式 A：直接拉仓库（推荐）**
+
+```bash
+mkdir -p /opt
+cd /opt
+git clone <YOUR_REPO_URL> full-stack-project
+cd /opt/full-stack-project
+```
+
+**方式 B：从本地上传项目目录**
+
+```bash
+scp -P <SSH_PORT> -r ./full-stack-project root@<SERVER_HOST>:/opt/
+ssh -p <SSH_PORT> root@<SERVER_HOST>
+cd /opt/full-stack-project
+```
+
+#### 4. 准备生产环境变量
+
+先进入项目目录，再创建 `.env` 文件：
+
+```bash
+cd /opt/full-stack-project
+
+cat > .env <<'EOF'
+MYSQL_ROOT_PASSWORD=<strong-root-password>
+MYSQL_PASSWORD=<strong-app-password>
+JWT_SECRET=<32-plus-char-random-secret>
+EOF
+```
+
+这三个值会被当前 `docker-compose.yml` 直接使用：
+
+- `MYSQL_ROOT_PASSWORD`：MySQL root 密码
+- `MYSQL_PASSWORD`：业务库用户 `blog_user` 的密码
+- `JWT_SECRET`：JWT 签名密钥，至少 32 位
+
+#### 5. 启动数据库与后端
+
+这里开始统一使用 `<COMPOSE_CMD>` 表示 Compose 命令。请先把它替换成你机器上可用的那个：`docker compose` 或 `docker-compose`。
+
+如果你是**全新部署**，直接启动即可：
+
+```bash
+<COMPOSE_CMD> up -d --build
+
+<COMPOSE_CMD> ps
+<COMPOSE_CMD> logs -f backend
+```
+
+如果你是**迁移本地已有数据**，建议按下面顺序操作：
+
+```bash
+# 先只启动数据库
+<COMPOSE_CMD> up -d mysql
+
+# 查看数据库是否健康
+<COMPOSE_CMD> ps
+```
+
+> 首次启动时，MySQL 会自动执行 `backend/src/main/resources/schema.sql` 完成建表和初始化。
+
+#### 6. 导出本地数据库并导入服务器
+
+先在你的本地电脑导出当前数据库：
+
+```bash
+mysqldump \
+  -h 127.0.0.1 \
+  -P 3306 \
+  -u <LOCAL_DB_USER> \
+  -p \
+  --default-character-set=utf8mb4 \
+  --single-transaction \
+  blog_db > blog_db_backup.sql
+```
+
+把备份文件传到服务器：
+
+```bash
+scp -P <SSH_PORT> blog_db_backup.sql root@<SERVER_HOST>:/opt/full-stack-project/
+```
+
+登录服务器后执行导入：
+
+```bash
+cd /opt/full-stack-project
+
+docker exec -i blog_mysql sh -c 'exec mysql -u root -p"$MYSQL_ROOT_PASSWORD" blog_db' < blog_db_backup.sql
+```
+
+导入完成后，再启动后端：
+
+```bash
+<COMPOSE_CMD> up -d backend
+<COMPOSE_CMD> logs -f backend
+```
+
+#### 7. 验证后端是否可用
+
+```bash
+curl http://127.0.0.1:9090/actuator/health
+```
+
+如果返回健康状态，说明后端已经启动成功。对外访问时，地址格式如下：
+
+```text
+http://<SERVER_HOST>:9090
+```
+
+#### 8. 构建并部署前端
+
+当前项目没有把前端放进 `docker-compose.yml`，所以前端需要单独构建。
+
+先在本地或服务器上构建：
+
+```bash
+cd frontend
+pnpm install
+pnpm build
+```
+
+构建产物在 `frontend/dist/`。
+
+如果你在本地构建，可以把产物上传到服务器：
+
+```bash
+scp -P <SSH_PORT> -r frontend/dist/* root@<SERVER_HOST>:/var/www/personal-site/
+```
+
+#### 9. 使用 Nginx 托管前端并反向代理后端
+
+安装 Nginx：
+
+```bash
+apt update
+apt install -y nginx
+```
+
+示例站点配置如下（请把域名占位符替换成你自己的域名或服务器地址）：
+
+```nginx
+server {
+    listen 80;
+    server_name <YOUR_DOMAIN>;
+
+    root /var/www/personal-site;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:9090/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+写入配置并重载：
+
+```bash
+rm -f /etc/nginx/sites-enabled/default
+cat > /etc/nginx/sites-available/personal-site <<'EOF'
+server {
+    listen 80;
+    server_name <YOUR_DOMAIN>;
+
+    root /var/www/personal-site;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:9090/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOF
+
+ln -sf /etc/nginx/sites-available/personal-site /etc/nginx/sites-enabled/personal-site
+nginx -t
+systemctl reload nginx
+```
+
+#### 10. 生产环境注意事项
+
+- 生产环境不要继续使用默认管理员密码，首次登录后立即修改
+- 如果要严格限制跨域来源，记得把 `CORS_ALLOWED_ORIGINS` 传给后端容器
+- `<COMPOSE_CMD> down` 不会删除 MySQL 数据卷；只有手动删除卷后，初始化 SQL 才会再次执行
+- 如果只是更新后端代码，常用命令是 `<COMPOSE_CMD> up -d --build backend`
+- 如果只是查看日志，使用 `<COMPOSE_CMD> logs -f backend` 或 `<COMPOSE_CMD> logs -f mysql`
+
+**关键环境变量**
+
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `MYSQL_ROOT_PASSWORD` | MySQL root 密码 | `<strong-root-password>` |
+| `MYSQL_PASSWORD` | `blog_user` 密码 | `<strong-app-password>` |
+| `JWT_SECRET` | JWT 签名密钥（至少32字符） | `<32-plus-char-random-secret>` |
+| `JWT_EXPIRATION_MS` | Token 有效期（毫秒） | `2592000000` |
+| `CORS_ALLOWED_ORIGINS` | 允许访问后端的前端来源 | `https://<YOUR_DOMAIN>` |
+
+**Docker 安装完成后的最小发布顺序**
+
+```text
+确认 <COMPOSE_CMD> → 上传代码 → 创建 .env → 启动 MySQL → 导入备份（可选） → 启动 backend → 构建前端 → Nginx 托管 dist
+```
+
+**手动部署（不使用 Docker）**
 
 ```bash
 # 后端打包
@@ -231,26 +551,24 @@ cd backend && mvn package -DskipTests
 java -jar target/blog-*.jar --spring.profiles.active=prod
 
 # 前端打包
-cd frontend && pnpm build  # 产物在 dist/
+cd frontend && pnpm install && pnpm build
 ```
 
-**关键环境变量**
-
-| 变量 | 说明 | 示例 |
-|------|------|------|
-| `DB_HOST` | MySQL 地址 | `mysql`（容器名）或云端地址 |
-| `DB_PASSWORD` | 数据库密码 | — |
-| `JWT_SECRET` | JWT 签名密钥（至少32字符）| — |
-| `JWT_EXPIRATION_MS` | Token 有效期（毫秒） | `2592000000`（30天） |
-
-**数据库迁移**
+**数据库迁移（最简版）**
 
 ```bash
-# 导出
-mysqldump -u root -p blog_db > backup.sql
-# 导入云端
-mysql -h cloud-host -u user -p blog_db < backup.sql
+# 本地导出
+mysqldump -u <LOCAL_DB_USER> -p blog_db > blog_db_backup.sql
+
+# 上传到服务器
+scp -P <SSH_PORT> blog_db_backup.sql root@<SERVER_HOST>:/opt/full-stack-project/
+
+# 服务器导入
+ssh -p <SSH_PORT> root@<SERVER_HOST>
+cd /opt/full-stack-project
+docker exec -i blog_mysql sh -c 'exec mysql -u root -p"$MYSQL_ROOT_PASSWORD" blog_db' < blog_db_backup.sql
 ```
+
 
 ### 🔧 故障排查
 
@@ -377,36 +695,57 @@ spring:
 
 ### Production Deployment
 
-**Docker Compose (recommended)**
+A step-by-step cloud deployment guide is available in the Chinese section above. This project currently ships with:
+
+- `mysql` + `backend` in `docker-compose.yml`
+- frontend built separately with `pnpm build`
+- initial schema loaded from `backend/src/main/resources/schema.sql` when MySQL data is empty
+
+**Quick start**
+
+1. Install Docker first. Prefer the official install method. If it fails, use the Ubuntu package fallback.
+2. Run `docker compose version || docker-compose --version`.
+3. If `docker compose` works, use it as `<COMPOSE_CMD>` below.
+4. If only `docker-compose` works, replace `<COMPOSE_CMD>` with `docker-compose`.
+5. After Docker is ready, continue with: upload code → create `.env` → start MySQL → import data if needed → start backend.
 
 ```bash
-export DB_PASSWORD=your_strong_password
-export JWT_SECRET=your_256bit_secret
+cd /opt/full-stack-project
 
-docker compose up -d
+cat > .env <<'EOF'
+MYSQL_ROOT_PASSWORD=<strong-root-password>
+MYSQL_PASSWORD=<strong-app-password>
+JWT_SECRET=<32-plus-char-random-secret>
+EOF
 
-# Build and deploy frontend separately
-cd frontend && pnpm build
-# → deploy dist/ to Nginx / CDN
+<COMPOSE_CMD> up -d --build
 ```
 
-**Manual**
+**Build frontend separately**
 
 ```bash
-cd backend && mvn package -DskipTests
-java -jar target/blog-*.jar --spring.profiles.active=prod
-
-cd frontend && pnpm build
+cd frontend
+pnpm install
+pnpm build
 ```
 
 **Key Environment Variables**
 
 | Variable | Description |
 |----------|-------------|
-| `DB_HOST` | MySQL host (`mysql` in Docker, or cloud address) |
-| `DB_PASSWORD` | Database password |
+| `MYSQL_ROOT_PASSWORD` | MySQL root password |
+| `MYSQL_PASSWORD` | Password for `blog_user` |
 | `JWT_SECRET` | JWT signing key (32+ chars) |
-| `JWT_EXPIRATION_MS` | Token TTL in ms (default: `2592000000` = 30 days) |
+| `JWT_EXPIRATION_MS` | Token TTL in ms |
+| `CORS_ALLOWED_ORIGINS` | Allowed frontend origins |
+
+**Database migration (minimal)**
+
+```bash
+mysqldump -u <LOCAL_DB_USER> -p blog_db > blog_db_backup.sql
+scp -P <SSH_PORT> blog_db_backup.sql root@<SERVER_HOST>:/opt/full-stack-project/
+docker exec -i blog_mysql sh -c 'exec mysql -u root -p"$MYSQL_ROOT_PASSWORD" blog_db' < blog_db_backup.sql
+```
 
 ---
 
