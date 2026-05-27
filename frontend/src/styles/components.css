@@ -1580,36 +1580,51 @@
 
 /* ─── AI Timeline Page ────────────────────────── */
 .ai-page-header {
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 }
 
 .ai-page-desc {
   color: var(--color-text-secondary);
   font-size: 1rem;
-  margin-top: -1rem;
+  margin-top: -0.75rem;
+  margin-bottom: 1.25rem;
 }
 
-.timeline {
-  max-width: 760px;
+.ai-page-stats {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.ai-stat {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.25em 0.85em;
 }
 
 .timeline-year-group {
   display: flex;
-  gap: 2rem;
-  margin-bottom: 2.5rem;
+  gap: 2.5rem;
+  margin-bottom: 3rem;
 }
 
 .timeline-year-label {
   font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: var(--color-neon-cyan);
-  width: 72px;
-  min-width: 72px;
-  padding-top: 0.2rem;
+  width: 96px;
+  min-width: 96px;
+  padding-top: 0.25rem;
   text-align: right;
+  text-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+  line-height: 1;
 }
 
+/* 竖轴 + 事件列表 */
 .timeline-events {
   flex: 1;
   border-left: 2px solid var(--color-border);
@@ -1621,17 +1636,18 @@
 
 .timeline-item {
   position: relative;
-  padding-bottom: 2rem;
+  padding-bottom: 1.75rem;
 }
 
 .timeline-item:last-child {
   padding-bottom: 0;
 }
 
+/* 时间点 */
 .timeline-dot {
   position: absolute;
   left: -2.6rem;
-  top: 0.4rem;
+  top: 0.5rem;
   width: 12px;
   height: 12px;
   border-radius: 50%;
@@ -1640,6 +1656,7 @@
   box-shadow: var(--shadow-neon-cyan);
 }
 
+/* 事件卡片 */
 .timeline-content {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
@@ -1668,13 +1685,8 @@
   line-height: 1.4;
 }
 
-.timeline-title a {
-  color: var(--color-text-primary) !important;
-}
-
-.timeline-title a:hover {
-  color: var(--color-neon-cyan) !important;
-}
+.timeline-title a { color: var(--color-text-primary) !important; }
+.timeline-title a:hover { color: var(--color-neon-cyan) !important; }
 
 .timeline-summary {
   font-size: 0.875rem;
@@ -1707,26 +1719,13 @@
   white-space: nowrap;
 }
 
-.timeline-read-more:hover {
-  color: var(--color-neon-purple) !important;
-}
+.timeline-read-more:hover { color: var(--color-neon-purple) !important; }
 
 @media (max-width: 640px) {
-  .timeline-year-group {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .timeline-year-label {
-    width: auto;
-    text-align: left;
-    font-size: 1.25rem;
-  }
-  .timeline-events {
-    padding-left: 1.25rem;
-  }
-  .timeline-dot {
-    left: -1.85rem;
-  }
+  .timeline-year-group { flex-direction: column; gap: 0.75rem; }
+  .timeline-year-label { width: auto; text-align: left; font-size: 1.25rem; }
+  .timeline-events { padding-left: 1.25rem; }
+  .timeline-dot { left: -1.85rem; }
 }
 
 /* ─── Issue Board ─────────────────────────────── */
