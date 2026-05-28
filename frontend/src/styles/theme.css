@@ -43,6 +43,34 @@
   /* Layout */
   --section-gap: 3rem;
   --overview-card-min: 160px;
+
+  /* Navbar */
+  --color-bg-navbar: rgba(10, 14, 26, 0.9);
+}
+
+/* ─── Public light theme (warm) ───────────────── */
+[data-theme="light"] {
+  --color-bg-primary:    #faf7f2;
+  --color-bg-secondary:  #fffdf7;
+  --color-bg-tertiary:   #f2ebe0;
+  --color-bg-hover:      #e9dfd0;
+  --color-bg-navbar:     rgba(250, 247, 242, 0.92);
+
+  --color-neon-cyan:     #0f766e;
+  --color-neon-purple:   #7c3aed;
+  --color-neon-green:    #15803d;
+  --color-neon-pink:     #be185d;
+
+  --color-text-primary:  #1c1410;
+  --color-text-secondary:#4a3f35;
+  --color-text-muted:    #78685a;
+
+  --color-border:        #ddd5c8;
+  --color-border-glow:   rgba(15, 118, 110, 0.25);
+
+  --shadow-neon-cyan:    0 0 0 1px rgba(15, 118, 110, 0.2), 0 4px 16px rgba(15, 118, 110, 0.12);
+  --shadow-neon-purple:  0 0 0 1px rgba(124, 58, 237, 0.2), 0 4px 16px rgba(124, 58, 237, 0.12);
+  --shadow-card:         0 1px 3px rgba(60, 40, 20, 0.08), 0 4px 16px rgba(60, 40, 20, 0.05);
 }
 
 /* ─── Admin light theme ───────────────────────── */

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 export type ToastType = 'success' | 'error' | 'info';
+export type Theme = 'dark' | 'light';
 
 export interface Toast {
   id: string;
@@ -22,7 +23,12 @@ interface UiState {
   confirm: ConfirmState;
   showConfirm: (message: string, confirmText?: string) => Promise<boolean>;
   resolveConfirm: (ok: boolean) => void;
+  theme: Theme;
+  toggleTheme: () => void;
 }
+
+const savedTheme = (localStorage.getItem('theme') as Theme) ?? 'dark';
+document.documentElement.dataset.theme = savedTheme;
 
 export const useUiStore = create<UiState>((set, get) => ({
   toasts: [],
@@ -50,5 +56,13 @@ export const useUiStore = create<UiState>((set, get) => ({
     const { confirm } = get();
     confirm.resolve?.(ok);
     set({ confirm: { open: false, message: '', confirmText: '确认删除', resolve: null } });
+  },
+
+  theme: savedTheme,
+  toggleTheme: () => {
+    const next: Theme = get().theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('theme', next);
+    set({ theme: next });
   },
 }));
