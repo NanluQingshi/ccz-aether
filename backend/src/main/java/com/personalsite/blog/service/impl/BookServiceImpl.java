@@ -3,6 +3,7 @@ package com.personalsite.blog.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.personalsite.blog.dto.request.BookRequest;
 import com.personalsite.blog.entity.Book;
+import com.personalsite.blog.enums.BookStatus;
 import com.personalsite.blog.exception.BizException;
 import com.personalsite.blog.exception.ErrorCode;
 import com.personalsite.blog.mapper.BookMapper;
@@ -20,10 +21,10 @@ public class BookServiceImpl implements BookService {
 
     private final BookMapper bookMapper;
 
-    private static final Map<String, Integer> STATUS_ORDER = Map.of(
-            "reading", 0,
-            "want", 1,
-            "done", 2
+    private static final Map<BookStatus, Integer> STATUS_ORDER = Map.of(
+            BookStatus.READING, 0,
+            BookStatus.WANT, 1,
+            BookStatus.DONE, 2
     );
 
     @Override
@@ -61,7 +62,7 @@ public class BookServiceImpl implements BookService {
         book.setTitle(req.getTitle());
         book.setAuthor(req.getAuthor());
         book.setCover(req.getCover());
-        book.setStatus(req.getStatus() != null ? req.getStatus() : "want");
+        book.setStatus(req.getStatus() != null ? req.getStatus() : BookStatus.WANT);
         book.setRating(req.getRating());
         book.setReview(req.getReview());
         book.setCategory(req.getCategory());

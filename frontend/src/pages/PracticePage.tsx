@@ -10,25 +10,14 @@ import { usePageData } from '../hooks/usePageData';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 import { ExternalLink, Pencil, Trash2, X } from 'lucide-react';
-
-const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  todo:        { label: '待学习', className: 'status-todo' },
-  in_progress: { label: '学习中', className: 'status-in-progress' },
-  mastered:    { label: '已掌握', className: 'status-mastered' },
-};
-
-type FilterStatus = 'all' | 'todo' | 'in_progress' | 'mastered';
-
-const FILTER_OPTIONS: { key: FilterStatus; label: string }[] = [
-  { key: 'all',         label: '全部' },
-  { key: 'todo',        label: '待学习' },
-  { key: 'in_progress', label: '学习中' },
-  { key: 'mastered',    label: '已掌握' },
-];
+import {
+  PracticeStatus, PRACTICE_STATUS_CONFIG, PRACTICE_FILTER_OPTIONS,
+  type PracticeFilterStatus,
+} from '../constants/practiceStatus';
 
 const EMPTY_FORM: PracticeRequest = {
   category: '', categoryIcon: '', name: '', description: '',
-  links: [], status: 'todo', sortOrder: 0,
+  links: [], status: PracticeStatus.TODO, sortOrder: 0,
 };
 
 function groupItems(items: Practice[]): { category: string; icon: string; items: Practice[] }[] {
@@ -42,8 +31,8 @@ function groupItems(items: Practice[]): { category: string; icon: string; items:
   return Array.from(map.values());
 }
 
-const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
-  const config = STATUS_MAP[status] ?? STATUS_MAP.todo;
+const StatusBadge: React.FC<{ status: PracticeStatus }> = ({ status }) => {
+  const config = PRACTICE_STATUS_CONFIG[status] ?? PRACTICE_STATUS_CONFIG[PracticeStatus.TODO];
   return <span className={`practice-status-badge ${config.className}`}>{config.label}</span>;
 };
 
@@ -53,7 +42,7 @@ const PracticePage: React.FC = () => {
   const isAdmin = !!token;
 
   const { data: items, loading, setData: setItems, reload: load } = usePageData(getPractices);
-  const [filter, setFilter] = useState<FilterStatus>('all');
+  const [filter, setFilter] = useState<PracticeFilterStatus>('all');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<PracticeRequest>(EMPTY_FORM);
@@ -128,8 +117,8 @@ const PracticePage: React.FC = () => {
     [filter, items],
   );
   const groups = useMemo(() => groupItems(filtered), [filtered]);
-  const inProgressCount = useMemo(() => items.filter((i) => i.status === 'in_progress').length, [items]);
-  const masteredCount = useMemo(() => items.filter((i) => i.status === 'mastered').length, [items]);
+  const inProgressCount = useMemo(() => items.filter((i) => i.status === PracticeStatus.IN_PROGRESS).length, [items]);
+  const masteredCount = useMemo(() => items.filter((i) => i.status === PracticeStatus.MASTERED).length, [items]);
 
   if (loading) return <LoadingSpinner fullPage />;
 
@@ -147,7 +136,7 @@ const PracticePage: React.FC = () => {
 
       <div className="practice-filter-bar">
         <div className="practice-filter-chips">
-          {FILTER_OPTIONS.map((opt) => (
+          {PRACTICE_FILTER_OPTIONS.map((opt) => (
             <button
               key={opt.key}
               className={`filter-chip ${filter === opt.key ? 'active' : ''}`}
@@ -287,12 +276,12 @@ const PracticePage: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group">
                   <label className="form-label">学习状态</label>
-                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as PracticeRequest['status'] }))}>
+                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as PracticeStatus }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todo">待学习</SelectItem>
-                      <SelectItem value="in_progress">学习中</SelectItem>
-                      <SelectItem value="mastered">已掌握</SelectItem>
+                      <SelectItem value={PracticeStatus.TODO}>待学习</SelectItem>
+                      <SelectItem value={PracticeStatus.IN_PROGRESS}>学习中</SelectItem>
+                      <SelectItem value={PracticeStatus.MASTERED}>已掌握</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

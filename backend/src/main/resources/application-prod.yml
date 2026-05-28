@@ -8,6 +8,10 @@ spring:
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:https://example.com}
 
+mybatis-plus:
+  configuration:
+    default-enum-type-handler: com.baomidou.mybatisplus.extension.handlers.MybatisEnumTypeHandler
+
 logging:
   level:
     root: WARN

@@ -9,6 +9,8 @@ import com.personalsite.blog.dto.response.*;
 import com.personalsite.blog.entity.Category;
 import com.personalsite.blog.entity.Post;
 import com.personalsite.blog.entity.PostTag;
+import com.personalsite.blog.enums.PostStatus;
+import com.personalsite.blog.enums.PostType;
 import com.personalsite.blog.exception.BizException;
 import com.personalsite.blog.exception.ErrorCode;
 import com.personalsite.blog.mapper.CategoryMapper;
@@ -51,7 +53,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDetailVO getBySlug(String slug) {
         Post post = postMapper.selectOne(
-                new LambdaQueryWrapper<Post>().eq(Post::getSlug, slug).eq(Post::getStatus, 1));
+                new LambdaQueryWrapper<Post>().eq(Post::getSlug, slug).eq(Post::getStatus, PostStatus.PUBLISHED));
         if (post == null) throw new BizException(ErrorCode.POST_NOT_FOUND);
         postMapper.incrementViewCount(post.getId());
         return buildDetailVO(post);
@@ -98,12 +100,12 @@ public class PostServiceImpl implements PostService {
         post.setSummary(req.getSummary());
         post.setContent(req.getContent());
         post.setCoverImage(req.getCoverImage());
-        post.setType(req.getType() != null ? req.getType() : "blog");
+        post.setType(req.getType() != null ? req.getType() : PostType.BLOG);
         post.setEventDate(req.getEventDate());
         post.setCategoryId(req.getCategoryId());
-        post.setStatus(req.getStatus() != null ? req.getStatus() : 0);
+        post.setStatus(req.getStatus() != null ? req.getStatus() : PostStatus.DRAFT);
         post.setViewCount(0);
-        if (post.getStatus() == 1) post.setPublishedAt(LocalDateTime.now());
+        if (PostStatus.PUBLISHED.equals(post.getStatus())) post.setPublishedAt(LocalDateTime.now());
         postMapper.insert(post);
         savePostTags(post.getId(), req.getTagIds());
         return buildDetailVO(post);
@@ -126,7 +128,7 @@ public class PostServiceImpl implements PostService {
         post.setEventDate(req.getEventDate());
         post.setCategoryId(req.getCategoryId());
         if (req.getStatus() != null) {
-            if (req.getStatus() == 1 && post.getStatus() != 1) {
+            if (PostStatus.PUBLISHED.equals(req.getStatus()) && !PostStatus.PUBLISHED.equals(post.getStatus())) {
                 post.setPublishedAt(LocalDateTime.now());
             }
             post.setStatus(req.getStatus());
@@ -150,10 +152,10 @@ public class PostServiceImpl implements PostService {
     public PostVO togglePublish(Long id) {
         Post post = postMapper.selectById(id);
         if (post == null) throw new BizException(ErrorCode.POST_NOT_FOUND);
-        if (post.getStatus() == 1) {
-            post.setStatus(0);
+        if (PostStatus.PUBLISHED.equals(post.getStatus())) {
+            post.setStatus(PostStatus.DRAFT);
         } else {
-            post.setStatus(1);
+            post.setStatus(PostStatus.PUBLISHED);
             post.setPublishedAt(LocalDateTime.now());
         }
         postMapper.updateById(post);

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.personalsite.blog.enums.BookStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -18,9 +19,8 @@ public class Book {
     private String title;
     private String author;
     private String cover;
-    // want | reading | done
-    private String status;
-    // 1-5
+    private BookStatus status;
+    /** 1-5 */
     private Integer rating;
     private String review;
     private String category;

@@ -1,10 +1,11 @@
 import client from './client';
 import type { ApiResponse } from '../types/api';
+import type { MusingType } from '../constants/musingType';
 
 export interface Musing {
   id: number;
   content: string;
-  type: 'idea' | 'todo';
+  type: MusingType;
   done: number;
   createdAt: string;
   updatedAt: string;
@@ -12,7 +13,7 @@ export interface Musing {
 
 export interface MusingRequest {
   content: string;
-  type: 'idea' | 'todo';
+  type: MusingType;
 }
 
 export const getMusings = () =>

@@ -2,6 +2,7 @@ import client from './client';
 import type { AxiosRequestConfig } from 'axios';
 import type { ApiResponse, PageResult } from '../types/api';
 import type { PostVO, PostDetailVO, PostCreateRequest, PostUpdateRequest } from '../types/post';
+import { PAGE_SIZE } from '../constants/pagination';
 
 export const getPosts = (
   params: { page?: number; size?: number; tagSlug?: string; categorySlug?: string; keyword?: string },
@@ -14,7 +15,7 @@ export const getPostBySlug = (slug: string, config?: AxiosRequestConfig) =>
 export const getAiTimeline = () =>
   client.get<never, ApiResponse<PostVO[]>>('/api/posts/ai-timeline');
 
-export const adminGetPosts = (page = 1, size = 10) =>
+export const adminGetPosts = (page = 1, size = PAGE_SIZE) =>
   client.get<never, ApiResponse<PageResult<PostVO>>>('/api/admin/posts', { params: { page, size } });
 
 export const adminGetPost = (id: number) =>

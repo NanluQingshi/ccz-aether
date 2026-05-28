@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.personalsite.blog.enums.PracticeStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -22,8 +23,7 @@ public class Practice {
     private String description;
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<PracticeLink> links;
-    // todo | in_progress | mastered
-    private String status;
+    private PracticeStatus status;
     private Integer sortOrder;
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

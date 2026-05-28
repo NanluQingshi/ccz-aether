@@ -1,12 +1,13 @@
 import client from './client';
 import type { ApiResponse } from '../types/api';
+import type { BookStatus } from '../constants/bookStatus';
 
 export interface Book {
   id: number;
   title: string;
   author: string;
   cover?: string;
-  status: 'want' | 'reading' | 'done';
+  status: BookStatus;
   rating?: number;
   review?: string;
   category?: string;
@@ -22,7 +23,7 @@ export interface BookRequest {
   title: string;
   author: string;
   cover?: string;
-  status: 'want' | 'reading' | 'done';
+  status: BookStatus;
   rating?: number;
   review?: string;
   category?: string;

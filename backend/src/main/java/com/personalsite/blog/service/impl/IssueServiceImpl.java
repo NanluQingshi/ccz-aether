@@ -2,6 +2,7 @@ package com.personalsite.blog.service.impl;
 
 import com.personalsite.blog.dto.request.IssueRequest;
 import com.personalsite.blog.entity.Issue;
+import com.personalsite.blog.enums.IssueStatus;
 import com.personalsite.blog.exception.BizException;
 import com.personalsite.blog.exception.ErrorCode;
 import com.personalsite.blog.mapper.IssueMapper;
@@ -28,7 +29,7 @@ public class IssueServiceImpl implements IssueService {
         issue.setTitle(req.getTitle());
         issue.setDescription(req.getDescription());
         issue.setPriority(req.getPriority());
-        issue.setStatus(0);
+        issue.setStatus(IssueStatus.TODO);
         issueMapper.insert(issue);
         return issue;
     }
@@ -48,7 +49,7 @@ public class IssueServiceImpl implements IssueService {
     public Issue updateStatus(Long id, Integer status) {
         Issue issue = issueMapper.selectById(id);
         if (issue == null) throw new BizException(ErrorCode.NOT_FOUND);
-        issue.setStatus(status);
+        issue.setStatus(IssueStatus.fromCode(status));
         issueMapper.updateById(issue);
         return issue;
     }

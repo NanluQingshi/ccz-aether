@@ -1,7 +1,9 @@
 package com.personalsite.blog.dto.request;
 
+import com.personalsite.blog.enums.RoadmapPriority;
+import com.personalsite.blog.enums.RoadmapStatus;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -12,10 +14,8 @@ public class RoadmapItemRequest {
     @NotBlank
     private String name;
     private String description;
-    @NotBlank
-    @Pattern(regexp = "done|planned", message = "状态只能是 done 或 planned")
-    private String status;
-    @Pattern(regexp = "high|medium|low", message = "优先级只能是 high、medium 或 low")
-    private String priority;
+    @NotNull
+    private RoadmapStatus status;
+    private RoadmapPriority priority;
     private Integer sortOrder;
 }

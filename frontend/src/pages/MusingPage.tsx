@@ -9,10 +9,11 @@ import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Lightbulb, CheckSquare, Check, RotateCcw, Pencil, Trash2 } from 'lucide-react';
+import { MusingType, MUSING_FILTER_OPTIONS, type MusingFilterType } from '../constants/musingType';
 
-const TYPE_CONFIG = {
-  idea: { label: '随想', cls: 'musing-type-idea', icon: <Lightbulb size={13} /> },
-  todo: { label: 'Todo', cls: 'musing-type-todo', icon: <CheckSquare size={13} /> },
+const TYPE_CONFIG: Record<MusingType, { label: string; cls: string; icon: React.ReactNode }> = {
+  [MusingType.IDEA]: { label: '随想', cls: 'musing-type-idea', icon: <Lightbulb size={13} /> },
+  [MusingType.TODO]: { label: 'Todo', cls: 'musing-type-todo', icon: <CheckSquare size={13} /> },
 } as const;
 
 function groupByMonth(musings: Musing[]): [string, Musing[]][] {
@@ -36,12 +37,10 @@ function formatMonth(ym: string) {
   return `${y} / ${m}`;
 }
 
-type FilterType = 'all' | 'idea' | 'todo';
-
-const FILTER_OPTIONS: { key: FilterType; label: string; icon?: React.ReactNode }[] = [
-  { key: 'all',  label: '全部' },
-  { key: 'idea', label: '随想', icon: <Lightbulb size={13} /> },
-  { key: 'todo', label: 'Todo', icon: <CheckSquare size={13} /> },
+const FILTER_OPTIONS_WITH_ICON: { key: MusingFilterType; label: string; icon?: React.ReactNode }[] = [
+  { key: 'all',           label: '全部' },
+  { key: MusingType.IDEA, label: '随想', icon: <Lightbulb size={13} /> },
+  { key: MusingType.TODO, label: 'Todo', icon: <CheckSquare size={13} /> },
 ];
 
 const MusingPage: React.FC = () => {
@@ -50,18 +49,18 @@ const MusingPage: React.FC = () => {
   const isAdmin = !!token;
 
   const { data: musings, loading, setData: setMusings, reload: load } = usePageData(getMusings);
-  const [filter, setFilter] = useState<FilterType>('all');
+  const [filter, setFilter] = useState<MusingFilterType>('all');
 
   // quick-input state
   const [inputVal, setInputVal] = useState('');
-  const [inputType, setInputType] = useState<'idea' | 'todo'>('idea');
+  const [inputType, setInputType] = useState<MusingType>(MusingType.IDEA);
   const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // inline edit state
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editVal, setEditVal] = useState('');
-  const [editType, setEditType] = useState<'idea' | 'todo'>('idea');
+  const [editType, setEditType] = useState<MusingType>(MusingType.IDEA);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +83,7 @@ const MusingPage: React.FC = () => {
   const startEdit = (m: Musing) => {
     setEditingId(m.id);
     setEditVal(m.content);
-    setEditType(m.type);
+    setEditType(m.type as MusingType);
   };
 
   const cancelEdit = () => setEditingId(null);
@@ -147,7 +146,7 @@ const MusingPage: React.FC = () => {
           <p className="musing-subtitle">随手记录灵感、念头与阶段计划，不设格式，想到就写</p>
         </div>
         <div className="musing-filter">
-          {FILTER_OPTIONS.map((opt) => (
+          {FILTER_OPTIONS_WITH_ICON.map((opt) => (
             <button
               key={opt.key}
               className={`filter-chip musing-filter-btn ${filter === opt.key ? 'active' : ''} ${filter === opt.key && opt.key !== 'all' ? `musing-type-${opt.key}` : ''}`}
@@ -164,7 +163,7 @@ const MusingPage: React.FC = () => {
       {isAdmin && (
         <form className="musing-input-bar" onSubmit={handleAdd}>
           <div className="musing-type-toggle">
-            {(['idea', 'todo'] as const).map((t) => (
+            {([MusingType.IDEA, MusingType.TODO] as const).map((t) => (
               <button
                 key={t}
                 type="button"
@@ -180,7 +179,7 @@ const MusingPage: React.FC = () => {
             className="musing-input"
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
-            placeholder={inputType === 'idea' ? '随手记一个念头...' : '记一件待做的事...'}
+            placeholder={inputType === MusingType.IDEA ? '随手记一个念头...' : '记一件待做的事...'}
             disabled={submitting}
             autoFocus
           />
@@ -204,14 +203,14 @@ const MusingPage: React.FC = () => {
               {items.map((m) => (
                 <div
                   key={m.id}
-                  className={`musing-card ${m.type === 'todo' ? 'musing-card-todo' : 'musing-card-idea'} ${m.done ? 'musing-card-done' : ''}`}
+                  className={`musing-card ${m.type === MusingType.TODO ? 'musing-card-todo' : 'musing-card-idea'} ${m.done ? 'musing-card-done' : ''}`}
                 >
                   <div className="musing-card-dot" />
 
                   {editingId === m.id ? (
                     <div className="musing-edit-form">
                       <div className="musing-type-toggle musing-type-toggle-sm">
-                        {(['idea', 'todo'] as const).map((t) => (
+                        {([MusingType.IDEA, MusingType.TODO] as const).map((t) => (
                           <button
                             key={t}
                             type="button"
@@ -245,7 +244,7 @@ const MusingPage: React.FC = () => {
                         </div>
                         {isAdmin && (
                           <div className="musing-card-actions">
-                            {m.type === 'todo' && (
+                            {m.type === MusingType.TODO && (
                               <button
                                 className={`musing-action-btn ${m.done ? 'musing-action-reopen' : 'musing-action-done'}`}
                                 onClick={() => handleToggle(m.id)}
