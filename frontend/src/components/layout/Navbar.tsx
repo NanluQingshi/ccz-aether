@@ -12,6 +12,7 @@ const navLinks = [
   { to: '/musings', label: '随想录' },
   { to: '/books', label: '书页间' },
   { to: '/practice', label: '修炼手册' },
+  { to: '/sites', label: '导航' },
   { to: '/about', label: '关于' },
 ];
 

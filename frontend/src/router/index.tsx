@@ -17,6 +17,7 @@ const IssueBoardPage = lazy(() => import('../pages/IssueBoardPage'));
 const MusingPage = lazy(() => import('../pages/MusingPage'));
 const BookshelfPage = lazy(() => import('../pages/BookshelfPage'));
 const PracticePage = lazy(() => import('../pages/PracticePage'));
+const SitesPage = lazy(() => import('../pages/SitesPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 const LoginPage = lazy(() => import('../pages/admin/LoginPage'));
 const DashboardPage = lazy(() => import('../pages/admin/DashboardPage'));
@@ -75,6 +76,10 @@ export const router = createBrowserRouter([
   {
     path: '/practice',
     element: <PublicLayout><PracticePage /></PublicLayout>,
+  },
+  {
+    path: '/sites',
+    element: <PublicLayout><SitesPage /></PublicLayout>,
   },
   {
     path: '/admin/login',

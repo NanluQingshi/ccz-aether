@@ -183,6 +183,51 @@ CREATE TABLE IF NOT EXISTS `practice` (
   INDEX `idx_category_sort` (`category`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `site` (
+  `id`         BIGINT       NOT NULL AUTO_INCREMENT,
+  `name`       VARCHAR(128) NOT NULL COMMENT '网站名称',
+  `url`        VARCHAR(512) NOT NULL COMMENT '网站地址',
+  `category`   VARCHAR(64)  NOT NULL COMMENT '分类，如：工具、学习、社区',
+  `sort_order` INT          NOT NULL DEFAULT 0 COMMENT '同分类内排序',
+  `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_category_sort` (`category`, `sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Initial site data
+INSERT IGNORE INTO `site` (`id`, `name`, `url`, `category`, `sort_order`) VALUES
+  -- AI 工具
+  (1,  'ChatGPT',      'https://chatgpt.com',                  'AI 工具', 1),
+  (2,  'Claude',       'https://claude.ai',                    'AI 工具', 2),
+  (3,  'Gemini',       'https://gemini.google.com',            'AI 工具', 3),
+  (4,  'Perplexity',   'https://www.perplexity.ai',            'AI 工具', 4),
+  (5,  'Cursor',       'https://www.cursor.com',               'AI 工具', 5),
+  -- 开发工具
+  (6,  'GitHub',       'https://github.com',                   '开发工具', 1),
+  (7,  'Stack Overflow','https://stackoverflow.com',           '开发工具', 2),
+  (8,  'Regex101',     'https://regex101.com',                 '开发工具', 3),
+  (9,  'Excalidraw',   'https://excalidraw.com',               '开发工具', 4),
+  (10, 'Can I Use',    'https://caniuse.com',                  '开发工具', 5),
+  (11, 'Transform',    'https://transform.tools',              '开发工具', 6),
+  -- 文档
+  (12, 'MDN',          'https://developer.mozilla.org',        '文档', 1),
+  (13, 'DevDocs',      'https://devdocs.io',                   '文档', 2),
+  (14, 'roadmap.sh',   'https://roadmap.sh',                   '文档', 3),
+  (15, 'CSS-Tricks',   'https://css-tricks.com',               '文档', 4),
+  (16, 'QuickRef',     'https://quickref.me',                  '文档', 5),
+  -- 社区
+  (17, 'Hacker News',  'https://news.ycombinator.com',         '社区', 1),
+  (18, 'V2EX',         'https://www.v2ex.com',                 '社区', 2),
+  (19, '掘金',          'https://juejin.cn',                   '社区', 3),
+  (20, '少数派',         'https://sspai.com',                  '社区', 4),
+  (21, 'Reddit',       'https://www.reddit.com',               '社区', 5),
+  -- 设计
+  (22, 'Figma',        'https://www.figma.com',                '设计', 1),
+  (23, 'Coolors',      'https://coolors.co',                   '设计', 2),
+  (24, 'Dribbble',     'https://dribbble.com',                 '设计', 3),
+  (25, 'unDraw',       'https://undraw.co',                    '设计', 4);
+
 -- Migration: add type and event_date to existing post table
 -- NOTE: run only once on an existing DB; skip if columns already exist
 ALTER TABLE `post`
