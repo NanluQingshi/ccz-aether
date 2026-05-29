@@ -5,6 +5,7 @@ import { Footer } from '../components/layout/Footer';
 import { AdminLayout } from '../components/layout/AdminLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
+import { ScrollToTopButton } from '../components/ui/ScrollToTopButton';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
 const HomePage = lazy(() => import('../pages/HomePage'));
@@ -32,6 +33,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         <Suspense fallback={<LoadingSpinner fullPage />}>{children}</Suspense>
       </main>
       <Footer />
+      <ScrollToTopButton />
     </div>
   </ErrorBoundary>
 );
