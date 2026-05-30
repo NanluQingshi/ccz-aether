@@ -228,7 +228,23 @@ INSERT IGNORE INTO `site` (`id`, `name`, `url`, `category`, `sort_order`) VALUES
   (24, 'Dribbble',     'https://dribbble.com',                 '设计', 3),
   (25, 'unDraw',       'https://undraw.co',                    '设计', 4);
 
--- Migration: add type and event_date to existing post table
+CREATE TABLE IF NOT EXISTS `ai_node` (
+  `id`          BIGINT       NOT NULL AUTO_INCREMENT,
+  `title`       VARCHAR(128) NOT NULL COMMENT '节点标题',
+  `description` VARCHAR(512) COMMENT '节点描述',
+  `icon`        VARCHAR(16)  COMMENT '节点图标字符',
+  `status`      VARCHAR(16)  NOT NULL DEFAULT 'not_started' COMMENT 'not_started | in_progress | completed',
+  `parent_id`   BIGINT       COMMENT '父节点 ID，NULL 表示根节点',
+  `resources`   JSON         COMMENT '参考资源 [{"title":"","url":""}]',
+  `sort_order`  INT          NOT NULL DEFAULT 0 COMMENT '同层兄弟节点排序',
+  `created_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_parent_sort` (`parent_id`, `sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Migration: add type and event_date to clear
+existing post table
 -- NOTE: run only once on an existing DB; skip if columns already exist
 ALTER TABLE `post`
   ADD COLUMN `type`       VARCHAR(32) NOT NULL DEFAULT 'blog' COMMENT 'blog | ai_timeline' AFTER `cover_image`,

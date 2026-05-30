@@ -3456,3 +3456,206 @@
   background: rgba(0, 245, 255, 0.1);
   box-shadow: var(--shadow-neon-cyan);
 }
+
+/* ─── AI Learning Page ────────────────────────── */
+.ai-learning-page {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 120px);
+}
+
+.ai-learning-header {
+  padding: 2rem 0 1.5rem;
+}
+
+.ai-learning-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ai-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ai-legend-label {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-right: 0.75rem;
+}
+
+.ai-learning-canvas {
+  flex: 1;
+  height: calc(100vh - 260px);
+  min-height: 500px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: 0 1.5rem 2rem;
+}
+
+.ai-learning-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  padding: 4rem;
+}
+
+/* Floating add button */
+.ai-learning-fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-neon-cyan);
+  color: #0a0e1a;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-neon-cyan);
+  z-index: 100;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.ai-learning-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 28px rgba(0, 245, 255, 0.6);
+}
+
+/* Custom React Flow node */
+.ai-tree-node {
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  width: 210px;
+  min-height: 80px;
+  padding: 10px 12px 8px;
+  position: relative;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow var(--transition-fast);
+  cursor: default;
+}
+
+.ai-tree-node:hover {
+  box-shadow: 0 0 14px rgba(0, 245, 255, 0.18), var(--shadow-card);
+}
+
+.ai-tree-node-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-tree-node-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-tree-node-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.ai-tree-node-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.ai-tree-node-desc {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.ai-tree-node-status {
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+/* Admin action buttons on node (hidden until hover) */
+.ai-tree-node-admin {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.ai-tree-node:hover .ai-tree-node-admin {
+  opacity: 1;
+}
+
+.ai-node-action-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.ai-node-action-btn:hover {
+  color: var(--color-neon-cyan);
+  border-color: var(--color-neon-cyan);
+}
+
+.ai-node-action-btn--danger:hover {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+/* React Flow overrides */
+.ai-learning-canvas .react-flow__attribution {
+  background: transparent;
+}
+
+.ai-learning-canvas .react-flow__background {
+  background: var(--color-bg-primary);
+}
+
+.ai-node-modal { max-width: 520px; }
+
+[data-theme="light"] .ai-learning-canvas {
+  border-color: var(--color-border);
+}
+
+[data-theme="light"] .ai-tree-node {
+  background: var(--color-bg-secondary);
+  box-shadow: var(--shadow-card);
+}
+
+[data-theme="light"] .ai-learning-fab {
+  background: var(--color-neon-cyan);
+  color: #fff;
+}

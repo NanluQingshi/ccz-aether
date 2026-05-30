@@ -19,6 +19,7 @@ const MusingPage = lazy(() => import('../pages/MusingPage'));
 const BookshelfPage = lazy(() => import('../pages/BookshelfPage'));
 const PracticePage = lazy(() => import('../pages/PracticePage'));
 const SitesPage = lazy(() => import('../pages/SitesPage'));
+const AiLearningPage = lazy(() => import('../pages/AiLearningPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 const LoginPage = lazy(() => import('../pages/admin/LoginPage'));
 const DashboardPage = lazy(() => import('../pages/admin/DashboardPage'));
@@ -82,6 +83,10 @@ export const router = createBrowserRouter([
   {
     path: '/sites',
     element: <PublicLayout><SitesPage /></PublicLayout>,
+  },
+  {
+    path: '/ai-learning',
+    element: <PublicLayout><AiLearningPage /></PublicLayout>,
   },
   {
     path: '/admin/login',
