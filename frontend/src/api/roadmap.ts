@@ -1,5 +1,6 @@
 import client from './client';
 import type { ApiResponse } from '../types/api';
+import type { RoadmapStatus, RoadmapPriority } from '../constants/roadmapStatus';
 
 export interface RoadmapItem {
   id: number;
@@ -7,8 +8,8 @@ export interface RoadmapItem {
   groupIcon?: string;
   name: string;
   description?: string;
-  status: 'done' | 'planned';
-  priority?: 'high' | 'medium' | 'low';
+  status: RoadmapStatus;
+  priority?: RoadmapPriority;
   sortOrder: number;
   createdAt: string;
 }
@@ -18,8 +19,8 @@ export interface RoadmapItemRequest {
   groupIcon?: string;
   name: string;
   description?: string;
-  status: 'done' | 'planned';
-  priority?: 'high' | 'medium' | 'low' | '';
+  status: RoadmapStatus;
+  priority?: RoadmapPriority;
   sortOrder?: number;
 }
 

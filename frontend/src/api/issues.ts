@@ -1,12 +1,13 @@
 import client from './client';
 import type { ApiResponse } from '../types/api';
+import type { IssueStatus, IssuePriority } from '../constants/issueStatus';
 
 export interface Issue {
   id: number;
   title: string;
   description?: string;
-  status: 0 | 1 | 2;
-  priority: 0 | 1 | 2;
+  status: IssueStatus;
+  priority: IssuePriority;
   createdAt: string;
   updatedAt: string;
 }
@@ -14,7 +15,7 @@ export interface Issue {
 export interface IssueRequest {
   title: string;
   description?: string;
-  priority: 0 | 1 | 2;
+  priority: IssuePriority;
 }
 
 export const getIssues = () =>
@@ -26,7 +27,7 @@ export const createIssue = (data: IssueRequest) =>
 export const updateIssue = (id: number, data: IssueRequest) =>
   client.put<never, ApiResponse<Issue>>(`/api/issues/${id}`, data);
 
-export const updateIssueStatus = (id: number, status: 0 | 1 | 2) =>
+export const updateIssueStatus = (id: number, status: IssueStatus) =>
   client.patch<never, ApiResponse<Issue>>(`/api/issues/${id}/status`, { status });
 
 export const deleteIssue = (id: number) =>

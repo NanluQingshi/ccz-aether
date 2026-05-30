@@ -5,6 +5,7 @@ import { Footer } from '../components/layout/Footer';
 import { AdminLayout } from '../components/layout/AdminLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
+import { ScrollToTopButton } from '../components/ui/ScrollToTopButton';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
 const HomePage = lazy(() => import('../pages/HomePage'));
@@ -17,6 +18,8 @@ const IssueBoardPage = lazy(() => import('../pages/IssueBoardPage'));
 const MusingPage = lazy(() => import('../pages/MusingPage'));
 const BookshelfPage = lazy(() => import('../pages/BookshelfPage'));
 const PracticePage = lazy(() => import('../pages/PracticePage'));
+const SitesPage = lazy(() => import('../pages/SitesPage'));
+const AiLearningPage = lazy(() => import('../pages/AiLearningPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 const LoginPage = lazy(() => import('../pages/admin/LoginPage'));
 const DashboardPage = lazy(() => import('../pages/admin/DashboardPage'));
@@ -31,6 +34,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         <Suspense fallback={<LoadingSpinner fullPage />}>{children}</Suspense>
       </main>
       <Footer />
+      <ScrollToTopButton />
     </div>
   </ErrorBoundary>
 );
@@ -75,6 +79,14 @@ export const router = createBrowserRouter([
   {
     path: '/practice',
     element: <PublicLayout><PracticePage /></PublicLayout>,
+  },
+  {
+    path: '/sites',
+    element: <PublicLayout><SitesPage /></PublicLayout>,
+  },
+  {
+    path: '/ai-learning',
+    element: <PublicLayout><AiLearningPage /></PublicLayout>,
   },
   {
     path: '/admin/login',

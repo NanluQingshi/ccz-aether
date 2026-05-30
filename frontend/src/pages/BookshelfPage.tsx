@@ -10,19 +10,14 @@ import { useUiStore } from '../store/uiStore';
 import { usePageData } from '../hooks/usePageData';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
+import { BookStatus, BOOK_STATUS_LABELS, BOOK_STATUS_TABS } from '../constants/bookStatus';
 
-type TabStatus = 'reading' | 'want' | 'done';
+type TabStatus = BookStatus;
 type DrawerMode = 'detail' | 'edit' | 'create';
 type SortKey = 'createdAt' | 'finishedAt' | 'rating';
 
-const TABS: { key: TabStatus; label: string }[] = [
-  { key: 'reading', label: '在读' },
-  { key: 'want',    label: '想读' },
-  { key: 'done',    label: '已读' },
-];
-
 const EMPTY_FORM: BookRequest = {
-  title: '', author: '', cover: '', status: 'want',
+  title: '', author: '', cover: '', status: BookStatus.WANT,
   rating: undefined, review: '', category: '',
   totalPages: undefined, readPages: undefined,
   startedAt: '', finishedAt: '',
@@ -63,7 +58,7 @@ const BookshelfPage: React.FC = () => {
     getBooks,
     () => addToast('加载失败', 'error'),
   );
-  const [activeTab, setActiveTab] = useState<TabStatus>('reading');
+  const [activeTab, setActiveTab] = useState<TabStatus>(BookStatus.READING);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
 
@@ -191,9 +186,9 @@ const BookshelfPage: React.FC = () => {
   }, [books]);
 
   const thisYear = new Date().getFullYear().toString();
-  const totalBooks = useMemo(() => books.filter((b) => b.status !== 'want').length, [books]);
+  const totalBooks = useMemo(() => books.filter((b) => b.status !== BookStatus.WANT).length, [books]);
   const doneThisYear = useMemo(
-    () => books.filter((b) => b.status === 'done' && b.finishedAt?.startsWith(thisYear)).length,
+    () => books.filter((b) => b.status === BookStatus.DONE && b.finishedAt?.startsWith(thisYear)).length,
     [books, thisYear],
   );
   const totalPages = useMemo(() => books.reduce((sum, b) => sum + (b.readPages ?? 0), 0), [books]);
@@ -218,12 +213,12 @@ const BookshelfPage: React.FC = () => {
       <div className="book-form-row">
         <div className="form-group">
           <label className="form-label">状态</label>
-          <Select value={form.status} onValueChange={(v) => setField('status', v as BookRequest['status'])}>
+          <Select value={form.status} onValueChange={(v) => setField('status', v as BookStatus)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="want">想读</SelectItem>
-              <SelectItem value="reading">在读</SelectItem>
-              <SelectItem value="done">已读</SelectItem>
+              <SelectItem value={BookStatus.WANT}>{BOOK_STATUS_LABELS[BookStatus.WANT]}</SelectItem>
+              <SelectItem value={BookStatus.READING}>{BOOK_STATUS_LABELS[BookStatus.READING]}</SelectItem>
+              <SelectItem value={BookStatus.DONE}>{BOOK_STATUS_LABELS[BookStatus.DONE]}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -305,7 +300,7 @@ const BookshelfPage: React.FC = () => {
       {/* Tabs */}
       <div className="bookshelf-tabs-row">
         <div className="bookshelf-tabs">
-          {TABS.map((tab) => (
+          {BOOK_STATUS_TABS.map((tab) => (
             <button
               key={tab.key}
               className={`bookshelf-tab ${activeTab === tab.key ? 'active' : ''}`}
@@ -320,8 +315,8 @@ const BookshelfPage: React.FC = () => {
           <SelectTrigger className="bookshelf-sort-select"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="createdAt">添加时间</SelectItem>
-            {activeTab === 'done' && <SelectItem value="finishedAt">完成日期</SelectItem>}
-            {activeTab === 'done' && <SelectItem value="rating">评分</SelectItem>}
+            {activeTab === BookStatus.DONE && <SelectItem value="finishedAt">完成日期</SelectItem>}
+            {activeTab === BookStatus.DONE && <SelectItem value="rating">评分</SelectItem>}
           </SelectContent>
         </Select>
       </div>
@@ -339,9 +334,9 @@ const BookshelfPage: React.FC = () => {
       {/* Grid */}
       {tabBooks.length === 0 ? (
         <div className="empty-state">
-          {activeTab === 'reading' && '还没有在读的书'}
-          {activeTab === 'want' && '书单是空的，去加点书吧'}
-          {activeTab === 'done' && '还没有读完的书'}
+          {activeTab === BookStatus.READING && '还没有在读的书'}
+          {activeTab === BookStatus.WANT && '书单是空的，去加点书吧'}
+          {activeTab === BookStatus.DONE && '还没有读完的书'}
         </div>
       ) : (
         <div className="book-grid">
@@ -363,7 +358,7 @@ const BookshelfPage: React.FC = () => {
                     <span className="book-progress-text">{book.readPages} / {book.totalPages} 页</span>
                   </div>
                 )}
-                {isAdmin && book.status === 'reading' && book.totalPages != null && (
+                {isAdmin && book.status === BookStatus.READING && book.totalPages != null && (
                   <div className="book-quick-progress" onClick={(e) => e.stopPropagation()}>
                     <button className="book-progress-btn" onClick={() => handleQuickProgress(book, (book.readPages ?? 0) - 10)}>−10</button>
                     <button className="book-progress-btn" onClick={() => handleQuickProgress(book, (book.readPages ?? 0) - 1)}>−1</button>
@@ -410,7 +405,7 @@ const BookshelfPage: React.FC = () => {
                   <div className="book-drawer-meta">
                     {drawerBook.category && <span className="book-category">{drawerBook.category}</span>}
                     <span className={`book-drawer-status book-drawer-status-${drawerBook.status}`}>
-                      {drawerBook.status === 'reading' ? '在读' : drawerBook.status === 'done' ? '已读' : '想读'}
+                      {BOOK_STATUS_LABELS[drawerBook.status]}
                     </span>
                   </div>
                   {drawerBook.rating != null && <StarRating value={drawerBook.rating} />}

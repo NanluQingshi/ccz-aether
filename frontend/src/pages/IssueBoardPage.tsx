@@ -10,27 +10,18 @@ import { usePageData } from '../hooks/usePageData';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 import { ArrowDown, ArrowRight, ArrowUp, Pencil, Trash2 } from 'lucide-react';
+import {
+  IssueStatus, IssuePriority, ISSUE_STATUS_COLS, ISSUE_PRIORITY_LABELS, ISSUE_NEXT_STATUS,
+} from '../constants/issueStatus';
 
-const STATUS_COLS: { key: 0 | 1 | 2; label: string; color: string }[] = [
-  { key: 0, label: 'Todo',        color: 'issue-col-todo' },
-  { key: 1, label: 'In Progress', color: 'issue-col-progress' },
-  { key: 2, label: 'Done',        color: 'issue-col-done' },
-];
-
-const PRIORITY_LABELS: Record<number, { label: string; cls: string; icon: React.ReactNode }> = {
-  0: { label: '低',  cls: 'issue-priority-low',    icon: <ArrowDown  size={11} /> },
-  1: { label: '中',  cls: 'issue-priority-medium', icon: <ArrowRight size={11} /> },
-  2: { label: '高',  cls: 'issue-priority-high',   icon: <ArrowUp    size={11} /> },
+const PRIORITY_ICONS: Record<IssuePriority, React.ReactNode> = {
+  [IssuePriority.LOW]:    <ArrowDown  size={11} />,
+  [IssuePriority.MEDIUM]: <ArrowRight size={11} />,
+  [IssuePriority.HIGH]:   <ArrowUp    size={11} />,
 };
 
-const NEXT_STATUS: Record<number, { status: 0 | 1 | 2; label: string }[]> = {
-  0: [{ status: 1, label: '开始处理' }],
-  1: [{ status: 0, label: '退回 Todo' }, { status: 2, label: '标为完成' }],
-  2: [{ status: 1, label: '重新处理' }],
-};
-
-interface FormState { title: string; description: string; priority: 0 | 1 | 2 }
-const EMPTY_FORM: FormState = { title: '', description: '', priority: 1 };
+interface FormState { title: string; description: string; priority: IssuePriority }
+const EMPTY_FORM: FormState = { title: '', description: '', priority: IssuePriority.MEDIUM };
 
 const IssueBoardPage: React.FC = () => {
   const { token } = useAuthStore();
@@ -51,7 +42,7 @@ const IssueBoardPage: React.FC = () => {
 
   const openEdit = (issue: Issue) => {
     setEditingId(issue.id);
-    setForm({ title: issue.title, description: issue.description ?? '', priority: issue.priority });
+    setForm({ title: issue.title, description: issue.description ?? '', priority: issue.priority as IssuePriority });
     setShowForm(true);
   };
 
@@ -77,7 +68,7 @@ const IssueBoardPage: React.FC = () => {
     }
   };
 
-  const handleStatusChange = async (id: number, status: 0 | 1 | 2) => {
+  const handleStatusChange = async (id: number, status: IssueStatus) => {
     try {
       await updateIssueStatus(id, status);
       setIssues((prev) => prev.map((i) => i.id === id ? { ...i, status } : i));
@@ -113,7 +104,7 @@ const IssueBoardPage: React.FC = () => {
 
       {/* 看板 */}
       <div className="issue-board">
-        {STATUS_COLS.map((col) => {
+        {ISSUE_STATUS_COLS.map((col) => {
           const colIssues = issues
             .filter((i) => i.status === col.key)
             .sort((a, b) => b.priority - a.priority || new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
@@ -130,9 +121,9 @@ const IssueBoardPage: React.FC = () => {
                 {colIssues.map((issue) => (
                   <div key={issue.id} className="issue-card">
                     <div className="issue-card-top">
-                      <span className={`issue-priority ${PRIORITY_LABELS[issue.priority].cls}`}>
-                        {PRIORITY_LABELS[issue.priority].icon}
-                        {PRIORITY_LABELS[issue.priority].label}
+                      <span className={`issue-priority ${ISSUE_PRIORITY_LABELS[issue.priority as IssuePriority].cls}`}>
+                        {PRIORITY_ICONS[issue.priority as IssuePriority]}
+                        {ISSUE_PRIORITY_LABELS[issue.priority as IssuePriority].label}
                       </span>
                       {isAdmin && (
                         <div className="issue-card-actions">
@@ -147,7 +138,7 @@ const IssueBoardPage: React.FC = () => {
                     )}
                     {isAdmin && (
                       <div className="issue-status-btns">
-                        {NEXT_STATUS[issue.status].map((next) => (
+                        {ISSUE_NEXT_STATUS[issue.status as IssueStatus].map((next) => (
                           <button
                             key={next.status}
                             className="issue-status-btn"
@@ -192,12 +183,12 @@ const IssueBoardPage: React.FC = () => {
               </div>
               <div className="form-group">
                 <label className="form-label">优先级</label>
-                <Select value={String(form.priority)} onValueChange={(v) => setForm((f) => ({ ...f, priority: Number(v) as 0 | 1 | 2 }))}>
+                <Select value={String(form.priority)} onValueChange={(v) => setForm((f) => ({ ...f, priority: Number(v) as IssuePriority }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0">低</SelectItem>
-                    <SelectItem value="1">中</SelectItem>
-                    <SelectItem value="2">高</SelectItem>
+                    <SelectItem value={String(IssuePriority.LOW)}>低</SelectItem>
+                    <SelectItem value={String(IssuePriority.MEDIUM)}>中</SelectItem>
+                    <SelectItem value={String(IssuePriority.HIGH)}>高</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

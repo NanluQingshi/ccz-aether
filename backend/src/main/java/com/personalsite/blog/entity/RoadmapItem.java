@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.personalsite.blog.enums.RoadmapPriority;
+import com.personalsite.blog.enums.RoadmapStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -18,10 +20,9 @@ public class RoadmapItem {
     private String groupIcon;
     private String name;
     private String description;
-    /** done | planned */
-    private String status;
-    /** high | medium | low，planned 时必填，done 时可为 null */
-    private String priority;
+    private RoadmapStatus status;
+    /** planned 时必填，done 时可为 null */
+    private RoadmapPriority priority;
     private Integer sortOrder;
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { PAGE_SIZE } from '../constants/pagination';
 import { getPosts } from '../api/posts';
 import { getTags } from '../api/tags';
 import { getCategories } from '../api/categories';
@@ -31,7 +32,7 @@ const BlogListPage: React.FC = () => {
     const controller = new AbortController();
     setLoading(true);
 
-    const fetchPosts = getPosts({ page, size: 10, tagSlug, categorySlug }, { signal: controller.signal });
+    const fetchPosts = getPosts({ page, size: PAGE_SIZE, tagSlug, categorySlug }, { signal: controller.signal });
     const fetchMeta = metaLoadedRef.current
       ? Promise.resolve(null)
       : Promise.all([getTags(), getCategories()]);

@@ -10,19 +10,14 @@ import { usePageData } from '../hooks/usePageData';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/shadcn/Select';
 import { Pencil, Trash2 } from 'lucide-react';
-
-const PRIORITY_MAP: Record<string, { label: string; className: string }> = {
-  high:   { label: '高', className: 'priority-high' },
-  medium: { label: '中', className: 'priority-medium' },
-  low:    { label: '低', className: 'priority-low' },
-};
-
-
-const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
+import {
+  RoadmapStatus, RoadmapPriority,
+  ROADMAP_PRIORITY_CONFIG, ROADMAP_PRIORITY_ORDER,
+} from '../constants/roadmapStatus';
 
 const EMPTY_FORM: RoadmapItemRequest = {
   groupLabel: '', groupIcon: '', name: '', description: '',
-  status: 'planned', priority: 'medium', sortOrder: 0,
+  status: RoadmapStatus.PLANNED, priority: RoadmapPriority.MEDIUM, sortOrder: 0,
 };
 
 function groupItems(items: RoadmapItem[]): { label: string; icon: string; items: RoadmapItem[] }[] {
@@ -38,9 +33,9 @@ function groupItems(items: RoadmapItem[]): { label: string; icon: string; items:
 
 function sortItems(items: RoadmapItem[]): RoadmapItem[] {
   return [...items].sort((a, b) => {
-    if (a.status !== b.status) return a.status === 'done' ? -1 : 1;
-    if (a.status === 'planned' && b.status === 'planned') {
-      return (PRIORITY_ORDER[a.priority ?? 'low'] ?? 2) - (PRIORITY_ORDER[b.priority ?? 'low'] ?? 2);
+    if (a.status !== b.status) return a.status === RoadmapStatus.DONE ? -1 : 1;
+    if (a.status === RoadmapStatus.PLANNED && b.status === RoadmapStatus.PLANNED) {
+      return (ROADMAP_PRIORITY_ORDER[a.priority ?? RoadmapPriority.LOW] ?? 2) - (ROADMAP_PRIORITY_ORDER[b.priority ?? RoadmapPriority.LOW] ?? 2);
     }
     return 0;
   });
@@ -83,7 +78,7 @@ const RoadmapPage: React.FC = () => {
     setSubmitting(true);
     const payload: RoadmapItemRequest = {
       ...form,
-      priority: form.status === 'done' ? undefined : (form.priority || undefined),
+      priority: form.status === RoadmapStatus.DONE ? undefined : (form.priority || undefined),
     };
     try {
       if (editingId !== null) {
@@ -113,7 +108,7 @@ const RoadmapPage: React.FC = () => {
     }
   };
 
-  const doneCount = useMemo(() => items.filter((i) => i.status === 'done').length, [items]);
+  const doneCount = useMemo(() => items.filter((i) => i.status === RoadmapStatus.DONE).length, [items]);
   const totalCount = items.length;
   const percent = totalCount === 0 ? 0 : Math.round((doneCount / totalCount) * 100);
   const groups = useMemo(
@@ -163,15 +158,15 @@ const RoadmapPage: React.FC = () => {
             {group.sortedItems.map((item) => (
               <div
                 key={item.id}
-                className={`roadmap-card ${item.status === 'done' ? 'roadmap-card-done' : 'roadmap-card-planned'}`}
+                className={`roadmap-card ${item.status === RoadmapStatus.DONE ? 'roadmap-card-done' : 'roadmap-card-planned'}`}
               >
                 <div className="roadmap-card-top">
-                  <span className={`roadmap-status-icon ${item.status === 'done' ? 'icon-done' : 'icon-planned'}`}>
-                    {item.status === 'done' ? '✓' : '○'}
+                  <span className={`roadmap-status-icon ${item.status === RoadmapStatus.DONE ? 'icon-done' : 'icon-planned'}`}>
+                    {item.status === RoadmapStatus.DONE ? '✓' : '○'}
                   </span>
-                  {item.priority && item.status === 'planned' && (
-                    <span className={`roadmap-priority ${PRIORITY_MAP[item.priority]?.className}`}>
-                      {PRIORITY_MAP[item.priority]?.label}
+                  {item.priority && item.status === RoadmapStatus.PLANNED && (
+                    <span className={`roadmap-priority ${ROADMAP_PRIORITY_CONFIG[item.priority]?.className}`}>
+                      {ROADMAP_PRIORITY_CONFIG[item.priority]?.label}
                     </span>
                   )}
                   {isAdmin && (
@@ -234,23 +229,23 @@ const RoadmapPage: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group">
                   <label className="form-label">状态</label>
-                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as 'done' | 'planned' }))}>
+                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as RoadmapStatus }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="planned">Planned</SelectItem>
-                      <SelectItem value="done">Done</SelectItem>
+                      <SelectItem value={RoadmapStatus.PLANNED}>Planned</SelectItem>
+                      <SelectItem value={RoadmapStatus.DONE}>Done</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                {form.status === 'planned' && (
+                {form.status === RoadmapStatus.PLANNED && (
                   <div className="form-group">
                     <label className="form-label">优先级</label>
-                    <Select value={form.priority ?? ''} onValueChange={(v) => setForm((f) => ({ ...f, priority: v as 'high' | 'medium' | 'low' }))}>
+                    <Select value={form.priority ?? ''} onValueChange={(v) => setForm((f) => ({ ...f, priority: v as RoadmapPriority }))}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="high">高</SelectItem>
-                        <SelectItem value="medium">中</SelectItem>
-                        <SelectItem value="low">低</SelectItem>
+                        <SelectItem value={RoadmapPriority.HIGH}>高</SelectItem>
+                        <SelectItem value={RoadmapPriority.MEDIUM}>中</SelectItem>
+                        <SelectItem value={RoadmapPriority.LOW}>低</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

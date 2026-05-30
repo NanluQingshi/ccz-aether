@@ -18,9 +18,9 @@ public final class PostConverter {
         vo.setSlug(post.getSlug());
         vo.setSummary(post.getSummary());
         vo.setCoverImage(post.getCoverImage());
-        vo.setType(post.getType());
+        vo.setType(post.getType() != null ? post.getType().getCode() : null);
         vo.setEventDate(post.getEventDate());
-        vo.setStatus(post.getStatus());
+        vo.setStatus(post.getStatus() != null ? post.getStatus().getCode() : null);
         vo.setViewCount(post.getViewCount());
         vo.setCreatedAt(post.getCreatedAt());
         vo.setPublishedAt(post.getPublishedAt());
@@ -37,9 +37,9 @@ public final class PostConverter {
         vo.setSummary(post.getSummary());
         vo.setContent(post.getContent());
         vo.setCoverImage(post.getCoverImage());
-        vo.setType(post.getType());
+        vo.setType(post.getType() != null ? post.getType().getCode() : null);
         vo.setEventDate(post.getEventDate());
-        vo.setStatus(post.getStatus());
+        vo.setStatus(post.getStatus() != null ? post.getStatus().getCode() : null);
         vo.setViewCount(post.getViewCount());
         vo.setCreatedAt(post.getCreatedAt());
         vo.setUpdatedAt(post.getUpdatedAt());

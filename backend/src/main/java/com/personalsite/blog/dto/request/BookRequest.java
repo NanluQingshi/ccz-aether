@@ -1,9 +1,9 @@
 package com.personalsite.blog.dto.request;
 
+import com.personalsite.blog.enums.BookStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -15,8 +15,7 @@ public class BookRequest {
     @NotBlank
     private String author;
     private String cover;
-    @Pattern(regexp = "want|reading|done", message = "状态只能是 want、reading 或 done")
-    private String status = "want";
+    private BookStatus status = BookStatus.WANT;
     @Min(value = 1, message = "评分最低为 1")
     @Max(value = 5, message = "评分最高为 5")
     private Integer rating;

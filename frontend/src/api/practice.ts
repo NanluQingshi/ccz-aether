@@ -1,5 +1,6 @@
 import client from './client';
 import type { ApiResponse } from '../types/api';
+import type { PracticeStatus } from '../constants/practiceStatus';
 
 export interface PracticeLink {
   title: string;
@@ -13,7 +14,7 @@ export interface Practice {
   name: string;
   description: string;
   links: PracticeLink[];
-  status: 'todo' | 'in_progress' | 'mastered';
+  status: PracticeStatus;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -25,7 +26,7 @@ export interface PracticeRequest {
   name: string;
   description?: string;
   links: PracticeLink[];
-  status: 'todo' | 'in_progress' | 'mastered';
+  status: PracticeStatus;
   sortOrder: number;
 }
 

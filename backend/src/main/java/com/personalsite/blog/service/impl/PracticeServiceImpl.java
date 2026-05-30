@@ -3,6 +3,7 @@ package com.personalsite.blog.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.personalsite.blog.dto.request.PracticeRequest;
 import com.personalsite.blog.entity.Practice;
+import com.personalsite.blog.enums.PracticeStatus;
 import com.personalsite.blog.exception.BizException;
 import com.personalsite.blog.exception.ErrorCode;
 import com.personalsite.blog.mapper.PracticeMapper;
@@ -35,7 +36,7 @@ public class PracticeServiceImpl implements PracticeService {
         practice.setName(req.getName());
         practice.setDescription(req.getDescription());
         practice.setLinks(req.getLinks() != null ? req.getLinks() : Collections.emptyList());
-        practice.setStatus(req.getStatus() != null ? req.getStatus() : "todo");
+        practice.setStatus(req.getStatus() != null ? req.getStatus() : PracticeStatus.TODO);
         practice.setSortOrder(req.getSortOrder() != null ? req.getSortOrder() : 0);
         practiceMapper.insert(practice);
         return practice;
