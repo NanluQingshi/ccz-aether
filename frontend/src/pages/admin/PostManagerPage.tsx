@@ -33,9 +33,9 @@ const PostManagerPage: React.FC = () => {
     setSelected(new Set());
     adminGetPosts(p, 10)
       .then((r) => {
-        setAllPosts(r.data.records);
-        setPages(r.data.pages);
-        setTotal(r.data.total ?? r.data.records.length);
+        setAllPosts(r.data?.records ?? []);
+        setPages(r.data?.pages ?? 1);
+        setTotal(r.data?.total ?? r.data?.records?.length ?? 0);
       })
       .catch(() => addToast('加载失败，请刷新重试', 'error'))
       .finally(() => setLoading(false));

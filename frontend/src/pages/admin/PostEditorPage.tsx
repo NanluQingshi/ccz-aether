@@ -131,8 +131,8 @@ const PostEditorPage: React.FC = () => {
     Promise.all([getTags(), getCategories()])
       .then(([tagsRes, catsRes]) => {
         if (!cancelled) {
-          setTags(tagsRes.data);
-          setCategories(catsRes.data);
+          setTags(tagsRes.data ?? []);
+          setCategories(catsRes.data ?? []);
         }
       })
       .catch(() => {});
