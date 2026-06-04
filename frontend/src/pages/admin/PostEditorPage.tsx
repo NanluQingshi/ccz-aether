@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { adminCreatePost, adminUpdatePost, adminGetPost } from '../../api/posts';
 
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
@@ -9,9 +9,38 @@ import { getCategories } from '../../api/categories';
 import { useUiStore } from '../../store/uiStore';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/shadcn/Select';
+import { ChevronRight, RotateCcw, X, Clock } from 'lucide-react';
 import type { TagVO } from '../../types/tag';
 import type { CategoryVO } from '../../types/category';
 import type { PostType } from '../../types/post';
+
+/* ── Auto-save status ── */
+type SaveStatus = 'idle' | 'saving' | 'saved';
+
+const SaveIndicator: React.FC<{ status: SaveStatus; savedAt: string | null }> = ({ status, savedAt }) => {
+  if (status === 'saving') {
+    return <span className="autosave-indicator saving"><span className="autosave-spinner" /> 自动保存中...</span>;
+  }
+  if (status === 'saved' && savedAt) {
+    return <span className="autosave-indicator saved"><Clock size={12} /> 自动保存于 {savedAt}</span>;
+  }
+  return null;
+};
+
+/* ── Draft recovery banner ── */
+const DraftBanner: React.FC<{ onRestore: () => void; onDismiss: () => void }> = ({ onRestore, onDismiss }) => (
+  <div className="draft-banner" role="alert">
+    <span className="draft-banner-text">
+      <RotateCcw size={14} /> 检测到上次未保存的草稿，是否恢复？
+    </span>
+    <div className="draft-banner-actions">
+      <button className="btn btn-sm btn-primary" onClick={onRestore}>恢复草稿</button>
+      <button className="btn btn-sm btn-ghost" onClick={onDismiss}>
+        <X size={13} /> 忽略
+      </button>
+    </div>
+  </div>
+);
 
 const PostEditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,21 +63,31 @@ const PostEditorPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEdit);
 
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [draftBanner, setDraftBanner] = useState(false);
+  const [pendingDraft, setPendingDraft] = useState<Record<string, unknown> | null>(null);
+
   const draftKey = `post-draft-${id ?? 'new'}`;
   const hasCheckedDraftRef = useRef(false);
 
-  // Auto-save draft every 30s
+  /* Auto-save every 30s */
   useEffect(() => {
     const timer = setInterval(() => {
       if (!title && !content) return;
+      setSaveStatus('saving');
       localStorage.setItem(draftKey, JSON.stringify({
         title, slug, summary, content, coverImage, categoryId, selectedTagIds, type, eventDate,
       }));
+      setTimeout(() => {
+        setSaveStatus('saved');
+        setSavedAt(new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }));
+      }, 400);
     }, 30000);
     return () => clearInterval(timer);
   }, [title, slug, summary, content, coverImage, categoryId, selectedTagIds, type, eventDate, draftKey]);
 
-  // Restore draft once after initial load
+  /* Check for saved draft once */
   useEffect(() => {
     if (initialLoading || hasCheckedDraftRef.current) return;
     hasCheckedDraftRef.current = true;
@@ -56,24 +95,39 @@ const PostEditorPage: React.FC = () => {
     if (!saved) return;
     try {
       const draft = JSON.parse(saved) as Record<string, unknown>;
-      if (window.confirm('检测到未保存的草稿，是否恢复？')) {
-        if (draft.title !== undefined) setTitle(draft.title as string);
-        if (draft.slug !== undefined) setSlug(draft.slug as string);
-        if (draft.summary !== undefined) setSummary(draft.summary as string);
-        if (draft.content !== undefined) setContent(draft.content as string);
-        if (draft.coverImage !== undefined) setCoverImage(draft.coverImage as string);
-        if (draft.categoryId !== undefined) setCategoryId(draft.categoryId as number | null);
-        if (draft.selectedTagIds !== undefined) setSelectedTagIds(draft.selectedTagIds as number[]);
-        if (draft.type !== undefined) setType(draft.type as PostType);
-        if (draft.eventDate !== undefined) setEventDate(draft.eventDate as string);
-      }
-      localStorage.removeItem(draftKey);
-    } catch { /* malformed draft, ignore */ }
+      setPendingDraft(draft);
+      setDraftBanner(true);
+    } catch { /* malformed, ignore */ }
   }, [initialLoading, draftKey]);
 
+  const applyDraft = (draft: Record<string, unknown>) => {
+    if (draft.title !== undefined) setTitle(draft.title as string);
+    if (draft.slug !== undefined) setSlug(draft.slug as string);
+    if (draft.summary !== undefined) setSummary(draft.summary as string);
+    if (draft.content !== undefined) setContent(draft.content as string);
+    if (draft.coverImage !== undefined) setCoverImage(draft.coverImage as string);
+    if (draft.categoryId !== undefined) setCategoryId(draft.categoryId as number | null);
+    if (draft.selectedTagIds !== undefined) setSelectedTagIds(draft.selectedTagIds as number[]);
+    if (draft.type !== undefined) setType(draft.type as PostType);
+    if (draft.eventDate !== undefined) setEventDate(draft.eventDate as string);
+    localStorage.removeItem(draftKey);
+  };
+
+  const handleRestoreDraft = () => {
+    if (pendingDraft) applyDraft(pendingDraft);
+    setDraftBanner(false);
+    setPendingDraft(null);
+  };
+
+  const handleDismissDraft = () => {
+    localStorage.removeItem(draftKey);
+    setDraftBanner(false);
+    setPendingDraft(null);
+  };
+
+  /* Load tags, categories, and post data */
   useEffect(() => {
     let cancelled = false;
-
     Promise.all([getTags(), getCategories()])
       .then(([tagsRes, catsRes]) => {
         if (!cancelled) {
@@ -93,7 +147,7 @@ const PostEditorPage: React.FC = () => {
           setSummary(post.summary ?? '');
           setContent(post.content ?? '');
           setCoverImage(post.coverImage ?? '');
-          setType((post.type as import('../../types/post').PostType) ?? 'blog');
+          setType((post.type as PostType) ?? 'blog');
           setEventDate(post.eventDate ? String(post.eventDate) : '');
           setCategoryId(post.category?.id ?? null);
           setSelectedTagIds(post.tags.map((t) => t.id));
@@ -115,7 +169,7 @@ const PostEditorPage: React.FC = () => {
 
   const toggleTag = (tagId: number) => {
     setSelectedTagIds((prev) =>
-      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+      prev.includes(tagId) ? prev.filter((i) => i !== tagId) : [...prev, tagId]
     );
   };
 
@@ -155,23 +209,40 @@ const PostEditorPage: React.FC = () => {
     }
   };
 
+  /* Word count */
+  const charCount = content.length;
+  const wordCount = content.replace(/\s+/g, '').length;
+  const readMinutes = Math.max(1, Math.ceil(wordCount / 300));
+
   if (initialLoading) return <LoadingSpinner fullPage />;
 
   return (
     <div className="admin-page editor-page">
+      {/* Header */}
       <div className="editor-header">
-        <h1 className="admin-page-title">{isEdit ? '编辑文章' : '新建文章'}</h1>
+        <div className="editor-breadcrumb">
+          <Link to="/admin/posts" className="breadcrumb-link">文章管理</Link>
+          <ChevronRight size={14} className="breadcrumb-sep" />
+          <span className="breadcrumb-current">{isEdit ? '编辑文章' : '新建文章'}</span>
+          <SaveIndicator status={saveStatus} savedAt={savedAt} />
+        </div>
         <div className="editor-actions">
-          <button className="btn btn-secondary" onClick={() => handleSave(0)} disabled={loading}>
+          <button className="btn btn-secondary btn-sm" onClick={() => handleSave(0)} disabled={loading}>
             存为草稿
           </button>
-          <button className="btn btn-primary" onClick={() => handleSave(1)} disabled={loading}>
-            发布文章
+          <button className="btn btn-primary btn-sm" onClick={() => handleSave(1)} disabled={loading}>
+            {loading ? '保存中...' : '发布文章'}
           </button>
         </div>
       </div>
 
+      {/* Draft recovery banner */}
+      {draftBanner && (
+        <DraftBanner onRestore={handleRestoreDraft} onDismiss={handleDismissDraft} />
+      )}
+
       <div className="editor-body">
+        {/* Main edit area */}
         <div className="editor-main">
           <input
             className="editor-title-input"
@@ -180,7 +251,9 @@ const PostEditorPage: React.FC = () => {
             onChange={(e) => handleTitleChange(e.target.value)}
           />
           <div className="editor-md">
-            <Suspense fallback={<div style={{ height: 520, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>编辑器加载中...</div>}>
+            <Suspense fallback={
+              <div className="editor-loading-placeholder">编辑器加载中...</div>
+            }>
               <MDEditor
                 value={content}
                 onChange={(v) => setContent(v ?? '')}
@@ -190,75 +263,112 @@ const PostEditorPage: React.FC = () => {
               />
             </Suspense>
           </div>
+          <div className="editor-meta-bar">
+            <span>{charCount} 字符</span>
+            <span className="editor-meta-sep">·</span>
+            <span>{wordCount} 字（去空格）</span>
+            <span className="editor-meta-sep">·</span>
+            <span>预计阅读 {readMinutes} 分钟</span>
+          </div>
         </div>
 
+        {/* Sidebar */}
         <aside className="editor-sidebar">
-          <div className="editor-field">
-            <label className="form-label">文章类型</label>
-            <Select value={type} onValueChange={(v) => setType(v as PostType)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="blog">普通博客</SelectItem>
-                <SelectItem value="ai_timeline">AI 大事纪</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          {type === 'ai_timeline' && (
+          {/* Group: 基本信息 */}
+          <div className="sidebar-group">
+            <div className="sidebar-group-title">基本信息</div>
+
             <div className="editor-field">
-              <label className="form-label">事件日期</label>
-              <input
-                type="date"
-                value={eventDate}
-                onChange={(e) => setEventDate(e.target.value)}
-                placeholder="yyyy-MM-dd"
-              />
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>
-                精确到月填 yyyy-MM-01，时间轴会自动省略日
-              </span>
+              <label className="form-label">文章类型</label>
+              <Select value={type} onValueChange={(v) => setType(v as PostType)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="blog">普通博客</SelectItem>
+                  <SelectItem value="ai_timeline">AI 大事纪</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          )}
-          <div className="editor-field">
-            <label className="form-label">Slug (URL)</label>
-            <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto-generated" />
+
+            {type === 'ai_timeline' && (
+              <div className="editor-field">
+                <label className="form-label">事件日期</label>
+                <input
+                  type="date"
+                  value={eventDate}
+                  onChange={(e) => setEventDate(e.target.value)}
+                />
+                <span className="field-hint">精确到月填 yyyy-MM-01</span>
+              </div>
+            )}
+
+            <div className="editor-field">
+              <label className="form-label">Slug (URL)</label>
+              <input
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="auto-generated"
+              />
+            </div>
+
+            <div className="editor-field">
+              <label className="form-label">摘要</label>
+              <textarea
+                rows={3}
+                value={summary}
+                onChange={(e) => setSummary(e.target.value)}
+                placeholder="可选，留空则不显示"
+              />
+            </div>
           </div>
-          <div className="editor-field">
-            <label className="form-label">摘要</label>
-            <textarea
-              rows={3}
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              placeholder="可选，留空则不显示摘要"
-            />
-          </div>
-          <div className="editor-field">
-            <label className="form-label">封面图 URL</label>
-            <input value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="https://..." />
-          </div>
-          <div className="editor-field">
-            <label className="form-label">分类</label>
-            <Select value={String(categoryId ?? '')} onValueChange={(v) => setCategoryId(v === '' ? null : Number(v))}>
-              <SelectTrigger><SelectValue placeholder="— 无分类 —" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">— 无分类 —</SelectItem>
-                {categories.map((c) => (
-                  <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+
+          {/* Group: 分类与标签 */}
+          <div className="sidebar-group">
+            <div className="sidebar-group-title">分类与标签</div>
+
+            <div className="editor-field">
+              <label className="form-label">分类</label>
+              <Select
+                value={String(categoryId ?? '')}
+                onValueChange={(v) => setCategoryId(v === '' ? null : Number(v))}
+              >
+                <SelectTrigger><SelectValue placeholder="— 无分类 —" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">— 无分类 —</SelectItem>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="editor-field">
+              <label className="form-label">标签（可多选）</label>
+              <div className="tag-selector">
+                {tags.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    className={`tag-select-chip ${selectedTagIds.includes(t.id) ? 'selected' : ''}`}
+                    onClick={() => toggleTag(t.id)}
+                  >
+                    {t.name}
+                  </button>
                 ))}
-              </SelectContent>
-            </Select>
+                {tags.length === 0 && <span className="field-hint">暂无标签</span>}
+              </div>
+            </div>
           </div>
-          <div className="editor-field">
-            <label className="form-label">标签（可多选）</label>
-            <div className="tag-selector">
-              {tags.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`tag-select-chip ${selectedTagIds.includes(t.id) ? 'selected' : ''}`}
-                  onClick={() => toggleTag(t.id)}
-                >
-                  {t.name}
-                </button>
-              ))}
+
+          {/* Group: 高级选项 */}
+          <div className="sidebar-group">
+            <div className="sidebar-group-title">高级选项</div>
+            <div className="editor-field">
+              <label className="form-label">封面图 URL</label>
+              <input
+                value={coverImage}
+                onChange={(e) => setCoverImage(e.target.value)}
+                placeholder="https://..."
+              />
             </div>
           </div>
         </aside>
