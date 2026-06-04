@@ -40,6 +40,9 @@ backend/*.jar
 *.swp
 *.swo
 
+# Git worktrees
+.worktrees/
+
 # .claude
 .catpaw/
 .claude/rules/[0-9]*.md
