@@ -328,12 +328,12 @@ const PostEditorPage: React.FC = () => {
             <div className="editor-field">
               <label className="form-label">分类</label>
               <Select
-                value={String(categoryId ?? '')}
-                onValueChange={(v) => setCategoryId(v === '' ? null : Number(v))}
+                value={categoryId !== null ? String(categoryId) : 'none'}
+                onValueChange={(v) => setCategoryId(v === 'none' ? null : Number(v))}
               >
                 <SelectTrigger><SelectValue placeholder="— 无分类 —" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">— 无分类 —</SelectItem>
+                  <SelectItem value="none">— 无分类 —</SelectItem>
                   {categories.map((c) => (
                     <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
                   ))}
