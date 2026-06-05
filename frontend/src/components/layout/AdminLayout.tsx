@@ -78,7 +78,9 @@ export const AdminLayout: React.FC = () => {
                   }
                   title={collapsed ? label : undefined}
                 >
-                  <Icon size={16} className="admin-nav-icon" />
+                  <span className="admin-nav-icon-wrap">
+                    <Icon size={18} />
+                  </span>
                   {!collapsed && <span className="admin-nav-label">{label}</span>}
                 </NavLink>
               ))}

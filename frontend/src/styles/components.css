@@ -1074,7 +1074,22 @@
   border: 1px solid rgba(0, 245, 255, 0.2);
 }
 
-.admin-nav-icon { flex-shrink: 0; }
+.admin-nav-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+.admin-nav-link:hover .admin-nav-icon-wrap {
+  background: rgba(0, 0, 0, 0.06);
+}
+.admin-nav-link.active .admin-nav-icon-wrap {
+  background: rgba(0, 245, 255, 0.15);
+}
 .admin-nav-label { overflow: hidden; text-overflow: ellipsis; }
 
 .sidebar-collapsed .admin-nav-link { justify-content: center; padding: 0.55rem; }
