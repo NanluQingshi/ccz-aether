@@ -1012,8 +1012,18 @@
   white-space: nowrap;
 }
 
-.logo-icon-only { display: flex; align-items: center; color: var(--color-neon-cyan); }
-.logo-text { white-space: nowrap; overflow: hidden; }
+.sidebar-logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: rgba(0, 245, 255, 0.12);
+  border: 1px solid rgba(0, 245, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-neon-cyan);
+  flex-shrink: 0;
+}
 
 .sidebar-collapse-btn {
   background: none;

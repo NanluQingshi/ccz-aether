@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
 import {
   LayoutDashboard, FileText, FilePlus, ChevronLeft, ChevronRight,
-  LogOut, User, Menu,
+  LogOut, User,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
@@ -45,15 +45,9 @@ export const AdminLayout: React.FC = () => {
       <aside className="admin-sidebar">
         {/* Logo */}
         <div className="admin-sidebar-logo">
-          {collapsed ? (
-            <span className="logo-icon-only">
-              <Menu size={20} />
-            </span>
-          ) : (
-            <span className="logo-text">
-              <span className="logo-bracket">&lt;</span>Admin<span className="logo-bracket">/&gt;</span>
-            </span>
-          )}
+          <div className="sidebar-logo-icon">
+            <LayoutDashboard size={22} />
+          </div>
           <button
             className="sidebar-collapse-btn"
             onClick={() => setCollapsed((v) => !v)}
