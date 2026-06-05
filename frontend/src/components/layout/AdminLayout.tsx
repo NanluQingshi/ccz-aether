@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
 import {
   LayoutDashboard, FileText, FilePlus, ChevronLeft, ChevronRight,
-  LogOut, User,
+  LogOut, User, Zap,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
@@ -45,16 +45,28 @@ export const AdminLayout: React.FC = () => {
       <aside className="admin-sidebar">
         {/* Logo */}
         <div className="admin-sidebar-logo">
-          <div className="sidebar-logo-icon">
-            <LayoutDashboard size={22} />
-          </div>
-          <button
-            className="sidebar-collapse-btn"
-            onClick={() => setCollapsed((v) => !v)}
-            title={collapsed ? '展开侧边栏' : '折叠侧边栏'}
-          >
-            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-          </button>
+          {collapsed ? (
+            <button
+              className="sidebar-collapse-btn sidebar-expand-only"
+              onClick={() => setCollapsed(false)}
+              title="展开侧边栏"
+            >
+              <ChevronRight size={16} />
+            </button>
+          ) : (
+            <>
+              <div className="sidebar-logo-icon">
+                <Zap size={20} />
+              </div>
+              <button
+                className="sidebar-collapse-btn"
+                onClick={() => setCollapsed(true)}
+                title="折叠侧边栏"
+              >
+                <ChevronLeft size={14} />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Navigation */}

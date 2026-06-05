@@ -997,6 +997,7 @@
 }
 
 .sidebar-collapsed .admin-sidebar { width: 56px; }
+.sidebar-collapsed .admin-sidebar-logo { justify-content: center; padding: 1.25rem 0.5rem; }
 
 /* Logo bar */
 .admin-sidebar-logo {
@@ -1038,7 +1039,12 @@
   flex-shrink: 0;
 }
 .sidebar-collapse-btn:hover { color: var(--color-neon-cyan); border-color: var(--color-neon-cyan); }
-.sidebar-collapsed .sidebar-collapse-btn { margin: 0 auto; }
+
+.sidebar-expand-only {
+  width: 100%;
+  justify-content: center;
+  border-color: transparent;
+}
 
 /* Nav */
 .admin-nav {
