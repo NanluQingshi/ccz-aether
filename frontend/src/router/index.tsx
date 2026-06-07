@@ -25,6 +25,14 @@ const LoginPage = lazy(() => import('../pages/admin/LoginPage'));
 const DashboardPage = lazy(() => import('../pages/admin/DashboardPage'));
 const PostManagerPage = lazy(() => import('../pages/admin/PostManagerPage'));
 const PostEditorPage = lazy(() => import('../pages/admin/PostEditorPage'));
+const TagManagerPage      = lazy(() => import('../pages/admin/TagManagerPage'));
+const CategoryManagerPage = lazy(() => import('../pages/admin/CategoryManagerPage'));
+const BookManagerPage     = lazy(() => import('../pages/admin/BookManagerPage'));
+const IssueManagerPage    = lazy(() => import('../pages/admin/IssueManagerPage'));
+const MusingManagerPage   = lazy(() => import('../pages/admin/MusingManagerPage'));
+const PracticeManagerPage = lazy(() => import('../pages/admin/PracticeManagerPage'));
+const RoadmapManagerPage  = lazy(() => import('../pages/admin/RoadmapManagerPage'));
+const SiteManagerPage     = lazy(() => import('../pages/admin/SiteManagerPage'));
 
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <ErrorBoundary>
@@ -107,6 +115,14 @@ export const router = createBrowserRouter([
       { path: 'posts', element: <Suspense fallback={<LoadingSpinner fullPage />}><PostManagerPage /></Suspense> },
       { path: 'posts/new', element: <Suspense fallback={<LoadingSpinner fullPage />}><PostEditorPage /></Suspense> },
       { path: 'posts/:id/edit', element: <Suspense fallback={<LoadingSpinner fullPage />}><PostEditorPage /></Suspense> },
+      { path: 'tags',       element: <Suspense fallback={<LoadingSpinner fullPage />}><TagManagerPage /></Suspense> },
+      { path: 'categories', element: <Suspense fallback={<LoadingSpinner fullPage />}><CategoryManagerPage /></Suspense> },
+      { path: 'books',      element: <Suspense fallback={<LoadingSpinner fullPage />}><BookManagerPage /></Suspense> },
+      { path: 'issues',     element: <Suspense fallback={<LoadingSpinner fullPage />}><IssueManagerPage /></Suspense> },
+      { path: 'musings',    element: <Suspense fallback={<LoadingSpinner fullPage />}><MusingManagerPage /></Suspense> },
+      { path: 'practice',   element: <Suspense fallback={<LoadingSpinner fullPage />}><PracticeManagerPage /></Suspense> },
+      { path: 'roadmap',    element: <Suspense fallback={<LoadingSpinner fullPage />}><RoadmapManagerPage /></Suspense> },
+      { path: 'sites',      element: <Suspense fallback={<LoadingSpinner fullPage />}><SiteManagerPage /></Suspense> },
     ],
   },
   {

@@ -4,7 +4,8 @@ import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
 import {
   LayoutDashboard, FileText, FilePlus, ChevronLeft, ChevronRight,
-  LogOut, User, Zap,
+  LogOut, User, Zap, Tag, Folder, BookOpen, AlertCircle,
+  MessageSquare, Dumbbell, Map, Globe,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
@@ -32,10 +33,23 @@ export const AdminLayout: React.FC = () => {
       ],
     },
     {
-      group: '内容管理',
+      group: '文章',
       items: [
-        { to: '/admin/posts', label: '文章管理', icon: FileText, active: isPostsActive },
-        { to: '/admin/posts/new', label: '写新文章', icon: FilePlus, active: isEditorActive },
+        { to: '/admin/posts',      label: '文章管理', icon: FileText,  active: isPostsActive },
+        { to: '/admin/posts/new',  label: '写新文章', icon: FilePlus,  active: isEditorActive },
+        { to: '/admin/tags',       label: '标签管理', icon: Tag,       active: undefined },
+        { to: '/admin/categories', label: '分类管理', icon: Folder,    active: undefined },
+      ],
+    },
+    {
+      group: '内容模块',
+      items: [
+        { to: '/admin/books',    label: '书籍',     icon: BookOpen,      active: undefined },
+        { to: '/admin/issues',   label: 'Issue',    icon: AlertCircle,   active: undefined },
+        { to: '/admin/musings',  label: '随想录',   icon: MessageSquare, active: undefined },
+        { to: '/admin/practice', label: '修炼手册', icon: Dumbbell,      active: undefined },
+        { to: '/admin/roadmap',  label: 'Roadmap',  icon: Map,           active: undefined },
+        { to: '/admin/sites',    label: '网站导航', icon: Globe,         active: undefined },
       ],
     },
   ];
