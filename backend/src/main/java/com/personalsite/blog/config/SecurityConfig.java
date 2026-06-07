@@ -57,6 +57,21 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/sites").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ai-nodes").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                            "/api/books", "/api/issues", "/api/musings",
+                            "/api/roadmap", "/api/practice", "/api/sites", "/api/ai-nodes"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,
+                            "/api/books/**", "/api/issues/**", "/api/musings/**",
+                            "/api/roadmap/**", "/api/practice/**", "/api/sites/**", "/api/ai-nodes/**"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH,
+                            "/api/issues/**", "/api/musings/**"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,
+                            "/api/books/**", "/api/issues/**", "/api/musings/**",
+                            "/api/roadmap/**", "/api/practice/**", "/api/sites/**", "/api/ai-nodes/**"
+                        ).hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
