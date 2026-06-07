@@ -43,12 +43,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // ── 预检请求与登录 ──────────────────────────────────
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        // ── 公开只读接口 ────────────────────────────────────
+                        // 精确路径必须放在通配符规则之前，避免被 /api/posts/** 提前匹配
+                        .requestMatchers(HttpMethod.GET, "/api/posts/ai-timeline").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/tags").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/posts/ai-timeline").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/issues").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/musings").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/books").permitAll()
@@ -57,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/sites").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ai-nodes").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // ── 管理员写操作（7 个内容模块）──────────────────────
                         .requestMatchers(HttpMethod.POST,
                             "/api/books", "/api/issues", "/api/musings",
                             "/api/roadmap", "/api/practice", "/api/sites", "/api/ai-nodes"
@@ -72,6 +76,7 @@ public class SecurityConfig {
                             "/api/books/**", "/api/issues/**", "/api/musings/**",
                             "/api/roadmap/**", "/api/practice/**", "/api/sites/**", "/api/ai-nodes/**"
                         ).hasRole("ADMIN")
+                        // ── 管理后台（全部需要 ADMIN 角色）──────────────────
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
