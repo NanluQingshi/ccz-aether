@@ -25,7 +25,7 @@ export function usePageData<T>(
   const reload = useCallback(() => {
     setLoading(true);
     fetcherRef.current()
-      .then((r) => setData(r.data))
+      .then((r) => setData(Array.isArray(r.data) ? r.data : []))
       .catch((err) => onErrorRef.current?.(err))
       .finally(() => setLoading(false));
   }, []);
