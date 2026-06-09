@@ -52,7 +52,10 @@ CREATE TABLE IF NOT EXISTS `post` (
   UNIQUE KEY `uk_slug` (`slug`),
   INDEX `idx_status_published` (`status`, `published_at` DESC),
   INDEX `idx_type_event_date` (`type`, `event_date` DESC),
-  INDEX `idx_category` (`category_id`)
+  INDEX `idx_category` (`category_id`),
+  INDEX `idx_deleted_created` (`deleted`, `created_at` DESC),
+  -- title 前缀索引：用于 LIKE 'keyword%' 左匹配查询（LIKE '%keyword%' 无法走索引，仅全表扫描；小数据量可接受）
+  INDEX `idx_title` (`title`(50))
   -- 已移除 FULLTEXT INDEX ft_title_content：项目无全文搜索入口，仅增加写开销
   -- 已有数据库执行：ALTER TABLE post DROP INDEX ft_title_content;
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

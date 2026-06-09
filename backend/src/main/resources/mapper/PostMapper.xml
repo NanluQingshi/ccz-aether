@@ -61,6 +61,7 @@
         LEFT JOIN post p ON p.category_id = c.id AND p.deleted = 0 AND p.status = 1
         GROUP BY c.id, c.name
         ORDER BY value DESC
+        LIMIT 20
     </select>
 
     <select id="selectTagStats" resultType="com.personalsite.blog.dto.response.ChartVO$NameValue">
@@ -73,14 +74,17 @@
         LIMIT 10
     </select>
 
+    <!-- 合并为条件聚合：post 表只扫描一次，tag/category 用标量子查询 -->
     <select id="selectStats" resultType="com.personalsite.blog.dto.response.StatsVO">
         SELECT
-            (SELECT COUNT(*) FROM post WHERE deleted = 0)                        AS totalPosts,
-            (SELECT COUNT(*) FROM post WHERE deleted = 0 AND status = 1)         AS publishedPosts,
-            (SELECT COUNT(*) FROM post WHERE deleted = 0 AND status = 0)         AS draftPosts,
-            (SELECT IFNULL(SUM(view_count), 0) FROM post WHERE deleted = 0)      AS totalViews,
-            (SELECT COUNT(*) FROM tag)                                            AS totalTags,
-            (SELECT COUNT(*) FROM category)                                       AS totalCategories
+            COUNT(*)                                      AS totalPosts,
+            SUM(status = 1)                               AS publishedPosts,
+            SUM(status = 0)                               AS draftPosts,
+            IFNULL(SUM(view_count), 0)                    AS totalViews,
+            (SELECT COUNT(*) FROM tag)                    AS totalTags,
+            (SELECT COUNT(*) FROM category)               AS totalCategories
+        FROM post
+        WHERE deleted = 0
     </select>
 
 </mapper>

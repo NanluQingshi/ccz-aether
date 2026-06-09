@@ -76,12 +76,12 @@ const DashboardPage: React.FC = () => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    Promise.all([adminGetStats(), adminGetCharts()])
-      .then(([s, c]) => {
-        setStats(s.data);
-        setCharts(c.data);
-      })
-      .catch(() => setError(true));
+    Promise.allSettled([adminGetStats(), adminGetCharts()])
+      .then(([statsResult, chartsResult]) => {
+        if (statsResult.status === 'fulfilled') setStats(statsResult.value.data);
+        if (chartsResult.status === 'fulfilled') setCharts(chartsResult.value.data);
+        if (statsResult.status === 'rejected' && chartsResult.status === 'rejected') setError(true);
+      });
   }, []);
 
   if (error) {
