@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { getCategories, adminCreateCategory, adminDeleteCategory } from '../../api/categories';
+import { getCategories, adminCreateCategory, adminUpdateCategory, adminDeleteCategory } from '../../api/categories';
 import { getErrorMessage } from '../../api/client';
 import { useUiStore } from '../../store/uiStore';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { AdminModal } from '../../components/ui/AdminModal';
-import { Folder, Plus, Trash2 } from 'lucide-react';
+import { Folder, Plus, Trash2, Pencil } from 'lucide-react';
 import type { CategoryVO } from '../../types/category';
 
 const EMPTY = { name: '', slug: '', description: '' };
@@ -14,6 +14,7 @@ const CategoryManagerPage: React.FC = () => {
   const [cats, setCats] = useState<CategoryVO[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<CategoryVO | null>(null);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const { addToast, showConfirm } = useUiStore();
@@ -28,20 +29,35 @@ const CategoryManagerPage: React.FC = () => {
 
   useEffect(() => { load(); }, []);
 
+  const openCreate = () => {
+    setEditing(null);
+    setForm(EMPTY);
+    setModalOpen(true);
+  };
+
+  const openEdit = (c: CategoryVO) => {
+    setEditing(c);
+    setForm({ name: c.name, slug: c.slug, description: c.description ?? '' });
+    setModalOpen(true);
+  };
+
   const handleSave = async () => {
     if (!form.name.trim()) { addToast('名称不能为空', 'error'); return; }
     setSaving(true);
     try {
-      await adminCreateCategory(
-        form.name.trim(),
-        form.slug.trim() || toSlug(form.name),
-        form.description.trim() || undefined,
-      );
-      addToast('分类已创建', 'success');
+      const slug = form.slug.trim() || toSlug(form.name);
+      const description = form.description.trim() || undefined;
+      if (editing) {
+        await adminUpdateCategory(editing.id, form.name.trim(), slug, description);
+        addToast('分类已更新', 'success');
+      } else {
+        await adminCreateCategory(form.name.trim(), slug, description);
+        addToast('分类已创建', 'success');
+      }
       setModalOpen(false);
       load();
     } catch (e: unknown) {
-      const msg = getErrorMessage(e, '创建失败');
+      const msg = getErrorMessage(e, editing ? '更新失败' : '创建失败');
       if (msg) addToast(msg, 'error');
     } finally { setSaving(false); }
   };
@@ -65,7 +81,7 @@ const CategoryManagerPage: React.FC = () => {
           <h1 className="admin-page-title">分类管理</h1>
           <span className="admin-page-count">共 {cats.length} 个</span>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={() => { setForm(EMPTY); setModalOpen(true); }}>
+        <button className="btn btn-primary btn-sm" onClick={openCreate}>
           <Plus size={14} /> 新建分类
         </button>
       </div>
@@ -73,7 +89,7 @@ const CategoryManagerPage: React.FC = () => {
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
-              <tr><th>名称</th><th>Slug</th><th>描述</th><th style={{ width: 80 }}>操作</th></tr>
+              <tr><th>名称</th><th>Slug</th><th>描述</th><th style={{ width: 100 }}>操作</th></tr>
             </thead>
             <tbody>
               {cats.length === 0 && <tr><td colSpan={4} className="table-empty-row">暂无分类</td></tr>}
@@ -88,6 +104,9 @@ const CategoryManagerPage: React.FC = () => {
                   <td><code style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{c.slug}</code></td>
                   <td style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>{c.description || '—'}</td>
                   <td className="table-actions">
+                    <button className="action-btn edit" onClick={() => openEdit(c)} title="编辑">
+                      <Pencil size={13} />
+                    </button>
                     <button className="action-btn delete" onClick={() => handleDelete(c.id, c.name)} title="删除">
                       <Trash2 size={13} />
                     </button>
@@ -98,14 +117,20 @@ const CategoryManagerPage: React.FC = () => {
           </table>
         </div>
       )}
-      <AdminModal open={modalOpen} title="新建分类" onClose={() => setModalOpen(false)} onSave={handleSave} saving={saving}>
+      <AdminModal
+        open={modalOpen}
+        title={editing ? '编辑分类' : '新建分类'}
+        onClose={() => setModalOpen(false)}
+        onSave={handleSave}
+        saving={saving}
+      >
         <div className="editor-field">
           <label className="form-label">名称 *</label>
           <input
             value={form.name}
             onChange={(e) => {
               const n = e.target.value;
-              setForm((f) => ({ ...f, name: n, slug: toSlug(n) }));
+              setForm((f) => ({ ...f, name: n, ...(editing ? {} : { slug: toSlug(n) }) }));
             }}
             placeholder="前端开发"
           />

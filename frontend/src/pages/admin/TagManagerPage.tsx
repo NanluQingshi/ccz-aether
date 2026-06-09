@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { getTags, adminCreateTag, adminDeleteTag } from '../../api/tags';
+import { getTags, adminCreateTag, adminUpdateTag, adminDeleteTag } from '../../api/tags';
 import { getErrorMessage } from '../../api/client';
 import { useUiStore } from '../../store/uiStore';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { Tag, Plus, Trash2 } from 'lucide-react';
+import { AdminModal } from '../../components/ui/AdminModal';
+import { Tag, Plus, Trash2, Pencil } from 'lucide-react';
 import type { TagVO } from '../../types/tag';
 
 const TagManagerPage: React.FC = () => {
@@ -11,6 +12,9 @@ const TagManagerPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [editTag, setEditTag] = useState<TagVO | null>(null);
+  const [editName, setEditName] = useState('');
   const { addToast, showConfirm } = useUiStore();
 
   const load = () => {
@@ -33,6 +37,26 @@ const TagManagerPage: React.FC = () => {
       load();
     } catch (e: unknown) {
       const msg = getErrorMessage(e, '创建失败');
+      if (msg) addToast(msg, 'error');
+    } finally { setSaving(false); }
+  };
+
+  const openEdit = (t: TagVO) => {
+    setEditTag(t);
+    setEditName(t.name);
+    setEditModal(true);
+  };
+
+  const handleUpdate = async () => {
+    if (!editName.trim() || !editTag) return;
+    setSaving(true);
+    try {
+      await adminUpdateTag(editTag.id, editName.trim());
+      addToast('标签已更新', 'success');
+      setEditModal(false);
+      load();
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, '更新失败');
       if (msg) addToast(msg, 'error');
     } finally { setSaving(false); }
   };
@@ -78,13 +102,36 @@ const TagManagerPage: React.FC = () => {
             <div key={t.id} className="tag-manage-chip">
               <span className="tag-manage-name">{t.name}</span>
               <span className="tag-manage-slug">#{t.slug}</span>
+              <button className="tag-manage-action" onClick={() => openEdit(t)} title="编辑">
+                <Pencil size={11} />
+              </button>
               <button className="tag-manage-delete" onClick={() => handleDelete(t.id, t.name)} title="删除">
-                <Trash2 size={12} />
+                <Trash2 size={11} />
               </button>
             </div>
           ))}
         </div>
       )}
+
+      <AdminModal
+        open={editModal}
+        title={`编辑标签「${editTag?.name}」`}
+        onClose={() => setEditModal(false)}
+        onSave={handleUpdate}
+        saving={saving}
+        saveLabel="更新"
+      >
+        <div className="editor-field">
+          <label className="form-label">标签名称 *</label>
+          <input
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleUpdate(); }}
+            placeholder="标签名称"
+            autoFocus
+          />
+        </div>
+      </AdminModal>
     </div>
   );
 };

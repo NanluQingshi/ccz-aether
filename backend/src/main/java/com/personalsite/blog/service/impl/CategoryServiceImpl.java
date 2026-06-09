@@ -40,6 +40,24 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public Category update(Long id, CategoryRequest request) {
+        Category category = categoryMapper.selectById(id);
+        if (category == null) {
+            throw new BizException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
+        String slug = request.getSlug() != null ? request.getSlug() : SlugUtils.toSlug(request.getName());
+        if (categoryMapper.selectCount(
+                new LambdaQueryWrapper<Category>().eq(Category::getSlug, slug).ne(Category::getId, id)) > 0) {
+            throw new BizException(ErrorCode.SLUG_ALREADY_EXISTS);
+        }
+        category.setName(request.getName());
+        category.setSlug(slug);
+        category.setDescription(request.getDescription());
+        categoryMapper.updateById(category);
+        return category;
+    }
+
+    @Override
     public void delete(Long id) {
         if (categoryMapper.selectById(id) == null) {
             throw new BizException(ErrorCode.CATEGORY_NOT_FOUND);

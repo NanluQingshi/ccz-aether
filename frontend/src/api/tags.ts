@@ -8,5 +8,8 @@ export const getTags = () =>
 export const adminCreateTag = (name: string, slug?: string) =>
   client.post<never, ApiResponse<TagVO>>('/api/admin/tags', { name, slug });
 
+export const adminUpdateTag = (id: number, name: string, slug?: string) =>
+  client.put<never, ApiResponse<TagVO>>(`/api/admin/tags/${id}`, { name, slug });
+
 export const adminDeleteTag = (id: number) =>
   client.delete<never, ApiResponse<void>>(`/api/admin/tags/${id}`);

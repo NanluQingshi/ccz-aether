@@ -70,6 +70,11 @@ public class AdminController {
         return ApiResponse.ok(tagService.create(request));
     }
 
+    @PutMapping("/tags/{id}")
+    public ApiResponse<Tag> updateTag(@PathVariable Long id, @Valid @RequestBody TagRequest request) {
+        return ApiResponse.ok(tagService.update(id, request));
+    }
+
     @DeleteMapping("/tags/{id}")
     public ApiResponse<Void> deleteTag(@PathVariable Long id) {
         tagService.delete(id);
@@ -81,6 +86,11 @@ public class AdminController {
     @PostMapping("/categories")
     public ApiResponse<Category> createCategory(@Valid @RequestBody CategoryRequest request) {
         return ApiResponse.ok(categoryService.create(request));
+    }
+
+    @PutMapping("/categories/{id}")
+    public ApiResponse<Category> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
+        return ApiResponse.ok(categoryService.update(id, request));
     }
 
     @DeleteMapping("/categories/{id}")

@@ -4324,6 +4324,7 @@
 .tag-manage-chip:hover { border-color: var(--color-neon-cyan); }
 .tag-manage-name { font-size: 0.85rem; color: var(--color-text-primary); }
 .tag-manage-slug { font-size: 0.72rem; color: var(--color-text-muted); }
+.tag-manage-action,
 .tag-manage-delete {
   background: none;
   border: none;
@@ -4335,6 +4336,7 @@
   border-radius: var(--radius-sm);
   transition: color var(--transition-fast);
 }
+.tag-manage-action:hover { color: var(--color-neon-cyan); }
 .tag-manage-delete:hover { color: var(--color-neon-pink); }
 
 /* ─── Inline Status Select ─────────────────────── */

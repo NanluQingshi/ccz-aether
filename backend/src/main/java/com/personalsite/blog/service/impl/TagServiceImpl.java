@@ -39,6 +39,23 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    public Tag update(Long id, TagRequest request) {
+        Tag tag = tagMapper.selectById(id);
+        if (tag == null) {
+            throw new BizException(ErrorCode.TAG_NOT_FOUND);
+        }
+        String slug = request.getSlug() != null ? request.getSlug() : SlugUtils.toSlug(request.getName());
+        if (tagMapper.selectCount(
+                new LambdaQueryWrapper<Tag>().eq(Tag::getSlug, slug).ne(Tag::getId, id)) > 0) {
+            throw new BizException(ErrorCode.SLUG_ALREADY_EXISTS);
+        }
+        tag.setName(request.getName());
+        tag.setSlug(slug);
+        tagMapper.updateById(tag);
+        return tag;
+    }
+
+    @Override
     public void delete(Long id) {
         if (tagMapper.selectById(id) == null) {
             throw new BizException(ErrorCode.TAG_NOT_FOUND);
