@@ -14,7 +14,7 @@ public interface PostService {
 
     List<PostVO> listAiTimeline();
 
-    PageResult<PostVO> adminListAll(int page, int size);
+    PageResult<PostVO> adminListAll(int page, int size, String keyword, Long categoryId);
 
     PostDetailVO adminGetById(Long id);
 

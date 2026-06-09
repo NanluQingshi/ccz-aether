@@ -15,8 +15,10 @@ export const getPostBySlug = (slug: string, config?: AxiosRequestConfig) =>
 export const getAiTimeline = () =>
   client.get<never, ApiResponse<PostVO[]>>('/api/posts/ai-timeline');
 
-export const adminGetPosts = (page = 1, size = PAGE_SIZE) =>
-  client.get<never, ApiResponse<PageResult<PostVO>>>('/api/admin/posts', { params: { page, size } });
+export const adminGetPosts = (page = 1, size = PAGE_SIZE, keyword?: string, categoryId?: number) =>
+  client.get<never, ApiResponse<PageResult<PostVO>>>('/api/admin/posts', {
+    params: { page, size, ...(keyword ? { keyword } : {}), ...(categoryId ? { categoryId } : {}) },
+  });
 
 export const adminGetPost = (id: number) =>
   client.get<never, ApiResponse<PostDetailVO>>(`/api/admin/posts/${id}`);

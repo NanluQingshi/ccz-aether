@@ -32,8 +32,10 @@ public class AdminController {
     @GetMapping("/posts")
     public ApiResponse<PageResult<PostVO>> adminPosts(
             @RequestParam(defaultValue = "1") @Min(1) int page,
-            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
-        return ApiResponse.ok(postService.adminListAll(page, size));
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long categoryId) {
+        return ApiResponse.ok(postService.adminListAll(page, size, keyword, categoryId));
     }
 
     @GetMapping("/posts/{id}")

@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { adminGetPosts, adminDeletePost, adminTogglePublish } from '../../api/posts';
+import { getCategories } from '../../api/categories';
 import { getErrorMessage } from '../../api/client';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
 import { useUiStore } from '../../store/uiStore';
 import { Pencil, Trash2, Eye, EyeOff, FilePlus, Search, Trash } from 'lucide-react';
 import type { PostVO } from '../../types/post';
+import type { CategoryVO } from '../../types/category';
 
 type FilterStatus = 'all' | 'published' | 'draft';
 
@@ -19,19 +21,39 @@ const STATUS_TABS: { key: FilterStatus; label: string }[] = [
 
 const PostManagerPage: React.FC = () => {
   const [allPosts, setAllPosts] = useState<PostVO[]>([]);
+  const [categories, setCategories] = useState<CategoryVO[]>([]);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [categoryId, setCategoryId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const { addToast, showConfirm } = useUiStore();
 
-  const load = useCallback((p = 1) => {
+  // 搜索防抖：400ms 后触发
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [appliedKeyword, setAppliedKeyword] = useState('');
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setAppliedKeyword(search);
+      setPage(1);
+    }, 400);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [search]);
+
+  // 分类下拉数据
+  useEffect(() => {
+    getCategories().then((r) => setCategories(r.data ?? [])).catch(() => {});
+  }, []);
+
+  const load = (p: number) => {
     setLoading(true);
     setSelected(new Set());
-    adminGetPosts(p, 10)
+    adminGetPosts(p, 10, appliedKeyword || undefined, categoryId ?? undefined)
       .then((r) => {
         setAllPosts(r.data?.records ?? []);
         setPages(r.data?.pages ?? 1);
@@ -39,36 +61,25 @@ const PostManagerPage: React.FC = () => {
       })
       .catch(() => addToast('加载失败，请刷新重试', 'error'))
       .finally(() => setLoading(false));
-  }, [addToast]);
+  };
 
-  useEffect(() => { load(page); }, [page]);
+  useEffect(() => { load(page); }, [page, appliedKeyword, categoryId]);
 
-  /* Client-side filter (on current page) */
-  const filtered = allPosts.filter((p) => {
-    const matchSearch = !search || p.title.toLowerCase().includes(search.toLowerCase());
-    const matchStatus =
-      filterStatus === 'all' ||
-      (filterStatus === 'published' && p.status === 1) ||
-      (filterStatus === 'draft' && p.status !== 1);
-    return matchSearch && matchStatus;
-  });
+  // 状态仍为客户端筛选（在当前页数据上）
+  const filtered = allPosts.filter((p) =>
+    filterStatus === 'all' ||
+    (filterStatus === 'published' && p.status === 1) ||
+    (filterStatus === 'draft' && p.status !== 1)
+  );
 
-  /* Selection helpers */
   const allSelected = filtered.length > 0 && filtered.every((p) => selected.has(p.id));
   const toggleAll = () => {
-    if (allSelected) {
-      setSelected((prev) => {
-        const next = new Set(prev);
-        filtered.forEach((p) => next.delete(p.id));
-        return next;
-      });
-    } else {
-      setSelected((prev) => {
-        const next = new Set(prev);
-        filtered.forEach((p) => next.add(p.id));
-        return next;
-      });
-    }
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allSelected) { filtered.forEach((p) => next.delete(p.id)); }
+      else { filtered.forEach((p) => next.add(p.id)); }
+      return next;
+    });
   };
   const toggleOne = (id: number) => {
     setSelected((prev) => {
@@ -78,7 +89,6 @@ const PostManagerPage: React.FC = () => {
     });
   };
 
-  /* Actions */
   const handleDelete = async (id: number, title: string) => {
     if (!await showConfirm(`确认删除「${title}」？此操作不可撤销。`)) return;
     try {
@@ -114,7 +124,6 @@ const PostManagerPage: React.FC = () => {
 
   return (
     <div className="admin-page">
-      {/* Header */}
       <div className="admin-page-header">
         <div className="admin-page-header-left">
           <h1 className="admin-page-title">文章管理</h1>
@@ -126,7 +135,6 @@ const PostManagerPage: React.FC = () => {
         </Link>
       </div>
 
-      {/* Toolbar: search + filter tabs */}
       <div className="posts-toolbar">
         <div className="posts-filter-tabs">
           {STATUS_TABS.map((tab) => (
@@ -139,18 +147,34 @@ const PostManagerPage: React.FC = () => {
             </button>
           ))}
         </div>
-        <div className="posts-search-wrap">
-          <Search size={14} className="posts-search-icon" />
-          <input
-            className="posts-search-input"
-            placeholder="搜索标题..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className="posts-toolbar-right">
+          {/* 分类筛选 */}
+          <select
+            className="posts-category-select"
+            value={categoryId ?? ''}
+            onChange={(e) => {
+              setCategoryId(e.target.value ? Number(e.target.value) : null);
+              setPage(1);
+            }}
+          >
+            <option value="">全部分类</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+          {/* 标题搜索 */}
+          <div className="posts-search-wrap">
+            <Search size={14} className="posts-search-icon" />
+            <input
+              className="posts-search-input"
+              placeholder="搜索标题..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Batch action bar */}
       {selected.size > 0 && (
         <div className="batch-action-bar">
           <span className="batch-selected-count">已选 {selected.size} 篇</span>
@@ -173,13 +197,7 @@ const PostManagerPage: React.FC = () => {
               <thead>
                 <tr>
                   <th style={{ width: 40 }}>
-                    <input
-                      type="checkbox"
-                      checked={allSelected}
-                      onChange={toggleAll}
-                      title="全选"
-                      className="table-checkbox"
-                    />
+                    <input type="checkbox" checked={allSelected} onChange={toggleAll} className="table-checkbox" />
                   </th>
                   <th>标题</th>
                   <th>分类</th>
@@ -200,23 +218,14 @@ const PostManagerPage: React.FC = () => {
                   filtered.map((p) => (
                     <tr key={p.id} className={selected.has(p.id) ? 'row-selected' : ''}>
                       <td>
-                        <input
-                          type="checkbox"
-                          checked={selected.has(p.id)}
-                          onChange={() => toggleOne(p.id)}
-                          className="table-checkbox"
-                        />
+                        <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggleOne(p.id)} className="table-checkbox" />
                       </td>
                       <td className="table-title">
-                        <Link to={`/admin/posts/${p.id}/edit`} className="table-title-link">
-                          {p.title}
-                        </Link>
+                        <Link to={`/admin/posts/${p.id}/edit`} className="table-title-link">{p.title}</Link>
                         {p.summary && <p className="table-summary">{p.summary}</p>}
                       </td>
                       <td>
-                        {p.category ? (
-                          <span className="table-category-chip">{p.category.name}</span>
-                        ) : '—'}
+                        {p.category ? <span className="table-category-chip">{p.category.name}</span> : '—'}
                       </td>
                       <td>
                         <span className={`status-badge ${p.status === 1 ? 'published' : 'draft'}`}>
@@ -231,18 +240,10 @@ const PostManagerPage: React.FC = () => {
                         <Link to={`/admin/posts/${p.id}/edit`} className="action-btn edit" title="编辑">
                           <Pencil size={13} />
                         </Link>
-                        <button
-                          className="action-btn toggle"
-                          onClick={() => handleToggle(p.id)}
-                          title={p.status === 1 ? '取消发布' : '发布'}
-                        >
+                        <button className="action-btn toggle" onClick={() => handleToggle(p.id)} title={p.status === 1 ? '取消发布' : '发布'}>
                           {p.status === 1 ? <EyeOff size={13} /> : <Eye size={13} />}
                         </button>
-                        <button
-                          className="action-btn delete"
-                          onClick={() => handleDelete(p.id, p.title)}
-                          title="删除"
-                        >
+                        <button className="action-btn delete" onClick={() => handleDelete(p.id, p.title)} title="删除">
                           <Trash2 size={13} />
                         </button>
                       </td>
@@ -254,7 +255,7 @@ const PostManagerPage: React.FC = () => {
           </div>
           <div className="pagination-row">
             <span className="pagination-info">第 {page} / {pages} 页</span>
-            <Pagination page={page} pages={pages} onPageChange={(p) => { setPage(p); }} />
+            <Pagination page={page} pages={pages} onPageChange={setPage} />
           </div>
         </>
       )}

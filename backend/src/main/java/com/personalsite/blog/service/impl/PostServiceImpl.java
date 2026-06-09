@@ -60,10 +60,17 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PageResult<PostVO> adminListAll(int page, int size) {
+    public PageResult<PostVO> adminListAll(int page, int size, String keyword, Long categoryId) {
         Page<Post> pageParam = new Page<>(page, size);
-        postMapper.selectPage(pageParam,
-                new LambdaQueryWrapper<Post>().orderByDesc(Post::getCreatedAt));
+        LambdaQueryWrapper<Post> wrapper = new LambdaQueryWrapper<Post>()
+                .orderByDesc(Post::getCreatedAt);
+        if (keyword != null && !keyword.isBlank()) {
+            wrapper.like(Post::getTitle, keyword);
+        }
+        if (categoryId != null) {
+            wrapper.eq(Post::getCategoryId, categoryId);
+        }
+        postMapper.selectPage(pageParam, wrapper);
         List<Post> posts = pageParam.getRecords();
         List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
         Map<Long, List<TagVO>> tagsMap = tagsByPostId(postIds);
