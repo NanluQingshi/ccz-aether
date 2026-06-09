@@ -33,6 +33,7 @@ const MusingManagerPage   = lazy(() => import('../pages/admin/MusingManagerPage'
 const PracticeManagerPage = lazy(() => import('../pages/admin/PracticeManagerPage'));
 const RoadmapManagerPage  = lazy(() => import('../pages/admin/RoadmapManagerPage'));
 const SiteManagerPage     = lazy(() => import('../pages/admin/SiteManagerPage'));
+const SettingsPage        = lazy(() => import('../pages/admin/SettingsPage'));
 
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <ErrorBoundary>
@@ -123,6 +124,7 @@ export const router = createBrowserRouter([
       { path: 'practice',   element: <Suspense fallback={<LoadingSpinner fullPage />}><PracticeManagerPage /></Suspense> },
       { path: 'roadmap',    element: <Suspense fallback={<LoadingSpinner fullPage />}><RoadmapManagerPage /></Suspense> },
       { path: 'sites',      element: <Suspense fallback={<LoadingSpinner fullPage />}><SiteManagerPage /></Suspense> },
+      { path: 'settings',   element: <Suspense fallback={<LoadingSpinner fullPage />}><SettingsPage /></Suspense> },
     ],
   },
   {

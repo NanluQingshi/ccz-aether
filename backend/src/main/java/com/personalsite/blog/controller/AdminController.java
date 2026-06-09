@@ -1,12 +1,14 @@
 package com.personalsite.blog.controller;
 
 import com.personalsite.blog.dto.request.CategoryRequest;
+import com.personalsite.blog.dto.request.ChangePasswordRequest;
 import com.personalsite.blog.dto.request.PostCreateRequest;
 import com.personalsite.blog.dto.request.PostUpdateRequest;
 import com.personalsite.blog.dto.request.TagRequest;
 import com.personalsite.blog.dto.response.*;
 import com.personalsite.blog.entity.Category;
 import com.personalsite.blog.entity.Tag;
+import com.personalsite.blog.service.AuthService;
 import com.personalsite.blog.service.CategoryService;
 import com.personalsite.blog.service.PostService;
 import com.personalsite.blog.service.TagService;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class AdminController {
 
+    private final AuthService authService;
     private final PostService postService;
     private final TagService tagService;
     private final CategoryService categoryService;
@@ -98,6 +101,16 @@ public class AdminController {
     @DeleteMapping("/categories/{id}")
     public ApiResponse<Void> deleteCategory(@PathVariable Long id) {
         categoryService.delete(id);
+        return ApiResponse.ok();
+    }
+
+    // ===== Password =====
+
+    @PutMapping("/password")
+    public ApiResponse<Void> changePassword(
+            java.security.Principal principal,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(principal.getName(), request);
         return ApiResponse.ok();
     }
 

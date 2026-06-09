@@ -5,7 +5,7 @@ import { useUiStore } from '../../store/uiStore';
 import {
   LayoutDashboard, FileText, FilePlus, ChevronLeft, ChevronRight,
   LogOut, User, Zap, Tag, Folder, BookOpen, AlertCircle,
-  MessageSquare, Dumbbell, Map, Globe,
+  MessageSquare, Dumbbell, Map, Globe, Settings,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
@@ -50,6 +50,12 @@ export const AdminLayout: React.FC = () => {
         { to: '/admin/practice', label: '修炼手册', icon: Dumbbell,      active: undefined },
         { to: '/admin/roadmap',  label: 'Roadmap',  icon: Map,           active: undefined },
         { to: '/admin/sites',    label: '网站导航', icon: Globe,         active: undefined },
+      ],
+    },
+    {
+      group: '设置',
+      items: [
+        { to: '/admin/settings', label: '账号设置', icon: Settings, active: undefined },
       ],
     },
   ];
