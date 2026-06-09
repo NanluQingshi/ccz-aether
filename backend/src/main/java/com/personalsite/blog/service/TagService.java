@@ -12,5 +12,7 @@ public interface TagService {
 
     Tag create(TagRequest request);
 
+    Tag update(Long id, TagRequest request);
+
     void delete(Long id);
 }

@@ -1,12 +1,14 @@
 package com.personalsite.blog.controller;
 
 import com.personalsite.blog.dto.request.CategoryRequest;
+import com.personalsite.blog.dto.request.ChangePasswordRequest;
 import com.personalsite.blog.dto.request.PostCreateRequest;
 import com.personalsite.blog.dto.request.PostUpdateRequest;
 import com.personalsite.blog.dto.request.TagRequest;
 import com.personalsite.blog.dto.response.*;
 import com.personalsite.blog.entity.Category;
 import com.personalsite.blog.entity.Tag;
+import com.personalsite.blog.service.AuthService;
 import com.personalsite.blog.service.CategoryService;
 import com.personalsite.blog.service.PostService;
 import com.personalsite.blog.service.TagService;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class AdminController {
 
+    private final AuthService authService;
     private final PostService postService;
     private final TagService tagService;
     private final CategoryService categoryService;
@@ -32,8 +35,10 @@ public class AdminController {
     @GetMapping("/posts")
     public ApiResponse<PageResult<PostVO>> adminPosts(
             @RequestParam(defaultValue = "1") @Min(1) int page,
-            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
-        return ApiResponse.ok(postService.adminListAll(page, size));
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long categoryId) {
+        return ApiResponse.ok(postService.adminListAll(page, size, keyword, categoryId));
     }
 
     @GetMapping("/posts/{id}")
@@ -70,6 +75,11 @@ public class AdminController {
         return ApiResponse.ok(tagService.create(request));
     }
 
+    @PutMapping("/tags/{id}")
+    public ApiResponse<Tag> updateTag(@PathVariable Long id, @Valid @RequestBody TagRequest request) {
+        return ApiResponse.ok(tagService.update(id, request));
+    }
+
     @DeleteMapping("/tags/{id}")
     public ApiResponse<Void> deleteTag(@PathVariable Long id) {
         tagService.delete(id);
@@ -83,9 +93,24 @@ public class AdminController {
         return ApiResponse.ok(categoryService.create(request));
     }
 
+    @PutMapping("/categories/{id}")
+    public ApiResponse<Category> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
+        return ApiResponse.ok(categoryService.update(id, request));
+    }
+
     @DeleteMapping("/categories/{id}")
     public ApiResponse<Void> deleteCategory(@PathVariable Long id) {
         categoryService.delete(id);
+        return ApiResponse.ok();
+    }
+
+    // ===== Password =====
+
+    @PutMapping("/password")
+    public ApiResponse<Void> changePassword(
+            java.security.Principal principal,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(principal.getName(), request);
         return ApiResponse.ok();
     }
 

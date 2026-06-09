@@ -4,3 +4,6 @@ import type { LoginRequest, LoginResponse } from '../types/auth';
 
 export const login = (data: LoginRequest) =>
   client.post<never, ApiResponse<LoginResponse>>('/api/auth/login', data);
+
+export const adminChangePassword = (currentPassword: string, newPassword: string) =>
+  client.put<never, ApiResponse<void>>('/api/admin/password', { currentPassword, newPassword });

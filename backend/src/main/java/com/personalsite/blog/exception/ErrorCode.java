@@ -11,6 +11,7 @@ public enum ErrorCode {
     FORBIDDEN(403, "无权限"),
     BAD_REQUEST(400, "请求参数错误"),
     USERNAME_OR_PASSWORD_ERROR(401, "用户名或密码错误"),
+    CURRENT_PASSWORD_ERROR(400, "当前密码错误"),
     POST_NOT_FOUND(404, "文章不存在"),
     TAG_NOT_FOUND(404, "标签不存在"),
     CATEGORY_NOT_FOUND(404, "分类不存在"),
