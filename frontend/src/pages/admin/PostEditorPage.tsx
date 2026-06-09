@@ -4,14 +4,11 @@ import { adminCreatePost, adminUpdatePost, adminGetPost } from '../../api/posts'
 
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 import { getErrorMessage } from '../../api/client';
-import { getTags } from '../../api/tags';
-import { getCategories } from '../../api/categories';
+import { useMetaStore } from '../../store/metaStore';
 import { useUiStore } from '../../store/uiStore';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/shadcn/Select';
 import { ChevronRight, RotateCcw, X, Clock } from 'lucide-react';
-import type { TagVO } from '../../types/tag';
-import type { CategoryVO } from '../../types/category';
 import type { PostType } from '../../types/post';
 
 /* ── Auto-save status ── */
@@ -58,8 +55,7 @@ const PostEditorPage: React.FC = () => {
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
 
-  const [tags, setTags] = useState<TagVO[]>([]);
-  const [categories, setCategories] = useState<CategoryVO[]>([]);
+  const { tags, categories, load: loadMeta } = useMetaStore();
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEdit);
 
@@ -125,17 +121,10 @@ const PostEditorPage: React.FC = () => {
     setPendingDraft(null);
   };
 
-  /* Load tags, categories, and post data */
+  /* Load tags, categories (from cache), and post data */
   useEffect(() => {
     let cancelled = false;
-    Promise.all([getTags(), getCategories()])
-      .then(([tagsRes, catsRes]) => {
-        if (!cancelled) {
-          setTags(tagsRes.data ?? []);
-          setCategories(catsRes.data ?? []);
-        }
-      })
-      .catch(() => {});
+    loadMeta(); // 从 metaStore 缓存加载，多次打开编辑器不重复请求
 
     if (isEdit && id) {
       adminGetPost(Number(id))
